@@ -67,11 +67,22 @@ public class HttpPost {
 					connection.setDoInput(true);
 					connection.setDoOutput(true);
 //					connection.connect();
-					
-					StringBuffer sb = new StringBuffer(); //写边界符,约定上传属性,格式application/octet-stream
-					sb.append(boundary)
-						.append(newLine)
-						.append("Content-Disposition: form-data; name=\"userfile2\";filename="+"\""+fileName+"\"") //注意格式,边看wireshark边凑.
+
+					BufferedOutputStream out = new BufferedOutputStream(connection.getOutputStream());
+					StringBuffer sb_pw = new StringBuffer(); //写边界符,约定上传属性,格式application/octet-stream
+					sb_pw.append(boundary)
+					.append(newLine)
+					.append("Content-Disposition: form-data; name=\"curr_password\"")
+					.append(newLine)
+					.append(newLine)
+					.append(password)
+					.append(newLine)
+					.append(boundary)
+					.append(newLine);
+					out.write(sb_pw.toString().getBytes());
+					out.flush(); //flush()很关键.
+					StringBuffer sb_fw = new StringBuffer();;
+					sb_fw.append("Content-Disposition: form-data; name=\"userfile2\";filename="+"\""+fileName+"\"") //注意格式,边看wireshark边凑.
 						.append(newLine)
 						.append("Content-Type: application/octet-stream")
 						.append(newLine)
@@ -80,8 +91,7 @@ public class HttpPost {
 					FileInputStream fis = new FileInputStream(file);
 					byte[] bytes = new byte[1024];
 					int numReadByte = 0;
-					BufferedOutputStream out = new BufferedOutputStream(connection.getOutputStream());
-					out.write(sb.toString().getBytes());
+					out.write(sb_fw.toString().getBytes());
 					out.flush(); //flush()很关键.
 					while((numReadByte = fis.read(bytes, 0, 1024))>0){	//写数据内容,即.pck
 						out.write(bytes, 0, numReadByte);
@@ -89,33 +99,28 @@ public class HttpPost {
 						out.flush();
 //						System.out.println(new String(bytes));
 					}
-					StringBuffer sb_end = new StringBuffer();			//写密码,结束边界符
+					StringBuffer sb_end = new StringBuffer();
 					sb_end.append(newLine)
-						.append(boundary)
-						.append(newLine)
-						.append("Content-Disposition: form-data; name=\"password\"")
-						.append(newLine)
-						.append(newLine)
-						.append(password)
-						.append(newLine)
-						.append(boundary)
-						.append(newLine);
+					.append(boundary)
+					.append(newLine);
 					out.write(sb_end.toString().getBytes());
-					out.flush(); //flush()很关键.
+					out.flush();
+
 				/*用浏览器上传时的格式:
-				MIME Multipart Media Encapsulation, Type: multipart/form-data, Boundary: "----WebKitFormBoundaryoT0JLd8kT2rDXfC7"
-			    [Type: multipart/form-data]
-			    First boundary: ------WebKitFormBoundaryoT0JLd8kT2rDXfC7\r\n
-			    Encapsulated multipart part:  (application/octet-stream)
-			        Content-Disposition: form-data; name="userfile2"; filename="IEC61850_81_June21_2.pck"\r\n
-			        Content-Type: application/octet-stream\r\n\r\n
-			        Data (1868016 bytes)
-			            Data: 743a5c656e3130305c6f626a5c49454336313835305f3831...
-			            [Length: 1868016]
-			    Boundary: \r\n------WebKitFormBoundaryoT0JLd8kT2rDXfC7\r\n
-			    Encapsulated multipart part: 
-			        Content-Disposition: form-data; name="password"\r\n\r\n
-			    Last boundary: \r\n------WebKitFormBoundaryoT0JLd8kT2rDXfC7--\r\n
+				MIME Multipart Media Encapsulation, Type: multipart/form-data, Boundary: "---------------------------177882047830227"
+				    [Type: multipart/form-data]
+				    First boundary: -----------------------------177882047830227\r\n
+				    Encapsulated multipart part: 
+				        Content-Disposition: form-data; name="curr_password"\r\n\r\n
+				        Data (3 bytes)
+				            Data: 787878
+				            [Length: 3]
+				    Boundary: \r\n-----------------------------177882047830227\r\n
+				    Encapsulated multipart part:  (application/octet-stream)
+				        Content-Disposition: form-data; name="userfile2"; filename="IEC61850_81.pck"\r\n
+				        Content-Type: application/octet-stream\r\n\r\n
+				        Data (1532784 bytes)
+				    Last boundary: \r\n-----------------------------177882047830227--\r\n
 				 */
 
 					fis.close();
