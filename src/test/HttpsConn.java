@@ -53,8 +53,8 @@ public class HttpsConn {
 //					System.out.print(Byte.toString(x)+",");
 //				}
 //			}
-			FileOutputStream fos = new FileOutputStream("aaa.txt");
-			PrintWriter pw = new PrintWriter(fos);
+//			FileOutputStream fos = new FileOutputStream("aaa.txt");
+//			PrintWriter pw = new PrintWriter(fos);
 			SSLSession sslSession = scc.getSession(b1);
 			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];
 			System.out.println(sslSession.getCipherSuite());
