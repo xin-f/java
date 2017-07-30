@@ -53,8 +53,8 @@ public class HttpsConn {
 //					System.out.print(Byte.toString(x)+",");
 //				}
 //			}
-//			FileOutputStream fos = new FileOutputStream("aaa.txt");
-//			PrintWriter pw = new PrintWriter(fos);
+			FileOutputStream fos = new FileOutputStream("aaa.txt");
+			PrintWriter pw = new PrintWriter(fos);
 			SSLSession sslSession = scc.getSession(b1);
 			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];
 			System.out.println(sslSession.getCipherSuite());
@@ -67,17 +67,15 @@ public class HttpsConn {
 //			pw.write(ss.getPeerCertificates()[0].toString());
 //			pw.close();
 //			fos.close();
-			System.out.println("读取Cer证书信息");  
+			System.out.println("读取Cer证书信息...");  
 	        System.out.println("x509Certificate_SerialNumber_序列号___:"+cert.getSerialNumber());  
 	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerDN());   
 	        System.out.println("x509Certificate_getSubjectDN_主体标识___:"+cert.getSubjectDN());  
 	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID());  
 	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter());  
 	        System.out.println("x509Certificate_getSigAlgName_签名算法___:"+cert.getSigAlgName());  
-	        System.out.println("x509Certificate_getVersion_版本号___:"+cert.getVersion());   
-	        //http://blog.csdn.net/oguro/article/details/53086720 接口实现多态
-	        //http://blog.csdn.net/fegor/article/details/1559404 多态
-	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey()); 
+	        System.out.println("x509Certificate_getVersion_版本号___:"+cert.getVersion());  
+	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey());  
 
 			
 		} catch (MalformedURLException e) {
