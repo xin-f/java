@@ -35,11 +35,12 @@ public class GetCertificate {
 			checkCert();
 	}
 	public static void checkCert(){
+		frame = false;
 		if(Frame.ip != null)
 			frame = true;
 		try {
-//			URL url = new URL("https://"+Frame.ip+"/home");
-			URL url = new URL("https://www.baidu.com");
+			URL url = new URL("https://"+Frame.ip+"/home");
+//			URL url = new URL("https://www.baidu.com");
 			HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
 			SSLContext sc =  SSLContext.getInstance("TLS");
 			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
