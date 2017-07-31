@@ -146,7 +146,7 @@ public class HttpPost {
 					//new URL()
 					e.printStackTrace();
 				} catch (IOException e) {
-					// url.openConnection()
+					Frame.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
 					e.printStackTrace();
 				}
 			}

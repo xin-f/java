@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
 
 public class Frame {
 
-	private static JFrame frmFwUpdatingAnd;
+	private static JFrame SecurityTest;
 	private static JTextArea textArea;
 	private static JTextArea textArea_cnt;
 	private static JTextField textField_ip;
@@ -47,7 +47,7 @@ public class Frame {
 				try {
 					Frame window = new Frame();					
 					buildTextArea();
-					window.frmFwUpdatingAnd.setVisible(true);
+					SecurityTest.setVisible(true);
 															
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,33 +67,34 @@ public class Frame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmFwUpdatingAnd = new JFrame();
-		frmFwUpdatingAnd.setTitle("FW updating and PW setting");
-		frmFwUpdatingAnd.setBounds(100, 100, 398, 327);
-		frmFwUpdatingAnd.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmFwUpdatingAnd.getContentPane().setLayout(null);
+		SecurityTest = new JFrame();
+		SecurityTest.setTitle("Security Test");
+		SecurityTest.setBounds(100, 100, 398, 327);
+		SecurityTest.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		SecurityTest.getContentPane().setLayout(null);
 		
 		JLabel IPADDR = new JLabel("IP");
 		IPADDR.setBounds(10, 11, 17, 22);
-		frmFwUpdatingAnd.getContentPane().add(IPADDR);
+		SecurityTest.getContentPane().add(IPADDR);
 		
 		textField_ip = new JTextField();
-		textField_ip.setText("172.20.1.24");
 		textField_ip.setBounds(26, 12, 86, 20);
-		frmFwUpdatingAnd.getContentPane().add(textField_ip);
+		textField_ip.setText("172.20.1.24");
+		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
 		PERIOD = new JLabel("PERIOD(S)");
 		PERIOD.setBounds(122, 15, 64, 14);
-		frmFwUpdatingAnd.getContentPane().add(PERIOD);
+		SecurityTest.getContentPane().add(PERIOD);
 		
 		textField_period = new JTextField();
-		textField_period.setText("20");
 		textField_period.setBounds(183, 12, 26, 20);
-		frmFwUpdatingAnd.getContentPane().add(textField_period);
+		textField_period.setText("20");
+		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
 		
 		JButton btnSetPW = new JButton("SetPW");
+		btnSetPW.setBounds(219, 37, 86, 23);
 		btnSetPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!fwRunning){
@@ -121,10 +122,10 @@ public class Frame {
 				}				
 			}
 		});
-		btnSetPW.setBounds(219, 37, 86, 23);
-		frmFwUpdatingAnd.getContentPane().add(btnSetPW);
+		SecurityTest.getContentPane().add(btnSetPW);
 		
 		JButton btnReset = new JButton("Reset");
+		btnReset.setBounds(219, 87, 86, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				SetPassword.succ = 0;
@@ -133,7 +134,7 @@ public class Frame {
 				updateTextAreacnt(0);
 				if(fwRunning) {
 					fwRunning = false;
-					if(HttpPost.t != null)		// to avaoid NPE
+					if(HttpPost.t != null)		// to avoid NPE
 						HttpPost.t.cancel();					
 				}
 				if(pwRunning) {
@@ -144,34 +145,34 @@ public class Frame {
 				updateTextArea("Wait "+textField_period.getText() +" seconds...\n");
 			}
 		});
-		btnReset.setBounds(219, 11, 86, 23);
-		frmFwUpdatingAnd.getContentPane().add(btnReset);
+		SecurityTest.getContentPane().add(btnReset);
 		
 		JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
 		lblNumberOfTimes.setBounds(10, 87, 121, 22);
-		frmFwUpdatingAnd.getContentPane().add(lblNumberOfTimes);
+		SecurityTest.getContentPane().add(lblNumberOfTimes);
 		
 		JLabel lblCurrPw = new JLabel("CurPW");
 		lblCurrPw.setBounds(10, 37, 40, 22);
-		frmFwUpdatingAnd.getContentPane().add(lblCurrPw);
+		SecurityTest.getContentPane().add(lblCurrPw);
 		
 		textField_curpw = new JTextField();
+		textField_curpw.setBounds(54, 38, 155, 20);
 		textField_curpw.setText("01234567890123456789");
 		textField_curpw.setColumns(10);
-		textField_curpw.setBounds(54, 38, 155, 20);
-		frmFwUpdatingAnd.getContentPane().add(textField_curpw);
+		SecurityTest.getContentPane().add(textField_curpw);
 
 		JLabel lblFw = new JLabel("FW");
 		lblFw.setBounds(10, 65, 40, 22);
-		frmFwUpdatingAnd.getContentPane().add(lblFw);
+		SecurityTest.getContentPane().add(lblFw);
 		
 		txtDsecurityTesttestversion = new JTextField();
+		txtDsecurityTesttestversion.setBounds(54, 66, 155, 20);
 		txtDsecurityTesttestversion.setText("D:\\Security test\\TestVersion\\IEC61850_81_June21_2.pck");
 		txtDsecurityTesttestversion.setColumns(10);
-		txtDsecurityTesttestversion.setBounds(54, 66, 155, 20);
-		frmFwUpdatingAnd.getContentPane().add(txtDsecurityTesttestversion);
+		SecurityTest.getContentPane().add(txtDsecurityTesttestversion);
 		
 		JButton btnUpldfw = new JButton("UpldFW");
+		btnUpldfw.setBounds(219, 65, 86, 23);
 		btnUpldfw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!pwRunning){
@@ -202,34 +203,61 @@ public class Frame {
 				}
 			}
 		});
-		btnUpldfw.setBounds(219, 65, 86, 23);
-		frmFwUpdatingAnd.getContentPane().add(btnUpldfw);
+		SecurityTest.getContentPane().add(btnUpldfw);
+		
+		JButton btnCert = new JButton("ChkCert");
+		btnCert.setBounds(219, 11, 86, 23);
+		btnCert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				debug = false;
+				prepare_ChkCert();
+				if(debug){
+					file = new File("log.txt");
+					try {
+						logStream = new PrintStream(new FileOutputStream(file));
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.setOut(logStream);
+					System.setErr(logStream);
+				}
+				updateTextArea("Checking certificate:\n");
+				GetCertificate.checkCert();
+						
+			}
+		});
+		SecurityTest.getContentPane().add(btnCert);
 
 		JButton btnExit = new JButton("Exit");
+		btnExit.setBounds(307, 11, 65, 23);
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
-		btnExit.setBounds(307, 11, 65, 23);
-		frmFwUpdatingAnd.getContentPane().add(btnExit);		
+		SecurityTest.getContentPane().add(btnExit);		
 		
 //		JTextArea
 		textArea_cnt = new JTextArea();
-		textArea_cnt.setText("0");
 		textArea_cnt.setBounds(169, 91, 40, 18);
-		frmFwUpdatingAnd.getContentPane().add(textArea_cnt);
+		textArea_cnt.setText("0");
+		SecurityTest.getContentPane().add(textArea_cnt);
 	}
 	
 	private static void buildTextArea(){
 		textArea = new JTextArea();
 //		textArea.setBounds(10, 90, 275, 161);
 //		frame.getContentPane().add(textArea);
-		JScrollPane js=new JScrollPane(textArea);//要把JTextArea加到JScrollPane里面,才会有滚动条出来.JScrollPane的尺寸与位置抄前面JTextArea自动生成的
+		JScrollPane js=new JScrollPane(textArea);
 		js.setBounds(10, 110, 275, 170);
-		frmFwUpdatingAnd.getContentPane().add(js);	
+		SecurityTest.getContentPane().add(js);	
+		
+		
 		DefaultCaret caret = (DefaultCaret) textArea.getCaret(); // 这两行让文本框的滚动条自动在最下面.
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		textArea.setLineWrap(true); 			//自动换行
+		textArea.setWrapStyleWord(true);		//自动换行不断字
 		js.setVisible(true);
 	}
 	public static void updateTextArea(String str) { 
@@ -274,4 +302,14 @@ public class Frame {
 			fw =str;
 		curpw = textField_curpw.getText();		
 	}
+	/**
+	 * 识别输入的IP.
+	 * period为99时,输出Log.
+	 */
+	public static void prepare_ChkCert(){
+		ip = textField_ip.getText();
+		period = Integer.parseInt(textField_period.getText());
+		if (period == 99)
+			debug = true;			
+	}	
 }

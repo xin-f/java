@@ -29,9 +29,17 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class GetCertificate {
+	static boolean frame;
 	public static void main(String[] arg){
+		if(Frame.ip == null)
+			checkCert();
+	}
+	public static void checkCert(){
+		if(Frame.ip != null)
+			frame = true;
 		try {
-			URL url = new URL("https://172.20.1.24/home");
+//			URL url = new URL("https://"+Frame.ip+"/home");
+			URL url = new URL("https://www.baidu.com");
 			HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
 			SSLContext sc =  SSLContext.getInstance("TLS");
 			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
@@ -68,30 +76,44 @@ public class GetCertificate {
 			}
 			String serialNum = serialN.toString().substring(0,serialN.toString().length()-1);
 			System.out.println(serialNum);
-	        System.out.println("x509Certificate_SerialNumber_序列号___:"+cert.getSerialNumber());  
+			if(frame) 
+				Frame.updateTextArea("Serial Number: "+serialNum+"\n");
+			serialN.close(); 
 	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerX500Principal());   
+	        if(frame) 
+	        	Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
 	        System.out.println("x509Certificate_getSubjectDN_主体标识___:"+cert.getSubjectX500Principal());  
 	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID());  
 	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter());  
 	        System.out.println("x509Certificate_getSigAlgName_签名算法___:"+cert.getSigAlgName());  
+	        if(frame) 
+	        	Frame.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
 	        System.out.println("x509Certificate_getVersion_版本号___:"+cert.getVersion());  
 	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey());  
 	        Collection<List<?>> subject = cert.getSubjectAlternativeNames();
 	        String ip = subject.toString().substring(5, subject.toString().length()-2);
 	        System.out.println(ip);
+	        if(frame) 
+	        	Frame.updateTextArea("Subject ip: "+ip+"\n");
+	        if(!ip.equals(Frame.ip))
+	        	if(frame)
+	        		Frame.updateTextArea("Wrong!! Certificate not updated!\n");
 	        byte[] sig = cert.getSignature();
 	        Formatter sign = new Formatter();
 	        for(byte b:sig)
 	        	sign.format("%02X:",b);
 	        String signature = sign.toString().substring(0, sign.toString().length()-1);
 	        System.out.println(signature);
-
+	        sign.close();
+	        if(frame)
+        		Frame.updateTextArea("Signature: "+signature+"\n");
 			
 		} catch (MalformedURLException e) {
 			System.out.println("new URL");
 			e.printStackTrace();
 		} catch (IOException e) {
 			System.out.println("url.openConnection");
+			Frame.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("SSLContext.getInstance");
