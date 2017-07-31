@@ -42,10 +42,12 @@ public class GetCertificate {
 //			while((line = br.readLine())!=null) {
 //				System.out.println(line);
 //			}
+			//SSLContext的实例表示安全套接字协议的实现，用作（安全套接字工厂或SSLEngine)的工厂。 sc已经用自定的密钥，信任管理器和随机数初始化，所以
+			//可以读它的一些属性，比如安全套接字协议、安全套接字工厂、SSLSessionContext等。
+			//SSLSessionContext表示一组(a set of)与单个实体关联的SSL 会话。比如一个SSLSessionContext的实例可以关联到一个客户端或服务端,此客户端或服务端 在并行多个会话。
+			//用	getIds()获得此SSLSessionContext的(枚举类)所有并行会话的ID。
 			SSLSessionContext scc = sc.getClientSessionContext();
-			SSLSessionContext scs = sc.getServerSessionContext();
 			Enumeration<byte[]> id_c = scc.getIds();
-//			Enumeration<byte[]> id_s = scs.getIds();
 			byte[] b1 = id_c.nextElement();//确定有且只有一个证书ID，所以直接访问nextElement().其它情况要用while(hasMoreElements)
 			SSLSession sslSession = scc.getSession(b1);
 			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];//确定有且只有一个证书ID，所以直接访问证书数组[0]
@@ -105,19 +107,19 @@ public class GetCertificate {
 }
 
 
-class SessionContext implements SSLSessionContext{
-
-	public Enumeration<byte[]> getIds() {return null;}
-
-	public SSLSession getSession(byte[] arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public int getSessionCacheSize() {return 0;	}
-	public int getSessionTimeout() {return 0;	}
-	public void setSessionCacheSize(int arg0) throws IllegalArgumentException {}
-	public void setSessionTimeout(int arg0) throws IllegalArgumentException {}	
-}
+//class SessionContext implements SSLSessionContext{
+//
+//	public Enumeration<byte[]> getIds() {return null;}
+//
+//	public SSLSession getSession(byte[] arg0) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//	public int getSessionCacheSize() {return 0;	}
+//	public int getSessionTimeout() {return 0;	}
+//	public void setSessionCacheSize(int arg0) throws IllegalArgumentException {}
+//	public void setSessionTimeout(int arg0) throws IllegalArgumentException {}	
+//}
 
 class MyTrust implements X509TrustManager{
 	public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
