@@ -20,10 +20,9 @@ public class SetPassword {
 	private static int timeout;
 	private static String curpw;
 	private static String newpw;
-	private static String pwNotSet = "Confirm password:";
+	private static String pwNotSet = "Confirm password:";//只有密码没设，网页里才有此字符串
 	private static String pwSet = "The password has been set or changed";
 	private static String boundary = null;
-	private static String host = Frame.ip;
 
 	static URL url = null;
 	static URLConnection connection = null;
@@ -58,8 +57,7 @@ public class SetPassword {
 
 		public void run() {
 			try {
-//				url = new URL("http://172.20.1.24/setpassword");
-				url = new URL("http://"+host+"/setpassword");
+				url = new URL(Frame.ip);
 				setPwSucc = false;
 				pwExist = true; // 默认已经设过密码
 				
@@ -83,7 +81,8 @@ public class SetPassword {
 				if (!pwExist) {
 //					System.out.println("in if");
 					StringBuffer set = new StringBuffer();
-					newpw = Random.getRandomString();
+//					newpw = Random.getRandomString();
+					newpw = Frame.commonpw; //第一次设密码，用输入框里的。
 					set.append(boundary + "\r\n")
 							.append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n")
 							.append(newpw)
@@ -98,20 +97,19 @@ public class SetPassword {
 					while ((str = in.readLine()) != null) {
 						result += (str + "\n");
 						if (str.indexOf(pwSet) != -1) {
-//							System.out.println(str);
 							succ += 1;
 							setPwSucc = true;
 							pwInitInternal = true;
+							Frame.updateTextArea("Password has been initialized.\n");
 						}
 					}
 				}
 
 				else {
-//					System.out.println("in else");
 					if(pwInitInternal) curpw = newpw;
 					else {
 						if (!pwInitOut_BeChangedAtLeastOnce) { 
-							curpw = Frame.curpw;
+							curpw = Frame.fwpw;
 						} else
 							curpw = newpw;
 					}

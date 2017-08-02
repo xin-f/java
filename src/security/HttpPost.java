@@ -26,7 +26,6 @@ public class HttpPost {
 	static String fileName = null;
 	static String password = null;
 	static int suc;
-	private static String host = Frame.ip;
 	private static int timeout;
 	public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
 	
@@ -39,15 +38,14 @@ public class HttpPost {
 			str= str.substring(i+1, str.length());
 		}
 		fileName = str;
-		password = Frame.curpw;
+		password = Frame.fwpw;
 		
 		t = new Timer();
 		timeout = Frame.period*1000;
 		t.schedule(new TimerTask(){
 			public void run(){
 				try {
-//					URL url = new URL("http://172.20.1.24/upload");
-					URL url = new URL("http://"+host+"/upload");
+					URL url = new URL(Frame.ip);
 					URLConnection connection =  url.openConnection();
 					String boundary = "---------------------wowothisisunique-sxf";
 					String newLine = "\r\n";
@@ -66,6 +64,7 @@ public class HttpPost {
 //					connection.setReadTimeout(2000);
 					connection.setDoInput(true);
 					connection.setDoOutput(true);
+//					connection.setConnectTimeout(2000);
 //					connection.connect();
 
 					BufferedOutputStream out = new BufferedOutputStream(connection.getOutputStream());
@@ -136,7 +135,11 @@ public class HttpPost {
 //							String str2 = "FW upload successful "+suc+" times.\n";
 //							str = (suc == 1)?"":"";
 							Frame.updateTextArea((suc==1)?"FW upload successful "+suc+" time.\n":"FW upload successful "+suc+" times.\n");
-						}						
+						}
+						if(str.indexOf("The password is incorrect!") > -1) {
+							System.out.println("FW upload failed. Pw is not correct.");
+							Frame.updateTextArea("FW upload failed. Pw is not correct.\n");
+						}
 					}
 //					System.out.println(connection.getHeaderField(0));  //HTTP/1.0 200 OK
 					in.close();

@@ -24,11 +24,13 @@ public class Random {
 	private static int getRandom(int i) {
 		return (int) Math.round(Math.random() * i);
 	}
-
+/**
+ * 先从四类字符里各只取一个，再从所有字符里取len-4 个，组成一个len长度([8,24])的字符串，再打乱顺序。
+ * @return
+ */
 	public static String getRandomString() {
 		StringBuffer sb = new StringBuffer();
 		length = getRandom(16) + 8; 
-//		length = 6;
 		sb.append(cha.charAt(getRandom(cha.length()-1)))
 			.append(upp.charAt(getRandom(upp.length()-1)))
 			.append(low.charAt(getRandom(low.length()-1)))
@@ -37,14 +39,12 @@ public class Random {
 		for (int i = 0; i < length - 4; i++) {
 			sb.append(all.charAt(getRandom(len_all - 1)));
 		}
-//		System.out.println(sb +" "+sb.length());
 		String str = sb.toString();
 		String tmp;
 		StringBuffer result = new StringBuffer();
 		char c;
 		for (int i = 0; i < length; i++) {
 			c = str.charAt(getRandom(str.length() - 1));
-//			abcdefg
 			result.append(c);
 			int index = str.indexOf(c);
 			if(index == 0){
