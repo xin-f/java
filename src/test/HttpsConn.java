@@ -59,7 +59,6 @@ public class HttpsConn {
 		}
 		return target.toString();
 	}
-
 	public static boolean judge(String target) {
 		Pattern p_low = Pattern.compile("[a-z]");
 		Pattern p_up = Pattern.compile("[A-Z]");
