@@ -56,6 +56,7 @@ public class SetPassword {
 		
 
 		public void run() {
+			if(Frame.stop) this.cancel();
 			try {
 				url = new URL(Frame.ip);
 				setPwSucc = false;
@@ -114,7 +115,10 @@ public class SetPassword {
 							curpw = newpw;
 					}
 					StringBuffer change = new StringBuffer();
-					newpw = Random.getRandomString();
+					if(Frame.negative) 
+						newpw = Random.getRandomString();
+					else 
+						newpw = Random.getValidRandomString();
 					change.append(boundary + "\r\n")
 							.append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n")
 							.append(curpw)
@@ -157,6 +161,8 @@ public class SetPassword {
 //					System.exit(0);
 					t.cancel();
 				}
+				in.close();
+				out.close();
 			} catch (MalformedURLException e) {
 				// new URL()
 				e.printStackTrace();

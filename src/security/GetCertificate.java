@@ -45,14 +45,12 @@ public class GetCertificate {
 			frame = true;
 		try {
 			if(Frame.ForFun) {
-				System.out.println("sssssssssssssss");
 				url = new URL(Frame.ip);
 				SocketAddress sa = new InetSocketAddress("140.231.235.4",8080);		//使用代理
 				Proxy proxy = new Proxy(Proxy.Type.HTTP,sa);
 				connection = (HttpsURLConnection)url.openConnection(proxy);
 			}		
 			else {
-				System.out.println("ddddddddddddddddd");
 				url = new URL("https://"+Frame.ip+"/home");
 				connection = (HttpsURLConnection)url.openConnection();
 			}
@@ -132,7 +130,7 @@ public class GetCertificate {
 	        sign.close();
 	        if(frame)
         		Frame.updateTextArea("Signature: "+signature+"\n");
-			
+			Frame.chkRunning = false;
 		} catch (MalformedURLException e) {
 			System.out.println("new URL");
 			Frame.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
