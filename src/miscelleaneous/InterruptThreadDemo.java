@@ -18,7 +18,7 @@ interrupted 是作用于当前线程，isInterrupted 是作用于调用该方法的线程对象所对应的
 例如我们可以在A线程中去调用B线程对象的isInterrupted方法。）
 后面的参数( boolean ClearInterrupted),清状态位. 很好区分，只有当前线程才能清除自己的中断位（对应interrupted（）方法）
  */
-class MyThread extends Thread {
+class A extends Thread {
 	volatile boolean stop = false;
 
 	public void run() {
@@ -35,14 +35,14 @@ class MyThread extends Thread {
 	}
 }
 
-public class InterruptThreadDemo_keep {
+public class InterruptThreadDemo {
 	public static void main(String[] args) throws InterruptedException {
-		MyThread m1 = new MyThread();
+		A m1 = new A();
 		System.out.println("Starting thread...");
 		m1.start(); // 从这里进入run()方法后,不会一直停在while里,因为m1是程序起的一个线程,还有一个叫 main
 					// 的主线程,即下面的Thread. 此时两个线程在跑.
-		// 多线程时,实现Runnable没有start()方法,只有继承Thread才有.如果MyThread类是实现Runnable,则在MyThread
-		// m1 = new MyThread()之后再加一句
+		// 多线程时,实现Runnable没有start()方法,只有继承Thread才有.如果A类是实现Runnable,则在A
+		// m1 = new A()之后再加一句
 		// Thread t1 = new Thread(m1);然后t1就能用start(). 最终还是通过Thread建了一个线程.
 
 		Thread.sleep(1000);
