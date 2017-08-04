@@ -25,7 +25,7 @@ class A extends Thread {
 		while (!stop) {
 			System.out.println(getName() + " is running " + System.currentTimeMillis());
 			try {
-				sleep(3 * 1000);
+				sleep(30 * 1000);
 			} catch (InterruptedException e) {
 				System.out.println("week up from blcok...");
 				stop = true; // 在异常处理代码中修改共享变量的状态

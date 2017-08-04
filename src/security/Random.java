@@ -74,10 +74,8 @@ public class Random {
 		Formatter fmt = new Formatter();
 		fmt.format("%-26s %d", result, result.length());
 		// System.out.printf("%-30s %d",result,result.length());
-		// System.out.printf("\n");
 		System.out.println(fmt);
 		if (Frame.ip != null)
-			// Frame.updateTextArea(result+" "+result.length()+"\n");
 			Frame.updateTextArea(fmt.toString() + "\n");
 		if (result.length() != sb.length())
 			System.exit(0);
@@ -102,9 +100,15 @@ public class Random {
 			int random_all = (int) Math.round(Math.random() * (length - 1)); // 字符串的index
 			target.append(all.charAt(random_all));
 		}
+		Formatter fmt = new Formatter();
+		fmt.format("%-26s %d", target, target.length());
+		// System.out.printf("%-30s %d",result,result.length());
+		System.out.println(fmt);
+		if (Frame.ip != null)
+			Frame.updateTextArea(fmt.toString() + "\n");
 		return target.toString();
 	}
-/**
+/**g]V9AzJk
  * 判断getRandomString()得以的字符串是否满足密码规范。
  * @param target
  * @return
@@ -113,7 +117,9 @@ public class Random {
 		Pattern p_low = Pattern.compile("[a-z]");
 		Pattern p_up = Pattern.compile("[A-Z]");
 		Pattern p_dig = Pattern.compile("[\\d]");
-		Pattern p_cha = Pattern.compile("[ !\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~]");
+//		Pattern p_cha = Pattern.compile("[ !\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~]");
+		//四个\才能匹配\，即到字符串转义一字，到正则表达式再转义一次。\[, \]分别匹配左右方括号，再把反斜杠转义一次，即\\[,\\]匹配左右方括号。
+		Pattern p_cha = Pattern.compile("[\\\\\" !#$%&'()*+,-./:;<=>?@^_`{|}~\\[\\]]"); 
 		Matcher m_low = p_low.matcher(target);
 		Matcher m_up = p_up.matcher(target);
 		Matcher m_dig = p_dig.matcher(target);

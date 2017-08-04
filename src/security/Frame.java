@@ -14,11 +14,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import javax.swing.JToggleButton;
+import javax.swing.JCheckBox;
 
 public class Frame {
 
@@ -26,10 +28,12 @@ public class Frame {
 	private static JTextArea textArea;
 	private static JTextArea textArea_cnt;
 	private static JTextField textField_ip;
-	private JLabel PERIOD;
+	private static JLabel PERIOD;
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
 	private static JTextField textField_fw;
+	private static JCheckBox chkbxsavePw;
+	
 	
 	public static String ip;
 	public static int period;
@@ -45,14 +49,15 @@ public class Frame {
 	public static boolean debug;
 	public static boolean ForFun;	//get the certificate such as baidu.com
 	public static boolean negative;
-	static File file = null;
-	static PrintStream logStream = null;
+	private static File file = null;
+	private static PrintStream logStream = null;
 	private static JTextField textField_DigPw;
 	private static JRadioButton rdbtnD;
 	private static JRadioButton rdbtnF;
 	
 	private static Thread thread_neg = null;
 	public static boolean stop;
+	public static boolean savePw;
 
 	/**
 	 * Launch the application.
@@ -114,6 +119,7 @@ public class Frame {
 		btnFwPW.setBounds(219, 61, 86, 23);
 		btnFwPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				stop = false;
 				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
 					debug = false;
 					fwpwRunning = true;
@@ -131,6 +137,7 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
+						savePw = chkbxsavePw.isSelected();
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -160,6 +167,7 @@ public class Frame {
 		btnDigPW.setToolTipText("Set Digsi connection password.\r\nIf there's no password existing, initialize one password with string in the left box;\r\nIf there's already password existing, input the current password to the left box and this applet will change the password with string which conforms the rules cyclically with specified PERIOD.");
 		btnDigPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				stop = false;
 				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
 					debug = false;
 					digpwRunning = true;
@@ -177,6 +185,7 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
+						savePw = chkbxsavePw.isSelected();
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -197,6 +206,20 @@ public class Frame {
 		btnReset.setBounds(219, 115, 86, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(savePw && (SetPassword.streamClosed == false)) {
+					try {
+						System.out.println("reset click");
+						while(!SetPassword.end) {
+							
+						}							
+						SetPassword.bw.flush();
+						SetPassword.bw.close();
+						SetPassword.streamClosed = true;
+						SetPassword.bw = null;
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} 
+				}
 				SetPassword.succ = 0;
 				HttpPost.suc = 0;
 				textArea.setText("");
@@ -209,6 +232,8 @@ public class Frame {
 				if(fwpwRunning || digpwRunning) {
 					fwpwRunning = false;
 					digpwRunning = false;
+					// 如果只用t.cancel()，则计时器被取消，本次是最后一次。但本次还是会运行下去，可能会与预期不同。
+					stop = true;
 					if(SetPassword.t != null)
 						SetPassword.t.cancel();
 				}
@@ -218,7 +243,7 @@ public class Frame {
 //					if(SetPassword.t != null)
 //						SetPassword.t.cancel();
 					stop = true;
-				}
+				}				
 			}
 		});
 		SecurityTest.getContentPane().add(btnReset);
@@ -327,6 +352,7 @@ public class Frame {
 				stop = false;
 				negative = true;
 				negRunning = true;
+				savePw = chkbxsavePw.isSelected();
 				prepare_setNegPW();				
 				Thread_neg a = new Thread_neg();
 				thread_neg = new Thread(a);
@@ -357,10 +383,23 @@ public class Frame {
 		btnExit.setBounds(307, 11, 75, 23);
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(savePw && (SetPassword.bw != null)) {
+					try {
+						SetPassword.bw.flush();
+						SetPassword.bw.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 				System.exit(0);
 			}
 		});
-		SecurityTest.getContentPane().add(btnExit);		
+		SecurityTest.getContentPane().add(btnExit);			
+
+		chkbxsavePw = new JCheckBox("save pw");
+		chkbxsavePw.setBounds(307, 115, 75, 23);
+		SecurityTest.getContentPane().add(chkbxsavePw);
+		
 		
 //		JTextArea
 		textArea_cnt = new JTextArea();
