@@ -32,7 +32,11 @@ public class Frame {
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
 	private static JTextField textField_fw;
+<<<<<<< HEAD
 	private static JCheckBox chkbxsave;
+=======
+	private static JCheckBox chkbxsavePw;
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 	
 	
 	public static String ip;
@@ -115,7 +119,11 @@ public class Frame {
 		textField_period.setColumns(10);
 		
 		JButton btnFwPW = new JButton("FwPW"); //Set Firmware upload password
+<<<<<<< HEAD
 		btnFwPW.setToolTipText("Set FW upload password.\r\n");
+=======
+		btnFwPW.setToolTipText("Set FW upload password.\r\nIf there's no password existing, initialize one password with string in the left box;\r\nIf there's already password existing, input the current password to the left box and this applet will change the password with string which conforms the rules cyclically with specified PERIOD.");
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 		btnFwPW.setBounds(219, 61, 86, 23);
 		btnFwPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -137,6 +145,7 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
+						savePw = chkbxsavePw.isSelected();
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -163,6 +172,7 @@ public class Frame {
 		SecurityTest.getContentPane().add(textField_DigPw);
 		
 		JButton btnDigPW = new JButton("DigPW");
+<<<<<<< HEAD
 		btnDigPW.setToolTipText("Set Digsi connection password.\r\n");
 		btnDigPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -184,6 +194,30 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
+=======
+		btnDigPW.setToolTipText("Set Digsi connection password.\r\nIf there's no password existing, initialize one password with string in the left box;\r\nIf there's already password existing, input the current password to the left box and this applet will change the password with string which conforms the rules cyclically with specified PERIOD.");
+		btnDigPW.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				stop = false;
+				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
+					debug = false;
+					digpwRunning = true;
+					prepare_setDigPW();
+					if(debug){
+						file = new File("log.txt");
+						try {
+							logStream = new PrintStream(new FileOutputStream(file));
+						} catch (FileNotFoundException e1) {
+							e1.printStackTrace();
+						}
+						System.setOut(logStream);
+						System.setErr(logStream);
+					}
+					if(period < 5){
+						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
+					}else{
+						savePw = chkbxsavePw.isSelected();
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -345,12 +379,21 @@ public class Frame {
 		SecurityTest.getContentPane().add(btnCert);
 		
 		JButton btnNegPw = new JButton("NegPW");
+<<<<<<< HEAD
 		btnNegPw.setToolTipText("Negative test.");
 		btnNegPw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				stop = false;
 				negative = true;
 				negRunning = true;				
+=======
+		btnNegPw.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				stop = false;
+				negative = true;
+				negRunning = true;
+				savePw = chkbxsavePw.isSelected();
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 				prepare_setNegPW();				
 				Thread_neg a = new Thread_neg();
 				thread_neg = new Thread(a);
@@ -392,6 +435,7 @@ public class Frame {
 				System.exit(0);
 			}
 		});
+<<<<<<< HEAD
 		SecurityTest.getContentPane().add(btnExit);	
 
 		JButton btnMemo = new JButton("Memo");
@@ -419,6 +463,13 @@ public class Frame {
 		chkbxsave.setToolTipText("Enable save function");
 		chkbxsave.setBounds(307, 115, 60, 23);
 		SecurityTest.getContentPane().add(chkbxsave);
+=======
+		SecurityTest.getContentPane().add(btnExit);			
+
+		chkbxsavePw = new JCheckBox("save pw");
+		chkbxsavePw.setBounds(307, 115, 75, 23);
+		SecurityTest.getContentPane().add(chkbxsavePw);
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 		
 		
 //		JTextArea
@@ -459,9 +510,12 @@ public class Frame {
 	public static void prepare_setFwPW(){
 		String str;
 		int len;
+<<<<<<< HEAD
 		savePw = chkbxsave.isSelected();
 		if(savePw)
 			SetPassword.file = new File("Log_fwPw.txt");
+=======
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 		ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
 		period = Integer.parseInt(textField_period.getText());
 		str = textField_FwPw.getText();
@@ -480,6 +534,7 @@ public class Frame {
 	 */
 	public static void prepare_setDigPW(){
 		String str;
+<<<<<<< HEAD
 		savePw = chkbxsave.isSelected();
 		if(savePw)
 			SetPassword.file = new File("Log_digsiPw.txt");
@@ -533,6 +588,53 @@ public class Frame {
 			else fwpw = str;
 		}
 	}
+=======
+		int len;
+		ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+		period = Integer.parseInt(textField_period.getText());
+		str = textField_DigPw.getText();
+		commonpw = str;
+		len = str.length();
+		if(str.endsWith("*****")){
+			debug = true;
+			digpw = str.substring(0, len - 5);
+		}
+		else digpw = str;
+	}	
+
+	/**
+	 * 识别输入的IP, PERIOD, 老密码.
+	 * 密码后加五个星(*****)输出Log.
+	 */
+	public static void prepare_setNegPW(){
+		String str;
+		int len;
+		if(rdbtnD.isSelected()) {
+			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+			period = Integer.parseInt(textField_period.getText());
+			str = textField_DigPw.getText();
+			commonpw = str;
+			len = str.length();
+			if(str.endsWith("*****")){
+				debug = true;
+				digpw = str.substring(0, len - 5);
+			}
+			else digpw = str;
+		}
+		if(rdbtnF.isSelected()) {
+			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
+			period = Integer.parseInt(textField_period.getText());
+			str = textField_FwPw.getText();
+			commonpw = str;
+			len = str.length();
+			if(str.endsWith("*****")){
+				debug = true;
+				fwpw = str.substring(0, len - 5);
+			}
+			else fwpw = str;
+		}		
+	}	
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 	
 	/**
 	 * 识别输入的IP, PERIOD, FW 路径.
@@ -558,9 +660,12 @@ public class Frame {
 	 */
 	public static void prepare_ChkCert(){
 		String str = textField_ip.getText();
+<<<<<<< HEAD
 		savePw = chkbxsave.isSelected();
 		if(savePw)
 			GetCertificate.file = new File("cert.txt");
+=======
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 		if(str.indexOf("https") == -1) {
 			if(str.matches("[a-zA-Z]+")) {
 				ForFun = true;

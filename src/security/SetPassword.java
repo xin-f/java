@@ -31,7 +31,11 @@ public class SetPassword {
 	private static URL url = null;
 	private static URLConnection connection = null;
 	
+<<<<<<< HEAD
 	public static File file = null;
+=======
+//	private static File file = null;
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 //	private static FileOutputStream fos = null;
 	public static BufferedWriter bw = null; //保存尝试过的密码。要在点Reset后写入，所以要public.
 	private static Formatter fmt = null;
@@ -54,8 +58,13 @@ public class SetPassword {
 		if(Frame.savePw) {
 			streamClosed = false;
 			try {
+<<<<<<< HEAD
 //				System.out.println("create new bw");
 				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+=======
+				System.out.println("create new bw");
+				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("logs.txt"))));
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -200,6 +209,7 @@ public class SetPassword {
 							if(Random.judge(newpw)) {
 								System.out.println("Set password failed. Process terminated. Is the current pw correct?");
 								Frame.updateTextArea("Set password failed. Process terminated.\nIs the current pw correct?\n");	
+<<<<<<< HEAD
 //								t.cancel();
 								if(Frame.savePw) {
 									bw.write("Valid    "+"FAIL");
@@ -237,6 +247,45 @@ public class SetPassword {
 								}
 //								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
 //								if(Frame.digpwRunning) Frame.digpwRunning = false;
+=======
+								t.cancel();
+								if(Frame.savePw) {
+									bw.write("Valid    "+"FAIL");
+									bw.newLine();
+									bw.flush();
+									bw.close(); //有t.cancel()的地方需要close()
+									streamClosed = true;
+								}
+								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
+								if(Frame.digpwRunning) Frame.digpwRunning = false;
+							}else {
+								System.out.println("Invalid password is rejected by EN100.");
+								Frame.updateTextArea("Invalid password is rejected by EN100.\n");
+								if(Frame.savePw) {
+									bw.write("Invld    "+"PASS");
+									bw.newLine();
+									bw.flush();
+								}
+							}
+						}
+						
+					}else {//密码操作成功						
+						if(Frame.negative) {
+							//密码操作成功，密码字串可能是有效也可能是无效的。
+							if(!Random.judge(newpw)) {
+								//密码操作成功但密码不合规
+								System.out.println("Invalid password is accepted by EN100!!!!");
+								Frame.updateTextArea("Invalid password is accepted by EN100!!!!\n");	
+								t.cancel();
+								if(Frame.savePw) {
+									bw.newLine();
+									bw.flush();
+									bw.close(); //有t.cancel()的地方需要close()
+									streamClosed = true;
+								}
+								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
+								if(Frame.digpwRunning) Frame.digpwRunning = false;
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 							}else {
 								//密码操作成功,密码合规
 								if(Frame.savePw) {
