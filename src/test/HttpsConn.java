@@ -37,13 +37,13 @@ public class HttpsConn {
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
-				System.out.println(getString());
+				System.out.println(getRandomString());
 			}
 		};
 		t.schedule(timerTask, 0, 100);
 	}
 
-	public static String getString() {
+	public static String getRandomString() {
 		String cha = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 		String upp = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		String low = "abcdefghijklmnopqrstuvwxyz";
@@ -59,6 +59,7 @@ public class HttpsConn {
 		}
 		return target.toString();
 	}
+
 	public static boolean judge(String target) {
 		Pattern p_low = Pattern.compile("[a-z]");
 		Pattern p_up = Pattern.compile("[A-Z]");
@@ -74,10 +75,12 @@ public class HttpsConn {
 		else
 			return false;
 		/*
-		 * else { if (!m_low.find()) { System.out.println("low========"+target); } if
-		 * (!m_up.find()) { System.out.println("up========"+target); } if
-		 * (!m_cha.find()) { System.out.println("cha============="+target); } if
-		 * (!m_dig.find()) { System.out.println("dig=========="+target); }
-		 */
+		* else { if (!m_low.find()) { System.out.println("low========"+target); } if
+		* (!m_up.find()) { System.out.println("up========"+target); } if
+		* (!m_cha.find()) { System.out.println("cha============="+target); } if
+		* (!m_dig.find()) { System.out.println("dig=========="+target); }
+		*/
 	}
+
 }
+
