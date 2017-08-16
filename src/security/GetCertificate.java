@@ -2,6 +2,7 @@ package security;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,7 +33,11 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class GetCertificate {
+	
 	static boolean frame;
+	public static File file = null;
+	
+	
 	public static void main(String[] arg){
 		if(Frame.ip == null)
 			checkCert();
@@ -74,20 +79,22 @@ public class GetCertificate {
 			SSLSession sslSession = scc.getSession(b1);
 			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];//确定有且只有一个证书ID，所以直接访问证书数组[0]
 			javax.security.cert.X509Certificate[] certChain = sslSession.getPeerCertificateChain();
-			if(frame) {
-				Frame.updateTextArea("Certificate Chain: \n");
-				for(javax.security.cert.X509Certificate x:certChain)
-					Frame.updateTextArea(x.toString()+"\n");
-			}				
+//			if(frame) {
+//				Frame.updateTextArea("Certificate Chain: \n");
+//				for(javax.security.cert.X509Certificate x:certChain)
+//					Frame.updateTextArea(x.toString()+"\n");
+//			}				
 			System.out.println(sslSession.getCipherSuite());
 			System.out.println(sslSession.getLocalCertificates());//读不到东西.
 			System.out.println(sslSession.getPeerCertificates());
 			System.out.println(sslSession.getPeerCertificateChain());
-//			FileOutputStream fos = new FileOutputStream("aaa.txt");
-//			PrintWriter pw = new PrintWriter(fos);
-//			pw.write(cert.toString());
-//			pw.close();
-//			fos.close();
+			if(Frame.save) {
+				FileOutputStream fos = new FileOutputStream(file);
+				PrintWriter pw = new PrintWriter(fos);
+				pw.write(cert.toString());
+				pw.close();
+				fos.close();
+			}			
 			
 			byte[] serial = cert.getSerialNumber().toByteArray();  
 			Formatter serialN = new Formatter();
@@ -100,13 +107,16 @@ public class GetCertificate {
 				Frame.updateTextArea("Serial Number: "+serialNum+"\n");
 			serialN.close(); 
 	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerX500Principal());   
-	        if(frame) 
-	        	Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
+//	        if(frame) 
+//	        	Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
 	        System.out.println("x509Certificate_getSubjectDN_主体标识___:"+cert.getSubjectX500Principal());  
-	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID());  
-	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter()); 
+	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID()); 
+	        System.out.println("x509Certificate_getNotBefore_证书起始期___:"+cert.getNotBefore()); 
 	        if(frame) 
-	        	Frame.updateTextArea("Sigurature validation before: "+cert.getNotAfter()+"\n");
+	        	Frame.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
+	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter()); 
+//	        if(frame) 
+//	        	Frame.updateTextArea("Sigurature validation before: "+cert.getNotAfter()+"\n");
 	        System.out.println("x509Certificate_getSigAlgName_签名算法___:"+cert.getSigAlgName());  
 	        if(frame) 
 	        	Frame.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");

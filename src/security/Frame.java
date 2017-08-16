@@ -32,7 +32,7 @@ public class Frame {
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
 	private static JTextField textField_fw;
-	private static JCheckBox chkbxsavePw;
+	private static JCheckBox chkbxsave;
 	
 	
 	public static String ip;
@@ -49,15 +49,17 @@ public class Frame {
 	public static boolean debug;
 	public static boolean ForFun;	//get the certificate such as baidu.com
 	public static boolean negative;
+	public static int ubound; //循环次数达到此值即停。
 	private static File file = null;
 	private static PrintStream logStream = null;
 	private static JTextField textField_DigPw;
 	private static JRadioButton rdbtnD;
 	private static JRadioButton rdbtnF;
+	private static JTextArea textArea_ubound;
 	
 	private static Thread thread_neg = null;
 	public static boolean stop;
-	public static boolean savePw;
+	public static boolean save;
 
 	/**
 	 * Launch the application.
@@ -100,7 +102,7 @@ public class Frame {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.80");
+		textField_ip.setText("baidu");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
@@ -115,15 +117,17 @@ public class Frame {
 		textField_period.setColumns(10);
 		
 		JButton btnFwPW = new JButton("FwPW"); //Set Firmware upload password
-		btnFwPW.setToolTipText("Set FW upload password.\r\nIf there's no password existing, initialize one password with string in the left box;\r\nIf there's already password existing, input the current password to the left box and this applet will change the password with string which conforms the rules cyclically with specified PERIOD.");
-		btnFwPW.setBounds(219, 61, 86, 23);
+		btnFwPW.setToolTipText("Set FW upload password cyclically with specified PERIOD.");
+		btnFwPW.setBounds(210, 61, 86, 23);
 		btnFwPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stop = false;
 				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
 					debug = false;
 					fwpwRunning = true;
+					ubound = 0;
 					prepare_setFwPW();
+					checkUbound();
 					if(debug){
 						file = new File("log.txt");
 						try {
@@ -137,7 +141,6 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
-						savePw = chkbxsavePw.isSelected();
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -158,20 +161,22 @@ public class Frame {
 		SecurityTest.getContentPane().add(lblDigpw);
 		
 		textField_DigPw = new JTextField();
-		textField_DigPw.setText("0123abcd");
+		textField_DigPw.setText("1!qQ1234");
 		textField_DigPw.setColumns(10);
 		textField_DigPw.setBounds(54, 35, 155, 20);
 		SecurityTest.getContentPane().add(textField_DigPw);
 		
 		JButton btnDigPW = new JButton("DigPW");
-		btnDigPW.setToolTipText("Set Digsi connection password.\r\nIf there's no password existing, initialize one password with string in the left box;\r\nIf there's already password existing, input the current password to the left box and this applet will change the password with string which conforms the rules cyclically with specified PERIOD.");
+		btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
 		btnDigPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				stop = false;
 				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
 					debug = false;
 					digpwRunning = true;
+					ubound = 0;
 					prepare_setDigPW();
+					checkUbound();
 					if(debug){
 						file = new File("log.txt");
 						try {
@@ -185,7 +190,6 @@ public class Frame {
 					if(period < 5){
 						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
 					}else{
-						savePw = chkbxsavePw.isSelected();
 						SetPassword.set();
 					}
 				}else if(fwRunning){
@@ -199,24 +203,25 @@ public class Frame {
 				}
 			}
 		});
-		btnDigPW.setBounds(219, 35, 86, 23);
+		btnDigPW.setBounds(210, 35, 86, 23);
 		SecurityTest.getContentPane().add(btnDigPW);
 		
 		JButton btnReset = new JButton("Reset");
-		btnReset.setBounds(219, 115, 86, 23);
+		btnReset.setBounds(210, 115, 86, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(savePw && (SetPassword.streamClosed == false)) {
+				if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
 					try {
-						System.out.println("reset click");
 						while(!SetPassword.end) {
-							
-						}							
+							Thread.sleep(100);
+						}
 						SetPassword.bw.flush();
 						SetPassword.bw.close();
 						SetPassword.streamClosed = true;
 						SetPassword.bw = null;
 					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					} 
 				}
@@ -249,7 +254,7 @@ public class Frame {
 		SecurityTest.getContentPane().add(btnReset);
 		
 		JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
-		lblNumberOfTimes.setBounds(10, 117, 121, 22);
+		lblNumberOfTimes.setBounds(10, 117, 100, 22);
 		SecurityTest.getContentPane().add(lblNumberOfTimes);
 		
 		JLabel lblFwPw = new JLabel("FwPW");
@@ -258,7 +263,7 @@ public class Frame {
 		
 		textField_FwPw = new JTextField();
 		textField_FwPw.setBounds(54, 62, 155, 20);
-		textField_FwPw.setText("01234567890123456789");
+		textField_FwPw.setText("12341!qQ");
 		textField_FwPw.setColumns(10);
 		SecurityTest.getContentPane().add(textField_FwPw);
 
@@ -274,13 +279,15 @@ public class Frame {
 		
 		JButton btnUpldfw = new JButton("UpldFW");
 		btnUpldfw.setToolTipText("Upload FW cyclically with specified PERIOD.");
-		btnUpldfw.setBounds(219, 87, 86, 23);
+		btnUpldfw.setBounds(210, 87, 86, 23);
 		btnUpldfw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
 					debug = false;
 					fwRunning = true;
+					ubound = 0;
 					prepare_upldFW();
+					checkUbound();
 					if(debug){
 						file = new File("log.txt");
 						try {
@@ -305,7 +312,7 @@ public class Frame {
 					updateTextArea("Digsi connection pw setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(fwRunning){
-					updateTextArea("FW uploading is in progress!! \n"
+					updateTextArea("FW uploading is already in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}
 			}
@@ -314,7 +321,7 @@ public class Frame {
 		
 		JButton btnCert = new JButton("ChkCert");
 		btnCert.setToolTipText("Check server certificate.");
-		btnCert.setBounds(219, 11, 86, 23);
+		btnCert.setBounds(210, 11, 86, 23);
 		btnCert.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
@@ -340,27 +347,30 @@ public class Frame {
 					updateTextArea("Digsi connection pw setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(fwRunning){
-					updateTextArea("Naughty guy! The operation is already in progress!! \n");
+					updateTextArea("FW uploading is in progress!! \n"
+							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}			
 			}
 		});
 		SecurityTest.getContentPane().add(btnCert);
 		
-		JButton btnNegPw = new JButton("NegPW");
+		JButton btnNegPw = new JButton("NegPw");
+		btnNegPw.setToolTipText("Negative test.");
 		btnNegPw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				stop = false;
 				negative = true;
-				negRunning = true;
-				savePw = chkbxsavePw.isSelected();
-				prepare_setNegPW();				
+				negRunning = true;	
+				ubound = 0;
+				prepare_setNegPW();	
+				checkUbound();
 				Thread_neg a = new Thread_neg();
 				thread_neg = new Thread(a);
 				thread_neg.start();
 				
 			}
 		});
-		btnNegPw.setBounds(307, 34, 75, 23);
+		btnNegPw.setBounds(300, 34, 75, 23);
 		SecurityTest.getContentPane().add(btnNegPw);
 		
 
@@ -380,10 +390,10 @@ public class Frame {
 		bg.add(rdbtnF);
 		
 		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(307, 11, 75, 23);
+		btnExit.setBounds(300, 11, 75, 23);
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(savePw && (SetPassword.bw != null)) {
+				if(save && (SetPassword.bw != null)) {
 					try {
 						SetPassword.bw.flush();
 						SetPassword.bw.close();
@@ -394,18 +404,47 @@ public class Frame {
 				System.exit(0);
 			}
 		});
-		SecurityTest.getContentPane().add(btnExit);			
+		SecurityTest.getContentPane().add(btnExit);	
 
-		chkbxsavePw = new JCheckBox("save pw");
-		chkbxsavePw.setBounds(307, 115, 75, 23);
-		SecurityTest.getContentPane().add(chkbxsavePw);
+		JButton btnMemo = new JButton("Memo");
+		btnMemo.setToolTipText("Short description.");
+		btnMemo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateTextArea("ChkCert: Read the certificate from server. Only IP part of the certificate will be checked.\n" + 
+						"DigPW: Initialize or change digsi conneciton password. If there's no password existing, initialize one "
+						+ "with string in the left box;If there's already password existing, input the current password to the "
+						+ "left box and this applet will change the password with randomly generated password which conforms the "
+						+ "rules cyclically with specified PERIOD.  The loop will stop if set password fails.\n" + 
+						"FwPW: Same as DigPW but for firmware upload password.\n" + 
+						"NegPW: together with D(digsi connection) or F(firmware upload), to test 1~24 length random string, maybe "
+						+ "Valid, probably Invalid password. Just like  'DigPW' or 'FwPW' but loop will not stop automatically.\n" + 
+						"save: Enable saving. If selected, 'ChkCert' will save certificate; 'DigPW', 'NegPW' and 'FwPW' "
+						+ "will save all the passwords which are set successfully.\n");
+				
+			}
+		});
+		btnMemo.setBounds(300, 87, 75, 23);
+		SecurityTest.getContentPane().add(btnMemo);
+		
+
+		chkbxsave = new JCheckBox("save");
+		chkbxsave.setToolTipText("Enable save function");
+		chkbxsave.setBounds(307, 115, 60, 23);
+		SecurityTest.getContentPane().add(chkbxsave);
 		
 		
 //		JTextArea
 		textArea_cnt = new JTextArea();
-		textArea_cnt.setBounds(169, 119, 40, 18);
+		textArea_cnt.setBounds(115, 119, 30, 18);
 		textArea_cnt.setText("0");
 		SecurityTest.getContentPane().add(textArea_cnt);
+
+		textArea_ubound = new JTextArea();
+		textArea_ubound.setToolTipText("Number of times the loop will run.");
+		textArea_ubound.setText("0");
+		textArea_ubound.setBounds(167, 119, 30, 18);
+		SecurityTest.getContentPane().add(textArea_ubound);
+		
 	}
 	
 	private static void buildTextArea(){
@@ -421,8 +460,7 @@ public class Frame {
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
-		
-		
+					
 		js.setVisible(true);
 	}
 	public static void updateTextArea(String str) { 
@@ -439,6 +477,9 @@ public class Frame {
 	public static void prepare_setFwPW(){
 		String str;
 		int len;
+		save = chkbxsave.isSelected();
+		if(save)
+			SetPassword.file = new File("Log_fwPw.txt");
 		ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
 		period = Integer.parseInt(textField_period.getText());
 		str = textField_FwPw.getText();
@@ -457,6 +498,9 @@ public class Frame {
 	 */
 	public static void prepare_setDigPW(){
 		String str;
+		save = chkbxsave.isSelected();
+		if(save)
+			SetPassword.file = new File("Log_digsiPw.txt");
 		int len;
 		ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
 		period = Integer.parseInt(textField_period.getText());
@@ -477,7 +521,10 @@ public class Frame {
 	public static void prepare_setNegPW(){
 		String str;
 		int len;
+		save = chkbxsave.isSelected();		
 		if(rdbtnD.isSelected()) {
+			if(save)
+				SetPassword.file = new File("Log_negdigsiPw.txt");
 			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
 			period = Integer.parseInt(textField_period.getText());
 			str = textField_DigPw.getText();
@@ -490,6 +537,8 @@ public class Frame {
 			else digpw = str;
 		}
 		if(rdbtnF.isSelected()) {
+			if(save)
+				SetPassword.file = new File("Log_negfwPw.txt");
 			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
 			period = Integer.parseInt(textField_period.getText());
 			str = textField_FwPw.getText();
@@ -500,8 +549,8 @@ public class Frame {
 				fwpw = str.substring(0, len - 5);
 			}
 			else fwpw = str;
-		}		
-	}	
+		}
+	}
 	
 	/**
 	 * 识别输入的IP, PERIOD, FW 路径.
@@ -527,6 +576,9 @@ public class Frame {
 	 */
 	public static void prepare_ChkCert(){
 		String str = textField_ip.getText();
+		save = chkbxsave.isSelected();
+		if(save)
+			GetCertificate.file = new File("cert.txt");
 		if(str.indexOf("https") == -1) {
 			if(str.matches("[a-zA-Z]+")) {
 				ForFun = true;
@@ -544,6 +596,21 @@ public class Frame {
 			ForFun = true;
 			ip = str;
 		}
+	}
+	
+	/**
+	 * 检查循环次数上限，读一个值，设一个标志位。输入数值以加号结尾时，返回true，让反向测试也用这个次数。否则只有正向测试用这个次数。
+	 * @return
+	 */
+	public static boolean checkUbound() {
+		String str = textArea_ubound.getText();
+		boolean result = false;
+		if(str.endsWith("+")) {
+			result = true;
+			str = str.substring(0, str.length()-1);
+		}
+		ubound = Integer.parseInt(str);
+		return result;
 	}
 	
 	

@@ -27,11 +27,12 @@ public class SetPassword {
 	private static String pwNotSet = "Confirm password:";//只有密码没设，网页里才有此字符串
 	private static String pwSet = "The password has been set or changed";
 	private static String boundary = null;
+	private static int numFinished; //已运行次数。
 
 	private static URL url = null;
 	private static URLConnection connection = null;
 	
-//	private static File file = null;
+	public static File file = null;
 //	private static FileOutputStream fos = null;
 	public static BufferedWriter bw = null; //保存尝试过的密码。要在点Reset后写入，所以要public.
 	private static Formatter fmt = null;
@@ -47,15 +48,16 @@ public class SetPassword {
 
 //	public static void main(String[] s) {
 	public static void set() {
+		numFinished = 0;
 		pwInitInternal = false; // 默认假设密码不是由本程序初始化的.->用于判断在改密码时,旧密码的来源.
 								// 最外层if-else-语句,else部分要衔接一个来自if语句的变量 newpw
 		pwInitOut_BeChangedAtLeastOnce = false; // 默认密码已设,且由外部设置.第一次修改密码时, 从外部输入一个字符串作为原密码,修改成功把此变量置true,
 						// 不再接受外部字符串. 即用来区别修改密码时第一次和后面其它次老密码的来源.		
-		if(Frame.savePw) {
+		if(Frame.save) {
 			streamClosed = false;
 			try {
-				System.out.println("create new bw");
-				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("logs.txt"))));
+//				System.out.println("create new bw");
+				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -76,8 +78,8 @@ public class SetPassword {
 		
 
 		public void run() {
+			end = false;
 			if (!Frame.stop) {
-				end = false;
 				try {
 					url = new URL(Frame.ip);
 					setPwSucc = false;
@@ -155,7 +157,7 @@ public class SetPassword {
 						// FileWriter(file)); //文件类最好用PrintWriter.
 						out.write(change.toString());
 						out.flush();
-
+						
 						in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 						while ((str = in.readLine()) != null) {
 							result += (str + "\n");
@@ -173,20 +175,21 @@ public class SetPassword {
 					System.out.println("Password has been set successfully for " + succ + " times.");
 					Frame.updateTextAreacnt(succ);
 					//e.g.: abc123!@	Invalid		fail
-					if(Frame.savePw) {
+					if(Frame.save) {
 //						bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("logs.txt"))));
 						fmt = new Formatter();
 						fmt.format("%-26s", newpw);
 						bw.write(fmt.toString()); //手动停止时，点了Reset，输出流即关闭，然而已经由定时器起到的当前这一次操作（即最后一次），要用到这个输出流，
 								//故可能会出现NPE。 
 					}
+
 					if (!setPwSucc) {
 						if(!Frame.negative) {
 							//密码操作失败，且密码都是合规的。
 							System.out.println("Set password failed. Process terminated. Is the current pw correct?");
 							Frame.updateTextArea("Set password failed. Process terminated.\nIs the current pw correct?\n");						
 							t.cancel();
-							if(Frame.savePw) {
+							if(Frame.save) {
 								bw.write("Valid    "+"FAIL");
 								bw.newLine();
 								bw.flush();
@@ -198,29 +201,29 @@ public class SetPassword {
 						}else {
 						    //密码操作失败，此时的密码字符串未必是合规的，要作判断。
 							if(Random.judge(newpw)) {
-								System.out.println("Set password failed. Process terminated. Is the current pw correct?");
-								Frame.updateTextArea("Set password failed. Process terminated.\nIs the current pw correct?\n");	
-								t.cancel();
-								if(Frame.savePw) {
+								System.out.println("Set password failed. Is the current pw correct?");
+								Frame.updateTextArea("Set password failed. \nIs the current pw correct?\n");	
+//								t.cancel(); //反向测试时不停止loop。
+								if(Frame.save) {
 									bw.write("Valid    "+"FAIL");
 									bw.newLine();
 									bw.flush();
-									bw.close(); //有t.cancel()的地方需要close()
-									streamClosed = true;
+//									bw.close(); //有t.cancel()的地方需要close()
+//									streamClosed = true;
 								}
-								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
-								if(Frame.digpwRunning) Frame.digpwRunning = false;
+//								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
+//								if(Frame.digpwRunning) Frame.digpwRunning = false;
 							}else {
 								System.out.println("Invalid password is rejected by EN100.");
 								Frame.updateTextArea("Invalid password is rejected by EN100.\n");
-								if(Frame.savePw) {
+								if(Frame.save) {
 									bw.write("Invld    "+"PASS");
 									bw.newLine();
 									bw.flush();
 								}
 							}
 						}
-						
+												
 					}else {//密码操作成功						
 						if(Frame.negative) {
 							//密码操作成功，密码字串可能是有效也可能是无效的。
@@ -228,33 +231,39 @@ public class SetPassword {
 								//密码操作成功但密码不合规
 								System.out.println("Invalid password is accepted by EN100!!!!");
 								Frame.updateTextArea("Invalid password is accepted by EN100!!!!\n");	
-								t.cancel();
-								if(Frame.savePw) {
+//								t.cancel();
+								if(Frame.save) {
+									bw.write("Invld    "+"FAIL");
 									bw.newLine();
 									bw.flush();
-									bw.close(); //有t.cancel()的地方需要close()
-									streamClosed = true;
+//									bw.close(); //有t.cancel()的地方需要close()
+//									streamClosed = true;
 								}
-								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
-								if(Frame.digpwRunning) Frame.digpwRunning = false;
+//								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
+//								if(Frame.digpwRunning) Frame.digpwRunning = false;
 							}else {
 								//密码操作成功,密码合规
-								if(Frame.savePw) {
+								if(Frame.save) {
 									bw.newLine();
 									bw.flush();
 								}
 							}
 						}else {
 							//密码操作成功，密码串都是有效的。
-							if(Frame.savePw) {
+							if(Frame.save) {
 								bw.newLine();
 								bw.flush();
 							}
-						}
+						}						
+					}
+					numFinished++;
+					if((Frame.ubound != 0)&& (numFinished == Frame.ubound)) {
+						if((Frame.negative && Frame.checkUbound())	//反向测试，且checkUbound()标志置为true
+							|| !Frame.negative)	
+							if(t != null) t.cancel();
 					}
 					in.close();
 					out.close();
-					end = true;
 				} catch (MalformedURLException e) {
 					// new URL()
 					e.printStackTrace();
@@ -265,6 +274,7 @@ public class SetPassword {
 				}
 			} else
 				t.cancel();
+			end = true; 
 		}
 
 		private HttpURLConnection setConnect(HttpURLConnection c) {
