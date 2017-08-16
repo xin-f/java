@@ -32,7 +32,11 @@ public class Frame {
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
 	private static JTextField textField_fw;
+<<<<<<< HEAD
 	private static JCheckBox chkbxsave;
+=======
+	private static JCheckBox chkbxsave;
+>>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
 	
 	
 	public static String ip;
