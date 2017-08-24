@@ -13,20 +13,29 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+
 public class HttpPost {
-	static BufferedReader in = null;
+	private static BufferedReader in = null;
 //	static File file = new File("d:\\IEC61850_81.pck");
-	static File file = null;
+	private static File file = null;
 //	static String fileName = "IEC61850_81.pck";
-	static String fileName = null;
-	static String password = null;
-	static int suc;
+	private static String fileName = null;
+	private static String password = null;
 	private static int timeout;
+	private static URLConnection connection = null;
+	private static SSLContext sc = null;
+	
+	public static int suc;
 	public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
 	
 //	public  static void main(String[] s) {
@@ -34,6 +43,7 @@ public class HttpPost {
 		String str = Frame.fw;
 		file = new File(str);
 		int i;
+		//取.pck的文件名，只保留最后一个反斜杠后的内容。
 		while(( i = str.indexOf("\\")) > -1){
 			str= str.substring(i+1, str.length());
 		}
@@ -46,7 +56,16 @@ public class HttpPost {
 			public void run(){
 				try {
 					URL url = new URL(Frame.ip);
-					URLConnection connection =  url.openConnection();
+					
+					if(Frame.tls) {
+						connection =  (HttpsURLConnection) url.openConnection();
+						sc = SSLContext.getInstance("TLS");
+						sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
+						((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+					}else {
+						connection = url.openConnection();
+					}
+					
 					String boundary = "---------------------wowothisisunique-sxf";
 					String newLine = "\r\n";
 					//头部的\r\n都是系统自己加的.
@@ -150,6 +169,10 @@ public class HttpPost {
 					e.printStackTrace();
 				} catch (IOException e) {
 					Frame.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				} catch (KeyManagementException e) {
 					e.printStackTrace();
 				}
 			}

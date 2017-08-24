@@ -32,12 +32,8 @@ public class Frame {
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
 	private static JTextField textField_fw;
-<<<<<<< HEAD
-	private static JCheckBox chkbxsave;
-=======
-	private static JCheckBox chkbxsave;
->>>>>>> branch 'master' of https://github.com:443/xin-f/java.git
-	
+	private static JCheckBox chkbxsave;	
+	private static JCheckBox chkbxTls;
 	
 	public static String ip;
 	public static int period;
@@ -64,6 +60,7 @@ public class Frame {
 	private static Thread thread_neg = null;
 	public static boolean stop;
 	public static boolean save;
+	public static boolean tls;
 
 	/**
 	 * Launch the application.
@@ -106,7 +103,7 @@ public class Frame {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("baidu");
+		textField_ip.setText("172.20.1.80");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
@@ -343,7 +340,8 @@ public class Frame {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					GetCertificate.checkCert();						
+					if(tls)
+						GetCertificate.checkCert();						
 				}else  if(fwpwRunning){
 					updateTextArea("FW upload pw setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
@@ -433,8 +431,14 @@ public class Frame {
 
 		chkbxsave = new JCheckBox("save");
 		chkbxsave.setToolTipText("Enable save function");
-		chkbxsave.setBounds(307, 115, 60, 23);
-		SecurityTest.getContentPane().add(chkbxsave);
+		chkbxsave.setBounds(315, 115, 60, 23);
+		SecurityTest.getContentPane().add(chkbxsave);		
+
+		chkbxTls = new JCheckBox("tls");
+//		chkbxTls.setSelected(true);
+		chkbxTls.setToolTipText("Enable https function");
+		chkbxTls.setBounds(315, 141, 60, 23);
+		SecurityTest.getContentPane().add(chkbxTls);
 		
 		
 //		JTextArea
@@ -458,12 +462,12 @@ public class Frame {
 		JScrollPane js=new JScrollPane(textArea);
 		js.setBounds(10, 140, 300, 170);
 		SecurityTest.getContentPane().add(js);	
-		
-		
+				
 		DefaultCaret caret = (DefaultCaret) textArea.getCaret(); // 这两行让文本框的滚动条自动在最下面.
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
+		
 					
 		js.setVisible(true);
 	}
@@ -482,9 +486,13 @@ public class Frame {
 		String str;
 		int len;
 		save = chkbxsave.isSelected();
+		tls = chkbxTls.isSelected();
 		if(save)
 			SetPassword.file = new File("Log_fwPw.txt");
-		ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
+		if(tls)
+			ip = "https://"+textField_ip.getText()+"/setfwuploadpassword";
+		else
+			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
 		period = Integer.parseInt(textField_period.getText());
 		str = textField_FwPw.getText();
 		commonpw = str;
@@ -503,10 +511,14 @@ public class Frame {
 	public static void prepare_setDigPW(){
 		String str;
 		save = chkbxsave.isSelected();
+		tls = chkbxTls.isSelected();
 		if(save)
 			SetPassword.file = new File("Log_digsiPw.txt");
 		int len;
-		ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+		if(tls)
+			ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
+		else
+			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
 		period = Integer.parseInt(textField_period.getText());
 		str = textField_DigPw.getText();
 		commonpw = str;
@@ -525,11 +537,15 @@ public class Frame {
 	public static void prepare_setNegPW(){
 		String str;
 		int len;
-		save = chkbxsave.isSelected();		
+		save = chkbxsave.isSelected();
+		tls = chkbxTls.isSelected();
 		if(rdbtnD.isSelected()) {
 			if(save)
 				SetPassword.file = new File("Log_negdigsiPw.txt");
-			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+			if(tls)
+				ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
+			else
+				ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
 			period = Integer.parseInt(textField_period.getText());
 			str = textField_DigPw.getText();
 			commonpw = str;
@@ -543,7 +559,10 @@ public class Frame {
 		if(rdbtnF.isSelected()) {
 			if(save)
 				SetPassword.file = new File("Log_negfwPw.txt");
-			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
+			if(tls)
+				ip = "https://"+textField_ip.getText()+"/setfwuploadpassword";
+			else
+				ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
 			period = Integer.parseInt(textField_period.getText());
 			str = textField_FwPw.getText();
 			commonpw = str;
@@ -563,7 +582,11 @@ public class Frame {
 	public static void prepare_upldFW(){
 		String str;		
 		int len;
-		ip = "http://"+textField_ip.getText()+"/upload";
+		tls = chkbxTls.isSelected();
+		if(tls)
+			ip = "https://"+textField_ip.getText()+"/upload";
+		else
+			ip = "http://"+textField_ip.getText()+"/upload";
 		period = Integer.parseInt(textField_period.getText());
 		str = textField_fw.getText();
 		len = str.length();
@@ -581,22 +604,27 @@ public class Frame {
 	public static void prepare_ChkCert(){
 		String str = textField_ip.getText();
 		save = chkbxsave.isSelected();
+		tls = chkbxTls.isSelected();
 		if(save)
 			GetCertificate.file = new File("cert.txt");
 		if(str.indexOf("https") == -1) {
-			if(str.matches("[a-zA-Z]+")) {
+			if(str.matches("[a-zA-Z]+")) { //不玩了，GetCertificate.java里已去掉相关代码。
 				ForFun = true;
 				ip = "https://www."+str+".com";
 			}else{
-				ForFun = false;
-				ip = str;
-				period = Integer.parseInt(textField_period.getText());
-				if (period == 99)
-					debug = true;			
+				if(!tls) {
+					updateTextArea("Enable tls first.\n");					
+				}else {
+					ForFun = false;
+					ip = "https://"+str+"/home";
+					period = Integer.parseInt(textField_period.getText());
+					if (period == 99)
+						debug = true;
+				}							
 			}
 		}		
 //		if(str.indexOf("https") > -1) {
-		else {
+		else {			
 			ForFun = true;
 			ip = str;
 		}

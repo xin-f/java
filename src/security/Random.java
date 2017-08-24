@@ -43,34 +43,21 @@ public class Random {
 			sb.append(all.charAt(getRandom(len_all - 1)));
 		}
 		String str = sb.toString();
-		String tmp;
+//		String tmp;
 		StringBuffer result = new StringBuffer();
 		char c;
+		int pos;
 		for (int i = 0; i < length; i++) {
-			c = str.charAt(getRandom(str.length() - 1));
+			pos = getRandom(length -1 - i );
+			c = str.charAt(pos);
 			result.append(c);
-			int index = str.indexOf(c);
-			if (index == 0) {
-				if (str.length() == 1) {
-					; // 字符串长度为1时,什么都不做.
-				} else {
-					str = str.substring(1);
-				}
-			} else if (index == str.length() - 1) {
-				if (str.length() == 2) {
-					str = str.substring(0, 1);
-				} else
-					str = str.substring(0, str.length() - 2); // 字符串长度为2时,这里会出错.相当于什么都没取到.
-			} /*
-				 * else if(index == str.length()-2){ str = str.substring(0,
-				 * index)+str.substring(str.length()-1); }
-				 */else {
-				str = str.substring(0, index) + str.substring(index + 1);
+			if(pos == 0)
+				str = str.substring(1);
+			else if (pos== (length-1))
+				str = str.substring(0, length - 1);
+			else
+				str = str.substring(0, pos) + str.substring(pos + 1);
 			}
-			if (str.length() == 0) {
-				break;
-			}
-		}
 		Formatter fmt = new Formatter();
 		fmt.format("%-26s %d", result, result.length());
 		// System.out.printf("%-30s %d",result,result.length());

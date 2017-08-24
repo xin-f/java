@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -38,32 +39,34 @@ public class GetCertificate {
 	public static File file = null;
 	
 	
-	public static void main(String[] arg){
+/*	public static void main(String[] arg){
 		if(Frame.ip == null)
 			checkCert();
-	}
+	}*/
 	public static void checkCert(){
 		URL url = null;
-		HttpsURLConnection connection = null;
+		URLConnection connection = null;
 		frame = false;
 		if(Frame.ip != null)
 			frame = true;
 		try {
-			if(Frame.ForFun) {
+			/*if(Frame.ForFun) {
 				url = new URL(Frame.ip);
 				SocketAddress sa = new InetSocketAddress("140.231.235.4",8080);		//使用代理
 				Proxy proxy = new Proxy(Proxy.Type.HTTP,sa);
 				connection = (HttpsURLConnection)url.openConnection(proxy);
 			}		
-			else {
-				url = new URL("https://"+Frame.ip+"/home");
-				connection = (HttpsURLConnection)url.openConnection();
-			}
+			else {*/
+			url = new URL(Frame.ip);
+			connection = url.openConnection();
 			SSLContext sc =  SSLContext.getInstance("TLS");
 			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
-			connection.setSSLSocketFactory(sc.getSocketFactory());
-			connection.setConnectTimeout(1000);
-			connection.connect();
+			if(Frame.tls) {
+				((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+				connection.setConnectTimeout(1000);
+				connection.connect();
+			}
+				
 //			BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
 //			String line;
 //			while((line = br.readLine())!=null) {
@@ -127,10 +130,16 @@ public class GetCertificate {
 	        System.out.println(ip);
 	        if(frame) 
 	        	Frame.updateTextArea("Subject ip: "+ip+"\n");
-	        if(!Frame.ForFun)
-	        if(!ip.equals(Frame.ip))
-	        	if(frame)
-	        		Frame.updateTextArea("Wrong!! Certificate not updated!\n");
+	        if(!Frame.ForFun) {	
+	        	String str = Frame.ip;
+	        	//https://172.20.1.80/xxx
+	        	str = str.substring(8, str.length());//去掉前面八个字符(https://)
+	        	int i = str.indexOf("/");
+	        	str = str.substring(0, i);
+	        	if(!ip.equals(str))
+		        	if(frame)
+		        		Frame.updateTextArea("Wrong!! Certificate not updated!\n");
+	        }		        
 	        byte[] sig = cert.getSignature();
 	        Formatter sign = new Formatter();
 	        for(byte b:sig)
@@ -177,8 +186,8 @@ public class GetCertificate {
 //	public void setSessionTimeout(int arg0) throws IllegalArgumentException {}	
 //}
 
-class MyTrust implements X509TrustManager{
-	public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-	public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-	public X509Certificate[] getAcceptedIssuers() {return null;	}	
-}
+//class MyTrust implements X509TrustManager{
+//	public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+//	public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+//	public X509Certificate[] getAcceptedIssuers() {return null;	}	
+//}
