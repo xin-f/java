@@ -16,6 +16,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
@@ -27,7 +31,7 @@ public class Frame {
 	private static JFrame SecurityTest;
 	private static JTextArea textArea;
 	private static JTextArea textArea_cnt;
-	private static JTextField textField_ip;
+	public static JTextField textField_ip;
 	private static JLabel PERIOD;
 	private static JTextField textField_period;
 	private static JTextField textField_FwPw;
@@ -57,10 +61,16 @@ public class Frame {
 	private static JRadioButton rdbtnF;
 	private static JTextArea textArea_ubound;
 	
+	private static Timer t_ping = null; //新建一线程检查server是否在线。默认启动，Reset复归，每个操作都会再启动。
+	private static boolean t_ping_running = false;
+	
 	private static Thread thread_neg = null;
 	public static boolean stop;
 	public static boolean save;
 	public static boolean tls;
+	public static Frame window;
+	
+	
 
 	/**
 	 * Launch the application.
@@ -69,10 +79,13 @@ public class Frame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Frame window = new Frame();					
+					window = new Frame();					
 					buildTextArea();
 					SecurityTest.setVisible(true);
-															
+
+					t_ping = new Timer(); 
+					t_ping.schedule(window.new Ping(), 0, 10000);
+					t_ping_running = true;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -85,6 +98,7 @@ public class Frame {
 	 */
 	public Frame() {
 		initialize();
+
 	}
 
 	/**
@@ -122,6 +136,12 @@ public class Frame {
 		btnFwPW.setBounds(210, 61, 86, 23);
 		btnFwPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				/*if(!t_ping_running) {
+					t_ping = new Timer();
+					t_ping.schedule(new Ping(), 0, 5000);
+					t_ping_running = true;
+				}*/
+				enablePing();
 				stop = false;
 				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
 					debug = false;
@@ -171,6 +191,12 @@ public class Frame {
 		btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
 		btnDigPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				/*if(!t_ping_running) {
+					t_ping = new Timer();
+					t_ping.schedule(new Ping(), 0, 5000);
+					t_ping_running = true;
+				}*/
+				enablePing();
 				stop = false;
 				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
 					debug = false;
@@ -211,6 +237,10 @@ public class Frame {
 		btnReset.setBounds(210, 115, 86, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(t_ping_running) {
+					t_ping.cancel();
+					t_ping_running = false;
+				}
 				if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
 					try {
 						while(!SetPassword.end) {
@@ -283,6 +313,12 @@ public class Frame {
 		btnUpldfw.setBounds(210, 87, 86, 23);
 		btnUpldfw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				/*if(!t_ping_running) {
+					t_ping = new Timer();
+					t_ping.schedule(new Ping(), 0, 5000);
+					t_ping_running = true;
+				}*/
+				enablePing();
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
 					debug = false;
 					fwRunning = true;
@@ -325,6 +361,12 @@ public class Frame {
 		btnCert.setBounds(210, 11, 86, 23);
 		btnCert.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				/*if(!t_ping_running) {
+					t_ping = new Timer();
+					t_ping.schedule(new Ping(), 0, 5000);
+					t_ping_running = true;
+				}*/
+				enablePing();
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
 					chkRunning = true;
 					updateTextArea("Checking certificate:\n");				
@@ -360,6 +402,7 @@ public class Frame {
 		btnNegPw.setToolTipText("Negative test.");
 		btnNegPw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				enablePing();
 				stop = false;
 				negative = true;
 				negRunning = true;	
@@ -645,12 +688,17 @@ public class Frame {
 		return result;
 	}
 	
+	private static void enablePing() {
+		if(!t_ping_running) {
+			t_ping = new Timer();
+			t_ping.schedule(window.new Ping(), 0, 10000);
+			t_ping_running = true;
+		}
+	}
 	
 	
-	
-	
-	
-	class Thread_neg extends SetPassword implements Runnable{
+		
+	 class Thread_neg extends SetPassword implements Runnable{
 		@Override
 		public void run() {
 			if(!stop) {
@@ -658,4 +706,19 @@ public class Frame {
 			}						
 		}					
 	}
+	 class Ping extends TimerTask{		 
+		 public void run() {
+			 try {
+				InetAddress server = InetAddress.getByName(Frame.textField_ip.getText());
+				if(!server.isReachable(1000)) {
+					Frame.updateTextArea("Server lost!!!\n");
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		 }		 
+	}
 }
+
