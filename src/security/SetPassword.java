@@ -55,7 +55,7 @@ public class SetPassword {
 	private static boolean setPwSucc_LastTime; //上次设密码成功，用于判断否定测试时，本次要不要取上次的密码作为当前密码。如果上次设置失败，则不取，当前密码保持上上次的。
 	private static boolean pwExist;		//密码已设置
 	private static boolean pwInitInternal;	//密码是否由本程序初始化
-	private static boolean pwInitOut_BeChangedAtLeastOnceByThisProgram;
+	private static boolean AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram;
 	public static Timer t = null;//Make the timer be public so that the pw setting process can be terminated by 'Reset' in Frame.java by t.cancel()
 
 //	public static void main(String[] s) {
@@ -63,8 +63,7 @@ public class SetPassword {
 		numFinished = 0;
 		pwInitInternal = false; // 默认假设密码不是由本程序初始化的.->用于判断在改密码时,旧密码的来源.
 								// 最外层if-else-语句,else部分要衔接一个来自if语句的变量 newpw
-		pwInitOut_BeChangedAtLeastOnceByThisProgram = false; // 默认密码已设,且由外部设置. 第一次修改密码时, 从外部输入一个字符串作为原密码,修改成功把此变量置true,
-						// 不再接受外部字符串. 即用来区别修改密码时第一次和后面其它次老密码的来源.		
+		AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = false; //用来区别是否是一台有密码的现成的装置(即没走initialize的数据流)。		
 		if(Frame.save) {
 			streamClosed = false;
 			try {
@@ -140,16 +139,15 @@ public class SetPassword {
 						StringBuffer set = new StringBuffer();
 						// newpw = Random.getRandomString();
 						newpw = Frame.commonpw; // 第一次设密码，用输入框里的。
-						if(Frame.negative)
-							if(!Random.judge(newpw)) {
-								newpw = "1!qQ1234";
-								Frame.updateTextArea("The preset password doesn't conform to rules.\n\"1!qQ1234\" is used instead.\n");
-							}
-						set.append(boundary + "\r\n")
+						if(!Random.judge(newpw)) { //起码第一次能跑起来。
+							newpw = "1!qQ1234";
+							Frame.updateTextArea("The preset password doesn't conform to rules.\n\"1!qQ1234\" is used instead.\n");
+						}
+						set.append("--"+boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n").append(newpw)
-								.append("\r\n" + boundary + "--\r\n")
+								.append("\r\n--" + boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n").append(newpw)
-								.append("\r\n" + boundary + "--\r\n");
+								.append("\r\n--" + boundary + "--\r\n");
 						out = new PrintWriter(connection.getOutputStream());
 						out.write(set.toString());
 						out.flush();
@@ -166,53 +164,48 @@ public class SetPassword {
 								Frame.updateTextArea("Password has been initialized.\n");
 							}
 						}
-					}
-					
+						if(!setPwSucc) {
+							Frame.updateTextArea("Initialize password fails. Please doublecheck!\n");
+							t.cancel();
+						}
+					}//end of (!pwExist)					
 
 					else {
 						if (pwInitInternal) {
-							if(setPwSucc_LastTime) { //上次即初始化那次，当然是成功的。这句不写也行。
+							if(setPwSucc_LastTime) { //上次即初始化那次，当然是成功的。判断条件不加也行。
 								curpw = newpw;
 								setPwSucc_LastTime = false;
-							}								
-						}							
+							}	
+							pwInitInternal = false; // pwInitInternal只能有一次，进来一次后就要变成false 8/25
+						}
 						else {
-							if (!pwInitOut_BeChangedAtLeastOnceByThisProgram) {//密码没被本程序改过，即这是第一次改密码，要从外部获得当前密码。
-								curpw = Frame.commonpw;
-								if(Frame.negative)
-									if(!Random.judge(curpw)) { //起码让第一次能跑起来。
-										curpw = "1!qQ1234";
-										Frame.updateTextArea("The preset password doesn't conform to rules.\n\"1!qQ1234\" is used instead.\n");
-									}
-							} else {
 								if(setPwSucc_LastTime) {
 									curpw = newpw; //已经由本程序改过一次密码，所以不从外部取当前密码,而是在上次修改成功的前提下取上次的密码。
 									setPwSucc_LastTime = false;
+								}else {
+									if(!AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram) 
+										curpw = Frame.commonpw;
 								}
-								
 							}								
-						}
+						//}
 						StringBuffer change = new StringBuffer();
 						if (Frame.negative)
 							newpw = Random.getRandomString();
 						else
 							newpw = Random.getValidRandomString();
-						change.append(boundary + "\r\n")
+						change.append("--"+boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n").append(curpw)
-								.append("\r\n" + boundary + "--\r\n")
+								.append("\r\n--" + boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n").append(newpw)
-								.append("\r\n" + boundary + "--\r\n")
+								.append("\r\n--" + boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n").append(newpw)
-
-								.append("\r\n" + boundary + "--\r\n");
+								.append("\r\n--" + boundary + "--\r\n");
 
 						out = new PrintWriter(connection.getOutputStream());
-						// PrintWriter out_save = new PrintWriter(new
-						// FileWriter(file));
-						// BufferedWriter bw = new BufferedWriter( new
-						// FileWriter(file)); //文件类最好用PrintWriter.
 						out.write(change.toString());
 						out.flush();
+						
+						AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = true;
 						
 						in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 						while ((str = in.readLine()) != null) {
@@ -222,13 +215,10 @@ public class SetPassword {
 								succ += 1;
 								setPwSucc = true;
 								setPwSucc_LastTime = true;
-								pwInitOut_BeChangedAtLeastOnceByThisProgram = true;
 							}
 						}
-					}
-					/*
-					 * out_save.write(result); out_save.flush(); out_save.close();
-					 */
+					}//end of pwExist
+
 					System.out.println("Password has been set successfully for " + succ + " times.");
 					Frame.updateTextAreacnt(succ);
 					//e.g.: abc123!@	Invalid		fail
