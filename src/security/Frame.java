@@ -233,8 +233,9 @@ public class Frame {
 		btnDigPW.setBounds(210, 35, 86, 23);
 		SecurityTest.getContentPane().add(btnDigPW);
 		
-		JButton btnReset = new JButton("Reset");
-		btnReset.setBounds(210, 115, 86, 23);
+		JButton btnReset = new JButton("R");
+		btnReset.setToolTipText("Reset");
+		btnReset.setBounds(210, 115, 42, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(t_ping_running) {
@@ -258,8 +259,7 @@ public class Frame {
 				}
 				SetPassword.succ = 0;
 				HttpPost.suc = 0;
-				textArea.setText("");
-				updateTextAreacnt(0);
+
 				if(fwRunning) {
 					fwRunning = false;
 					if(HttpPost.t != null)		// to avoid NPE
@@ -283,6 +283,19 @@ public class Frame {
 			}
 		});
 		SecurityTest.getContentPane().add(btnReset);
+		
+		JButton btnClear = new JButton("C");
+		btnClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				textArea.setText("");
+				updateTextAreacnt(0);
+			}
+		});
+		btnClear.setToolTipText("Clear");
+		btnClear.setBounds(254, 115, 42, 23);
+		SecurityTest.getContentPane().add(btnClear);
+		
+		
 		
 		JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
 		lblNumberOfTimes.setBounds(10, 117, 100, 22);
@@ -421,13 +434,13 @@ public class Frame {
 
 		rdbtnD = new JRadioButton("D");
 		rdbtnD.setToolTipText("set digsi connection pw");
-		rdbtnD.setBounds(308, 61, 33, 23);
+		rdbtnD.setBounds(302, 61, 33, 23);
 		SecurityTest.getContentPane().add(rdbtnD);
 		
 		rdbtnF = new JRadioButton("F");
 		rdbtnF.setToolTipText("set fw upload pw");
 		rdbtnF.setSelected(true);
-		rdbtnF.setBounds(345, 61, 32, 23);
+		rdbtnF.setBounds(337, 61, 32, 23);
 		SecurityTest.getContentPane().add(rdbtnF);
 		
 		ButtonGroup bg = new ButtonGroup();
@@ -511,7 +524,7 @@ public class Frame {
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
 		
-					
+			
 		js.setVisible(true);
 	}
 	public static void updateTextArea(String str) { 
