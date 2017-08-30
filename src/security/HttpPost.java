@@ -37,10 +37,11 @@ public class HttpPost {
 	
 	public static int suc;
 	public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
+	public static boolean t_running;
 	
 //	public  static void main(String[] s) {
 	public  static void upldFW() {	
-		String str = Frame.fw;
+		String str = FrameSecurity.fw;
 		file = new File(str);
 		int i;
 		//取.pck的文件名，只保留最后一个反斜杠后的内容。
@@ -48,16 +49,17 @@ public class HttpPost {
 			str= str.substring(i+1, str.length());
 		}
 		fileName = str;
-		password = Frame.fwpw;
+		password = FrameSecurity.fwpw;
 		
 		t = new Timer();
-		timeout = Frame.period*1000;
+		timeout = FrameSecurity.period*1000;
 		t.schedule(new TimerTask(){
 			public void run(){
+				t_running = true;
 				try {
-					URL url = new URL(Frame.ip);
+					URL url = new URL(FrameSecurity.ip);
 					
-					if(Frame.tls) {
+					if(FrameSecurity.tls) {
 						connection =  (HttpsURLConnection) url.openConnection();
 						sc = SSLContext.getInstance("TLS");
 						sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
@@ -149,15 +151,15 @@ public class HttpPost {
 						if(str.indexOf("Update in progress") > -1){
 							suc += 1;
 							System.out.println("FW upload successful "+suc+" times.");
-							Frame.updateTextAreacnt(suc);
+							FrameSecurity.updateTextAreacnt(suc);
 //							String str1 = "FW upload successful "+suc+" time.\n";
 //							String str2 = "FW upload successful "+suc+" times.\n";
 //							str = (suc == 1)?"":"";
-							Frame.updateTextArea((suc==1)?"FW upload successful "+suc+" time.\n":"FW upload successful "+suc+" times.\n");
+							FrameSecurity.updateTextArea((suc==1)?"FW upload successful "+suc+" time.\n":"FW upload successful "+suc+" times.\n");
 						}
 						if(str.indexOf("The password is incorrect!") > -1) {
 							System.out.println("FW upload failed. Pw is not correct.");
-							Frame.updateTextArea("FW upload failed. Pw is not correct.\n");
+							FrameSecurity.updateTextArea("FW upload failed. Pw is not correct.\n");
 						}
 					}
 //					System.out.println(connection.getHeaderField(0));  //HTTP/1.0 200 OK
@@ -168,7 +170,7 @@ public class HttpPost {
 					//new URL()
 					e.printStackTrace();
 				} catch (IOException e) {
-					Frame.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
+					FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
 					e.printStackTrace();
 				} catch (NoSuchAlgorithmException e) {
 					e.printStackTrace();
@@ -176,7 +178,7 @@ public class HttpPost {
 					e.printStackTrace();
 				}
 			}
-		}, 0, timeout);				 
+		}, 0, timeout);	
    }  
 }
 /*

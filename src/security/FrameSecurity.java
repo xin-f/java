@@ -26,7 +26,7 @@ import javax.swing.JComboBox;
 import javax.swing.JToggleButton;
 import javax.swing.JCheckBox;
 
-public class Frame {
+public class FrameSecurity {
 
 	private static JFrame SecurityTest;
 	private static JTextArea textArea;
@@ -38,8 +38,10 @@ public class Frame {
 	private static JTextField textField_fw;
 	private static JCheckBox chkbxsave;	
 	private static JCheckBox chkbxTls;
+	private static JCheckBox chkbxAlt;
 	
 	public static String ip;
+	public static String ip_another;
 	public static int period;
 	public static String fwpw;
 	public static String digpw;
@@ -63,13 +65,16 @@ public class Frame {
 	
 	private static Timer t_ping = null; //新建一线程检查server是否在线。默认启动，Reset复归，每个操作都会再启动。
 	private static boolean t_ping_running = false;
+	public static boolean serverLost = false;
 	
 	private static Thread thread_neg = null;
 	public static boolean stop;
 	public static boolean save;
 	public static boolean tls;
-	public static Frame window;
+	public static FrameSecurity window;
+	public static boolean alter;
 	
+	public enum Optype{digsi,fw}
 	
 
 	/**
@@ -79,13 +84,13 @@ public class Frame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					window = new Frame();					
+					window = new FrameSecurity();					
 					buildTextArea();
 					SecurityTest.setVisible(true);
 
-					t_ping = new Timer(); 
-					t_ping.schedule(window.new Ping(), 0, 10000);
-					t_ping_running = true;
+//					t_ping = new Timer(); 
+//					t_ping.schedule(window.new Ping(), 0, 10000);
+//					t_ping_running = true;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -96,9 +101,8 @@ public class Frame {
 	/**
 	 * Create the application.
 	 */
-	public Frame() {
+	public FrameSecurity() {
 		initialize();
-
 	}
 
 	/**
@@ -127,7 +131,7 @@ public class Frame {
 		
 		textField_period = new JTextField();
 		textField_period.setBounds(183, 12, 26, 20);
-		textField_period.setText("5");
+		textField_period.setText("10");
 		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
 		
@@ -142,6 +146,11 @@ public class Frame {
 					t_ping_running = true;
 				}*/
 				enablePing();
+				alter = chkbxAlt.isSelected();
+				alter = chkbxAlt.isSelected();
+				if(alter) {
+					ip_another = getIP(textField_ip.getText(),Optype.digsi);
+				}
 				stop = false;
 				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
 					debug = false;
@@ -182,6 +191,7 @@ public class Frame {
 		SecurityTest.getContentPane().add(lblDigpw);
 		
 		textField_DigPw = new JTextField();
+//		textField_DigPw.setText("21!qQ/nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@=");
 		textField_DigPw.setText("1!qQ1234");
 		textField_DigPw.setColumns(10);
 		textField_DigPw.setBounds(54, 35, 155, 20);
@@ -197,6 +207,10 @@ public class Frame {
 					t_ping_running = true;
 				}*/
 				enablePing();
+				alter = chkbxAlt.isSelected();
+				if(alter) {
+					ip_another = getIP(textField_ip.getText(),Optype.fw);
+				}
 				stop = false;
 				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
 					debug = false;
@@ -238,6 +252,7 @@ public class Frame {
 		btnReset.setBounds(210, 115, 42, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				serverLost = false;
 				if(t_ping_running) {
 					t_ping.cancel();
 					t_ping_running = false;
@@ -262,16 +277,20 @@ public class Frame {
 
 				if(fwRunning) {
 					fwRunning = false;
-					if(HttpPost.t != null)		// to avoid NPE
-						HttpPost.t.cancel();					
+					if(HttpPost.t != null) {
+						HttpPost.t.cancel();
+						HttpPost.t_running = false;
+					}												
 				}
 				if(fwpwRunning || digpwRunning) {
 					fwpwRunning = false;
 					digpwRunning = false;
 					// 如果只用t.cancel()，则计时器被取消，本次是最后一次。但本次还是会运行下去，可能会与预期不同。
 					stop = true;
-					if(SetPassword.t != null)
+					if(SetPassword.t != null) {
 						SetPassword.t.cancel();
+						SetPassword.t_running = false;
+					}						
 				}
 				if(thread_neg != null) {
 					negRunning = false;
@@ -307,6 +326,7 @@ public class Frame {
 		
 		textField_FwPw = new JTextField();
 		textField_FwPw.setBounds(54, 62, 155, 20);
+//		textField_FwPw.setText("ddfasdfsASDDFSDf4654+65.;''.ddfasdfsASDDFSDf4654+65.;''.'';,!*(#^#^#, ");
 		textField_FwPw.setText("12341!qQ");
 		textField_FwPw.setColumns(10);
 		SecurityTest.getContentPane().add(textField_FwPw);
@@ -464,7 +484,7 @@ public class Frame {
 		});
 		SecurityTest.getContentPane().add(btnExit);	
 
-		JButton btnMemo = new JButton("Memo");
+		/*JButton btnMemo = new JButton("Memo");
 		btnMemo.setToolTipText("Short description.");
 		btnMemo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -482,11 +502,12 @@ public class Frame {
 			}
 		});
 		btnMemo.setBounds(300, 87, 75, 23);
-		SecurityTest.getContentPane().add(btnMemo);
+		SecurityTest.getContentPane().add(btnMemo);*/
 		
 
 		chkbxsave = new JCheckBox("save");
-		chkbxsave.setToolTipText("Enable save function");
+		chkbxsave.setSelected(true);
+		chkbxsave.setToolTipText("Save the log");
 		chkbxsave.setBounds(315, 115, 60, 23);
 		SecurityTest.getContentPane().add(chkbxsave);		
 
@@ -496,6 +517,10 @@ public class Frame {
 		chkbxTls.setBounds(315, 141, 60, 23);
 		SecurityTest.getContentPane().add(chkbxTls);
 		
+		chkbxAlt = new JCheckBox("alter");
+		chkbxAlt.setToolTipText("Set password alternately");
+		chkbxAlt.setBounds(315, 167, 60, 23);
+		SecurityTest.getContentPane().add(chkbxAlt);
 		
 //		JTextArea
 		textArea_cnt = new JTextArea();
@@ -524,7 +549,6 @@ public class Frame {
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
 		
-			
 		js.setVisible(true);
 	}
 	public static void updateTextArea(String str) { 
@@ -701,6 +725,30 @@ public class Frame {
 		return result;
 	}
 	
+	public static String getIP(String src, Optype type) {
+		String str = null;
+		if (tls) {
+			switch (type) {
+			case digsi:
+				str = "https://" + src + "/setconnectionpassword";
+				break;
+			case fw:
+				str = "https://" + src + "/setfwuploadpassword";
+				break;
+			}
+		} else {
+			switch (type) {
+			case digsi:
+				str = "http://" + src + "/setconnectionpassword";
+				break;
+			case fw:
+				str = "http://" + src + "/setfwuploadpassword";
+				break;
+			}
+		}
+		return str;
+	}
+	
 	private static void enablePing() {
 		if(!t_ping_running) {
 			t_ping = new Timer();
@@ -722,9 +770,16 @@ public class Frame {
 	 class Ping extends TimerTask{		 
 		 public void run() {
 			 try {
-				InetAddress server = InetAddress.getByName(Frame.textField_ip.getText());
+				InetAddress server = InetAddress.getByName(FrameSecurity.textField_ip.getText());
 				if(!server.isReachable(1000)) {
-					Frame.updateTextArea("Server lost!!!\n");
+					updateTextArea("Server lost!!!\n");
+					t_ping.cancel();
+					if(SetPassword.t_running) {
+						SetPassword.t.cancel();
+					} 
+					if(HttpPost.t_running) {
+						HttpPost.t.cancel();
+					}
 				}
 			} catch (UnknownHostException e) {
 				e.printStackTrace();

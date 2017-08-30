@@ -62,15 +62,15 @@ public class Random {
 		fmt.format("%-26s %d", result, result.length());
 		// System.out.printf("%-30s %d",result,result.length());
 		System.out.println(fmt);
-		if (Frame.ip != null)
-			Frame.updateTextArea(fmt.toString() + "\n");
+		if (FrameSecurity.ip != null)
+			FrameSecurity.updateTextArea(fmt.toString() + "\n");
 		if (result.length() != sb.length())
 			System.exit(0);
 		return result.toString();
 		// System.out.println();
 	}
 /**
- * 获得一个1-24位长度的随机字符串
+ * 获得一个1-30位长度的随机字符串
  * @return
  */
 	public static String getRandomString() {
@@ -82,17 +82,17 @@ public class Random {
 		int length = all.length();
 
 		StringBuffer target = new StringBuffer();
-		int random = (int) Math.round(Math.random() * 23); // 目标字符串,1到24位.
+		int random = (int) Math.round(Math.random() * 29); // 目标字符串,1到30位.
 		for (int i = 0; i <= random; i++) {
 			int random_all = (int) Math.round(Math.random() * (length - 1)); // 字符串的index
 			target.append(all.charAt(random_all));
 		}
 		Formatter fmt = new Formatter();
-		fmt.format("%-26s %d", target, target.length());
+		fmt.format("%-32s %d", target, target.length());
 		// System.out.printf("%-30s %d",result,result.length());
 		System.out.println(fmt);
-		if (Frame.ip != null)
-			Frame.updateTextArea(fmt.toString() + "\n");
+		if (FrameSecurity.ip != null)
+			FrameSecurity.updateTextArea(fmt.toString() + "\n");
 		return target.toString();
 	}
 /**g]V9AzJk
@@ -112,7 +112,7 @@ public class Random {
 		Matcher m_dig = p_dig.matcher(target);
 		Matcher m_cha = p_cha.matcher(target);
 
-		if (m_low.find() && m_up.find() && m_cha.find() && m_dig.find() && (target.length() >= 8))
+		if (m_low.find() && m_up.find() && m_cha.find() && m_dig.find() && (target.length() >= 8) && (target.length() <= 24))
 			return true;
 		else
 			return false;

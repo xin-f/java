@@ -47,7 +47,7 @@ public class GetCertificate {
 		URL url = null;
 		URLConnection connection = null;
 		frame = false;
-		if(Frame.ip != null)
+		if(FrameSecurity.ip != null)
 			frame = true;
 		try {
 			/*if(Frame.ForFun) {
@@ -57,11 +57,11 @@ public class GetCertificate {
 				connection = (HttpsURLConnection)url.openConnection(proxy);
 			}		
 			else {*/
-			url = new URL(Frame.ip);
+			url = new URL(FrameSecurity.ip);
 			connection = url.openConnection();
 			SSLContext sc =  SSLContext.getInstance("TLS");
 			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
-			if(Frame.tls) {
+			if(FrameSecurity.tls) {
 				((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
 				connection.setConnectTimeout(1000);
 				connection.connect();
@@ -91,7 +91,7 @@ public class GetCertificate {
 			System.out.println(sslSession.getLocalCertificates());//读不到东西.
 			System.out.println(sslSession.getPeerCertificates());
 			System.out.println(sslSession.getPeerCertificateChain());
-			if(Frame.save) {
+			if(FrameSecurity.save) {
 				FileOutputStream fos = new FileOutputStream(file);
 				PrintWriter pw = new PrintWriter(fos);
 				pw.write(cert.toString());
@@ -107,7 +107,7 @@ public class GetCertificate {
 			String serialNum = serialN.toString().substring(0,serialN.toString().length()-1);
 			System.out.println(serialNum);
 			if(frame) 
-				Frame.updateTextArea("Serial Number: "+serialNum+"\n");
+				FrameSecurity.updateTextArea("Serial Number: "+serialNum+"\n");
 			serialN.close(); 
 	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerX500Principal());   
 //	        if(frame) 
@@ -116,29 +116,29 @@ public class GetCertificate {
 	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID()); 
 	        System.out.println("x509Certificate_getNotBefore_证书起始期___:"+cert.getNotBefore()); 
 	        if(frame) 
-	        	Frame.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
+	        	FrameSecurity.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
 	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter()); 
 //	        if(frame) 
 //	        	Frame.updateTextArea("Sigurature validation before: "+cert.getNotAfter()+"\n");
 	        System.out.println("x509Certificate_getSigAlgName_签名算法___:"+cert.getSigAlgName());  
 	        if(frame) 
-	        	Frame.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
+	        	FrameSecurity.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
 	        System.out.println("x509Certificate_getVersion_版本号___:"+cert.getVersion());  
 	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey());  
 	        Collection<List<?>> subject = cert.getSubjectAlternativeNames();
 	        String ip = subject.toString().substring(5, subject.toString().length()-2);
 	        System.out.println(ip);
 	        if(frame) 
-	        	Frame.updateTextArea("Subject ip: "+ip+"\n");
-	        if(!Frame.ForFun) {	
-	        	String str = Frame.ip;
+	        	FrameSecurity.updateTextArea("Subject ip: "+ip+"\n");
+	        if(!FrameSecurity.ForFun) {	
+	        	String str = FrameSecurity.ip;
 	        	//https://172.20.1.80/xxx
 	        	str = str.substring(8, str.length());//去掉前面八个字符(https://)
 	        	int i = str.indexOf("/");
 	        	str = str.substring(0, i);
 	        	if(!ip.equals(str))
 		        	if(frame)
-		        		Frame.updateTextArea("Wrong!! Certificate not updated!\n");
+		        		FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
 	        }		        
 	        byte[] sig = cert.getSignature();
 	        Formatter sign = new Formatter();
@@ -148,14 +148,14 @@ public class GetCertificate {
 	        System.out.println(signature);
 	        sign.close();
 	        if(frame)
-        		Frame.updateTextArea("Signature: "+signature+"\n");
-			Frame.chkRunning = false;
+        		FrameSecurity.updateTextArea("Signature: "+signature+"\n");
+			FrameSecurity.chkRunning = false;
 		} catch (MalformedURLException e) {
 			System.out.println("new URL");
-			Frame.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
+			FrameSecurity.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
 			e.printStackTrace();
 		} catch (IOException e) {
-			Frame.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
+			FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
 			System.out.println("url.openConnection");
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
