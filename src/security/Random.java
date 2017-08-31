@@ -7,10 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Random {
-	private static String cha = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-	private static String upp = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	private static String low = "abcdefghijklmnopqrstuvwxyz";
-	private static String dig = "0123456789";
+	public static String cha = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+	public static String upp = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static String low = "abcdefghijklmnopqrstuvwxyz";
+	public static String dig = "0123456789";
 	private static String all = cha + upp + low + dig;
 	private static int length;
 
@@ -69,6 +69,74 @@ public class Random {
 		return result.toString();
 		// System.out.println();
 	}
+	
+	/**
+	 * 遍历每个类型，每个字符。
+	 * @return
+	 */
+	public static String getValidRandomString_traverse() {
+		StringBuffer sb = new StringBuffer();
+		length = getRandom(16) + 7;
+		int len_traverse = 0;
+		if(FrameSecurity.charset != FrameSecurity.Charset.cha) {
+		//sb.append(cha.charAt(getRandom(cha.length() - 1))).append(upp.charAt(getRandom(upp.length() - 1)))
+//				.append(low.charAt(getRandom(low.length() - 1))).append(dig.charAt(getRandom(dig.length() - 1)));
+			sb.append(cha.charAt(getRandom(cha.length() - 1)));
+		}
+		if(FrameSecurity.charset != FrameSecurity.Charset.upp) {
+			sb.append(upp.charAt(getRandom(upp.length() - 1)));
+		}
+		if(FrameSecurity.charset != FrameSecurity.Charset.dig) {
+			sb.append(dig.charAt(getRandom(dig.length() - 1)));
+		}
+		if(FrameSecurity.charset != FrameSecurity.Charset.low) {
+			sb.append(low.charAt(getRandom(low.length() - 1)));
+		}
+//		int len_traverse = (upp+low+dig).length();
+		for (int i = 0; i < length - 3; i++) {
+			if (FrameSecurity.charset == FrameSecurity.Charset.cha) {
+				len_traverse = (upp + low + dig).length();
+				sb.append((upp + low + dig).charAt(getRandom(len_traverse - 1)));
+			}
+			if (FrameSecurity.charset == FrameSecurity.Charset.upp) {
+				len_traverse = (cha + low + dig).length();
+				sb.append((cha + low + dig).charAt(getRandom(len_traverse - 1)));
+			}
+			if (FrameSecurity.charset == FrameSecurity.Charset.low) {
+				len_traverse = (cha + upp + dig).length();
+				sb.append((upp + cha + dig).charAt(getRandom(len_traverse - 1)));
+			}
+			if (FrameSecurity.charset == FrameSecurity.Charset.dig) {
+				len_traverse = (cha + low + upp).length();
+				sb.append((upp + low + cha).charAt(getRandom(len_traverse - 1)));
+			}
+		}
+		String str = sb.toString();
+		StringBuffer result = new StringBuffer();
+		char c;
+		int pos;
+		for (int i = 0; i < length; i++) {
+			pos = getRandom(length -1 - i );
+			c = str.charAt(pos);
+			result.append(c);
+			if(pos == 0)
+				str = str.substring(1);
+			else if (pos== (length-1))
+				str = str.substring(0, length - 1);
+			else
+				str = str.substring(0, pos) + str.substring(pos + 1);
+			}
+		Formatter fmt = new Formatter();
+		fmt.format("%-26s %d", result, result.length() + 1);
+		System.out.println(fmt);
+		if (FrameSecurity.ip != null)
+			FrameSecurity.updateTextArea(fmt.toString() + "\n");
+		if (result.length() != sb.length())
+			System.exit(0);
+		return result.toString();
+	}
+
+	
 /**
  * 获得一个1-30位长度的随机字符串
  * @return

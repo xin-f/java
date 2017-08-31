@@ -60,6 +60,7 @@ public class SetPassword {
 	public static boolean t_running;
 	public static boolean self = true; //为真时，改自己对应的密码（比如点的是DigPW，就改digsi 密码)；为假时，改另一个密码(点的是DigPW，改fw 密码)。
 			//为真时才需要把新密码赋给当前密码，然后再获得一个新密码。为假时，用不变的当前密码和新密码改另个网址下的密码。即一套密码用两次。
+//	public static boolean lock;//遍历多类字符时，确保当前类遍类完再下一类。
 
 //	public static void main(String[] s) {
 	public static void set() {
@@ -203,10 +204,49 @@ public class SetPassword {
 						//}
 						StringBuffer change = new StringBuffer();
 						if(self) {
-							if (FrameSecurity.negative)
+							if (FrameSecurity.negative) {
 								newpw = Random.getRandomString();
-							else
-								newpw = Random.getValidRandomString();
+							}else{
+								if(!FrameSecurity.traverse) {
+									//不进行遍历，即正常的case
+									newpw = Random.getValidRandomString();
+								}else {
+//									lock = FrameSecurity.prepare_traverse();
+									if(FrameSecurity.charset == FrameSecurity.Charset.dig) {
+										FrameSecurity.updateTextArea(Random.dig.substring(numFinished, numFinished+1));
+										System.out.print(Random.dig.substring(numFinished, numFinished+1));
+										newpw = Random.dig.charAt(numFinished) + Random.getValidRandomString_traverse();
+										if(numFinished == Random.dig.length() - 1) {
+//											lock = false;
+											FrameSecurity.chkbx0.setSelected(false);
+										}
+									}else if(FrameSecurity.charset == FrameSecurity.Charset.upp) {
+										FrameSecurity.updateTextArea(Random.upp.substring(numFinished, numFinished+1));
+										System.out.print(Random.upp.substring(numFinished, numFinished+1));
+										newpw = Random.upp.charAt(numFinished) + Random.getValidRandomString_traverse();
+										if(numFinished == 25) {
+//											lock = false;
+											FrameSecurity.chkbxA.setSelected(false);
+										}
+									}else if(FrameSecurity.charset == FrameSecurity.Charset.low) {
+										FrameSecurity.updateTextArea(Random.low.substring(numFinished, numFinished+1));
+										System.out.print(Random.low.substring(numFinished, numFinished+1));
+										newpw = Random.low.charAt(numFinished) + Random.getValidRandomString_traverse();
+										if(numFinished == 25) {
+//											lock = false;
+											FrameSecurity.chkbxa.setSelected(false);
+										}
+									}else if(FrameSecurity.charset == FrameSecurity.Charset.cha) {
+										FrameSecurity.updateTextArea(Random.cha.substring(numFinished, numFinished+1));
+										System.out.print(Random.cha.substring(numFinished, numFinished+1));
+										newpw = Random.cha.charAt(numFinished) + Random.getValidRandomString_traverse();
+										if(numFinished == Random.cha.length()-1) {
+//											lock = false;
+											FrameSecurity.chkbx_.setSelected(false);
+										}
+									}
+								}								
+							}								
 						}						
 						change.append("--"+boundary + "\r\n")
 								.append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n").append(curpw)
@@ -318,11 +358,32 @@ public class SetPassword {
 							}
 						}						
 					}
-					numFinished++;
-					if((FrameSecurity.ubound != 0)&& (numFinished == FrameSecurity.ubound)) {
-						if((FrameSecurity.negative && FrameSecurity.checkUbound())	//反向测试，且checkUbound()标志置为true
-							|| !FrameSecurity.negative)	
-							if(t != null) t.cancel();
+					if (FrameSecurity.traverse) {
+						if (!pwInitInternal)
+							numFinished++; // 遍历时初始化这次不算。若初始化也算进去，会使index从1产生字符串，则每类字符串第一个字符(空格/A/a/0)取不到了。
+					} else
+						numFinished++;
+					if (!FrameSecurity.traverse) {
+						if ((FrameSecurity.ubound != 0) && (numFinished == FrameSecurity.ubound)) {
+							if ((FrameSecurity.negative && FrameSecurity.checkUbound()) // 反向测试，且checkUbound()标志置为true
+									|| !FrameSecurity.negative) {
+								FrameSecurity.updateTextArea("The preset operation number reaches.\n");
+								if (t != null)
+									t.cancel();
+							}
+						}
+					}else {
+						if(numFinished == FrameSecurity.ubound ){
+							FrameSecurity.updateTextArea("The preset operation number reaches.\n");
+							FrameSecurity.prepare_traverse();
+							if(FrameSecurity.traverse) {
+								//每遍历完一类字符，把该类traverse复选框的勾去掉，然后检查是不是还有其它要遍历的类。如果有，则
+								//重置numFinished，不然换到下一类字符串时不是从头开始读，而是接着上一类字符串最后一个的序号。
+								numFinished = 0; 
+							}
+							if ((t != null) && (!FrameSecurity.traverse))
+								t.cancel();
+						}
 					}
 					in.close();
 					out.close();

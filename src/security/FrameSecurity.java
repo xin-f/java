@@ -62,6 +62,10 @@ public class FrameSecurity {
 	private static JRadioButton rdbtnD;
 	private static JRadioButton rdbtnF;
 	private static JTextArea textArea_ubound;
+	public static JCheckBox chkbxA;
+	public static JCheckBox chkbxa;
+	public static JCheckBox chkbx0;
+	public static JCheckBox chkbx_;
 	
 	private static Timer t_ping = null; //新建一线程检查server是否在线。默认启动，Reset复归，每个操作都会再启动。
 	private static boolean t_ping_running = false;
@@ -73,9 +77,17 @@ public class FrameSecurity {
 	public static boolean tls;
 	public static FrameSecurity window;
 	public static boolean alter;
+	public static boolean traverse;
+	public static boolean traverseA;
+	public static boolean traversea;
+	public static boolean traverse0;
+	public static boolean traverse_;
+	public static boolean turn;
+
 	
 	public enum Optype{digsi,fw}
-	
+	public enum Charset{upp,low,dig,cha}
+	public static Charset charset;
 
 	/**
 	 * Launch the application.
@@ -131,7 +143,7 @@ public class FrameSecurity {
 		
 		textField_period = new JTextField();
 		textField_period.setBounds(183, 12, 26, 20);
-		textField_period.setText("10");
+		textField_period.setText("5");
 		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
 		
@@ -158,6 +170,7 @@ public class FrameSecurity {
 					ubound = 0;
 					prepare_setFwPW();
 					checkUbound();
+					prepare_traverse();
 					if(debug){
 						file = new File("log.txt");
 						try {
@@ -218,6 +231,10 @@ public class FrameSecurity {
 					ubound = 0;
 					prepare_setDigPW();
 					checkUbound();
+//					if(prepare_traverse()>1) {
+//						return; //遍历的字符类型大于一个，退出当前方法，重新选。
+//					}
+					prepare_traverse();
 					if(debug){
 						file = new File("log.txt");
 						try {
@@ -252,53 +269,7 @@ public class FrameSecurity {
 		btnReset.setBounds(210, 115, 42, 23);
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				serverLost = false;
-				if(t_ping_running) {
-					t_ping.cancel();
-					t_ping_running = false;
-				}
-				if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
-					try {
-						while(!SetPassword.end) {
-							Thread.sleep(100);
-						}
-						SetPassword.bw.flush();
-						SetPassword.bw.close();
-						SetPassword.streamClosed = true;
-						SetPassword.bw = null;
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					} 
-				}
-				SetPassword.succ = 0;
-				HttpPost.suc = 0;
-
-				if(fwRunning) {
-					fwRunning = false;
-					if(HttpPost.t != null) {
-						HttpPost.t.cancel();
-						HttpPost.t_running = false;
-					}												
-				}
-				if(fwpwRunning || digpwRunning) {
-					fwpwRunning = false;
-					digpwRunning = false;
-					// 如果只用t.cancel()，则计时器被取消，本次是最后一次。但本次还是会运行下去，可能会与预期不同。
-					stop = true;
-					if(SetPassword.t != null) {
-						SetPassword.t.cancel();
-						SetPassword.t_running = false;
-					}						
-				}
-				if(thread_neg != null) {
-					negRunning = false;
-					negative = false;					
-//					if(SetPassword.t != null)
-//						SetPassword.t.cancel();
-					stop = true;
-				}				
+				reset();
 			}
 		});
 		SecurityTest.getContentPane().add(btnReset);
@@ -508,18 +479,18 @@ public class FrameSecurity {
 		chkbxsave = new JCheckBox("save");
 		chkbxsave.setSelected(true);
 		chkbxsave.setToolTipText("Save the log");
-		chkbxsave.setBounds(315, 115, 60, 23);
+		chkbxsave.setBounds(315, 135, 60, 23);
 		SecurityTest.getContentPane().add(chkbxsave);		
 
 		chkbxTls = new JCheckBox("tls");
 //		chkbxTls.setSelected(true);
 		chkbxTls.setToolTipText("Enable https function");
-		chkbxTls.setBounds(315, 141, 60, 23);
+		chkbxTls.setBounds(315, 161, 50, 23);
 		SecurityTest.getContentPane().add(chkbxTls);
 		
 		chkbxAlt = new JCheckBox("alter");
 		chkbxAlt.setToolTipText("Set password alternately");
-		chkbxAlt.setBounds(315, 167, 60, 23);
+		chkbxAlt.setBounds(315, 187, 60, 23);
 		SecurityTest.getContentPane().add(chkbxAlt);
 		
 //		JTextArea
@@ -533,6 +504,27 @@ public class FrameSecurity {
 		textArea_ubound.setText("0");
 		textArea_ubound.setBounds(167, 119, 30, 18);
 		SecurityTest.getContentPane().add(textArea_ubound);
+		
+
+		chkbxA = new JCheckBox("A");
+		chkbxA.setToolTipText("");
+		chkbxA.setBounds(302, 89, 35, 23);
+		SecurityTest.getContentPane().add(chkbxA);
+		
+		chkbxa = new JCheckBox("a");
+		chkbxa.setToolTipText("");
+		chkbxa.setBounds(340, 89, 35, 23);
+		SecurityTest.getContentPane().add(chkbxa);
+		
+		chkbx0 = new JCheckBox("0");
+		chkbx0.setToolTipText("");
+		chkbx0.setBounds(302, 115, 35, 23);
+		SecurityTest.getContentPane().add(chkbx0);
+		
+		chkbx_ = new JCheckBox("!");
+		chkbx_.setToolTipText("");
+		chkbx_.setBounds(340, 115, 35, 23);
+		SecurityTest.getContentPane().add(chkbx_);
 		
 	}
 	
@@ -549,6 +541,7 @@ public class FrameSecurity {
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
 		
+		
 		js.setVisible(true);
 	}
 	public static void updateTextArea(String str) { 
@@ -557,6 +550,46 @@ public class FrameSecurity {
 	public static void updateTextAreacnt(int i) {
 		textArea_cnt.setText(Integer.toString(i));
     } 
+	
+	public static boolean prepare_traverse(/*Charset cs*/) {
+		int i = 0;
+		traverse = false;
+		turn = false;
+		traverseA = chkbxA.isSelected();
+		traversea = chkbxa.isSelected();
+		traverse0 = chkbx0.isSelected();
+		traverse_ = chkbx_.isSelected();
+		if(traversea) {
+			ubound = 26;
+			charset = Charset.low;
+			i++;
+			traverse = true;
+		}
+		if(traverseA ) {
+			ubound = 26;
+			charset = Charset.upp;
+			i++;
+			traverse = true;
+		}
+		if(traverse0) {
+			ubound = 10;
+			charset = Charset.dig;
+			i++;
+			traverse = true;
+		}			
+		if(traverse_) {
+			ubound = 33;
+			charset = Charset.cha;
+			i++;
+			traverse = true;
+		}
+		if(i > 1) {
+//			updateTextArea("Select at most 1 type.\n");
+			//如果想在这里调用reset()退出，没用。reset()执行完后会继续执行写密码的方法后面的部分。
+			turn = true;
+		}
+		return turn;
+	}
 	
 	/**
 	 * 识别输入的IP, PERIOD, 老密码.
@@ -723,6 +756,59 @@ public class FrameSecurity {
 		}
 		ubound = Integer.parseInt(str);
 		return result;
+	}
+	
+	/**
+	 * Encapsulate Reset to a method. Facilitate calling.
+	 */
+	public static void reset() {
+		serverLost = false;
+		if(t_ping_running) {
+			t_ping.cancel();
+			t_ping_running = false;
+		}
+		if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
+			try {
+				while(!SetPassword.end) {
+					Thread.sleep(100);
+				}
+				SetPassword.bw.flush();
+				SetPassword.bw.close();
+				SetPassword.streamClosed = true;
+				SetPassword.bw = null;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			} 
+		}
+		SetPassword.succ = 0;
+		HttpPost.suc = 0;
+
+		if(fwRunning) {
+			fwRunning = false;
+			if(HttpPost.t != null) {
+				HttpPost.t.cancel();
+				HttpPost.t_running = false;
+			}												
+		}
+		if(fwpwRunning || digpwRunning) {
+			fwpwRunning = false;
+			digpwRunning = false;
+			// 如果只用t.cancel()，则计时器被取消，本次是最后一次。但本次还是会运行下去，可能会与预期不同。
+			stop = true;
+			if(SetPassword.t != null) {
+				SetPassword.t.cancel();
+				SetPassword.t_running = false;
+			}						
+		}
+		if(thread_neg != null) {
+			negRunning = false;
+			negative = false;					
+//			if(SetPassword.t != null)
+//				SetPassword.t.cancel();
+			stop = true;
+		}	
 	}
 	
 	public static String getIP(String src, Optype type) {
