@@ -90,7 +90,7 @@ public class SetPassword {
 	static class SetPasswordCycically extends TimerTask {
 		
 		String str = null;
-		String result = "";
+//		String result = "";
 
 		public void run() {
 			t_running = true;
@@ -162,7 +162,7 @@ public class SetPassword {
 						
 						in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 						while ((str = in.readLine()) != null) {
-							result += (str + "\n");
+//							result += (str + "\n");
 //							System.out.println(str);
 							if (str.indexOf(pwSet) != -1) {
 								succ += 1;
@@ -264,7 +264,7 @@ public class SetPassword {
 						
 						in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 						while ((str = in.readLine()) != null) {
-							result += (str + "\n");
+//							result += (str + "\n"); //长期运行会导致'OutOfMemoryError: Java heap space', 因为'result'没被设为 ""，每次循环都会累加。
 							if (str.indexOf(pwSet) != -1) {
 								// System.out.println(str);
 								succ += 1;
