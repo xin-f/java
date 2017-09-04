@@ -33,7 +33,8 @@ public class SetPassword {
 	private static int timeout;
 	private static String curpw;
 	private static String newpw;
-	private static String pwNotSet = "Confirm password:";//只有密码没设，网页里才有此字符串
+	private static String pwNotExist = "Confirm password:";//只有密码没设，网页里才有此字符串
+	private static String pwExistAlready = "Confirm new password:"; //静态查询是否存在密码，只用一次。动态反馈密码是否设成功用 pwSet
 	private static String pwSet = "The password has been set or changed";
 	private static String boundary = null;
 	private static int numFinished; //已运行次数。
@@ -53,7 +54,7 @@ public class SetPassword {
 	static PrintWriter out = null;
 	private static boolean setPwSucc; //本次设密码成功
 	private static boolean setPwSucc_LastTime; //上次设密码成功，用于判断否定测试时，本次要不要取上次的密码作为当前密码。如果上次设置失败，则不取，当前密码保持上上次的。
-	private static boolean pwExist;		//密码已设置
+	public static boolean pwExist;		//密码已设置
 	private static boolean pwInitInternal;	//密码是否由本程序初始化
 	private static boolean AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram;
 	public static Timer t = null;//Make the timer be public so that the pw setting process can be terminated by 'Reset' in Frame.java by t.cancel()
@@ -67,6 +68,7 @@ public class SetPassword {
 		numFinished = 0;
 		pwInitInternal = false; // 默认假设密码不是由本程序初始化的.->用于判断在改密码时,旧密码的来源.
 								// 最外层if-else-语句,else部分要衔接一个来自if语句的变量 newpw
+		pwExist = false;
 		AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = false; //用来区别是否是一台有密码的现成的装置(即没走initialize的数据流)。		
 		if(FrameSecurity.save) {
 			streamClosed = false;
@@ -102,8 +104,9 @@ public class SetPassword {
 					else
 						url = new URL(FrameSecurity.ip_another);
 					setPwSucc = false;
-					pwExist = true; // 默认已经设过密码
+//					pwExist = true; 
 
+					if(!pwExist){
 					//conn来检查密码是否已经设置。
 					if(FrameSecurity.tls) {
 						conn = setHttpsConnect((HttpsURLConnection) url.openConnection());
@@ -117,8 +120,8 @@ public class SetPassword {
 					
 					in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 					while ((str = in.readLine()) != null) {
-						if (str.indexOf(pwNotSet) > -1) { // 一检测到相关字符串,就认为密码没设过.
-							pwExist = false;
+						if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
+							pwExist = true;
 							break;
 						}
 					}
@@ -128,7 +131,7 @@ public class SetPassword {
 					}else {
 						((HttpURLConnection) conn).disconnect();
 					}
-
+					}
 					//connection 用来设或改密码。
 					if(FrameSecurity.tls) {
 						connection = setHttpsConnect((HttpsURLConnection) url.openConnection());
@@ -169,6 +172,7 @@ public class SetPassword {
 								setPwSucc = true;
 								setPwSucc_LastTime = true;
 								pwInitInternal = true;
+								pwExist = true;
 								FrameSecurity.updateTextArea("Password has been initialized.\n");
 							}
 						}
@@ -274,6 +278,12 @@ public class SetPassword {
 						}
 					}//end of pwExist
 
+					if(FrameSecurity.tls) { //9.2.2017
+						((HttpsURLConnection) connection).disconnect(); 				
+					}else {
+						((HttpURLConnection) connection).disconnect();
+					}
+					
 					System.out.println("Password has been set successfully for " + succ + " times.");
 					FrameSecurity.updateTextAreacnt(succ);
 					//e.g.: abc123!@	Invalid		fail
