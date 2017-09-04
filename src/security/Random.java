@@ -64,10 +64,9 @@ public class Random {
 		System.out.println(fmt);
 		if (FrameSecurity.ip != null)
 			FrameSecurity.updateTextArea(fmt.toString() + "\n");
-		if (result.length() != sb.length())
-			System.exit(0);
+//		if (result.length() != sb.length())
+//			System.exit(0);
 		return result.toString();
-		// System.out.println();
 	}
 	
 	/**
