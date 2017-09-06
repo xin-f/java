@@ -83,7 +83,8 @@ public class FrameSecurity {
 	public static boolean traverse0;
 	public static boolean traverse_;
 	public static boolean turn;
-
+	
+	public static boolean attack;
 	
 	public enum Optype{digsi,fw}
 	public enum Charset{upp,low,dig,cha}
@@ -133,17 +134,18 @@ public class FrameSecurity {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.80");
+		textField_ip.setText("172.20.1.25");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
-		PERIOD = new JLabel("PERIOD(S)");
-		PERIOD.setBounds(122, 15, 64, 14);
+		PERIOD = new JLabel("Prid(0.1s)");
+		PERIOD.setBounds(122, 15, 55, 14);
 		SecurityTest.getContentPane().add(PERIOD);
 		
 		textField_period = new JTextField();
-		textField_period.setBounds(183, 12, 26, 20);
-		textField_period.setText("5");
+		textField_period.setToolTipText("Ends with \".\" will enable password attack, e.g., \"10.\" means making an attempt every 1 sec");
+		textField_period.setBounds(179, 12, 30, 20);
+		textField_period.setText("100");
 		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
 		
@@ -164,6 +166,8 @@ public class FrameSecurity {
 					ip_another = getIP(textField_ip.getText(),Optype.digsi);
 				}
 				stop = false;
+				attack = false;
+				ubound = 0;
 				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
 					debug = false;
 					fwpwRunning = true;
@@ -181,10 +185,13 @@ public class FrameSecurity {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					if(period < 5){
-						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-					}else{
+					if (attack) {
 						SetPassword.set();
+					} else {
+						if (period < 50) {
+							updateTextArea("To avoid timeout, set the period no less than 5s.\n");
+						}else
+							SetPassword.set();
 					}
 				}else if(fwRunning){
 					updateTextArea("FW uploading is in progress!! \n"
@@ -193,7 +200,7 @@ public class FrameSecurity {
 					updateTextArea("Digsi connection pw Setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(fwpwRunning){
-					updateTextArea("Naughty guy! The operation is already in progress!! \n");
+					updateTextArea("The operation is already in progress!! \n");
 				}				
 			}
 		});
@@ -225,6 +232,8 @@ public class FrameSecurity {
 					ip_another = getIP(textField_ip.getText(),Optype.fw);
 				}
 				stop = false;
+				attack = false;
+				ubound = 0;
 				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
 					debug = false;
 					digpwRunning = true;
@@ -245,10 +254,13 @@ public class FrameSecurity {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					if(period < 5){
-						updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-					}else{
+					if (attack) {
 						SetPassword.set();
+					} else {
+						if (period < 50) {
+							updateTextArea("To avoid timeout, set the period no less than 5s.\n");
+						}else
+							SetPassword.set();
 					}
 				}else if(fwRunning){
 					updateTextArea("FW uploading is in progress!! \n"
@@ -257,7 +269,7 @@ public class FrameSecurity {
 					updateTextArea("FW upload pw Setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(digpwRunning){
-					updateTextArea("Naughty guy! The operation is already in progress!! \n");
+					updateTextArea("The operation is already in progress!! \n");
 				}
 			}
 		});
@@ -339,7 +351,7 @@ public class FrameSecurity {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					if(period < 60){
+					if(period < 600){
 						updateTextArea("To avoid timeout, set the period no less than 60s.\n");
 					}else{
 						updateTextArea("\"Update in progress\" being detected is \\\nregarded as updating successfully.\n");
@@ -412,6 +424,7 @@ public class FrameSecurity {
 				negRunning = true;	
 				ubound = 0;
 				prepare_setNegPW();	
+//				prepare_traverse();
 				checkUbound();
 				Thread_neg a = new Thread_neg();
 				thread_neg = new Thread(a);
@@ -597,6 +610,7 @@ public class FrameSecurity {
 	 */
 	public static void prepare_setFwPW(){
 		String str;
+		String tmp;
 		int len;
 		save = chkbxsave.isSelected();
 		tls = chkbxTls.isSelected();
@@ -606,7 +620,14 @@ public class FrameSecurity {
 			ip = "https://"+textField_ip.getText()+"/setfwuploadpassword";
 		else
 			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
-		period = Integer.parseInt(textField_period.getText());
+		tmp = textField_period.getText();
+		if(tmp.endsWith(".")) {
+			tmp = tmp.substring(0, tmp.length()-1);
+			attack = true;
+			updateTextArea("Password attempting:\n");
+			SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
+		}
+		period = Integer.parseInt(tmp);
 		str = textField_FwPw.getText();
 		commonpw = str;
 		len = str.length();
@@ -623,6 +644,7 @@ public class FrameSecurity {
 	 */
 	public static void prepare_setDigPW(){
 		String str;
+		String tmp;
 		save = chkbxsave.isSelected();
 		tls = chkbxTls.isSelected();
 		if(save)
@@ -632,7 +654,14 @@ public class FrameSecurity {
 			ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
 		else
 			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
-		period = Integer.parseInt(textField_period.getText());
+		tmp = textField_period.getText();
+		if(tmp.endsWith(".")) {
+			tmp = tmp.substring(0, tmp.length()-1);
+			attack = true;
+			updateTextArea("Password attempting:\n");
+			SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
+		}
+		period = Integer.parseInt(tmp);
 		str = textField_DigPw.getText();
 		commonpw = str;
 		len = str.length();
@@ -763,6 +792,8 @@ public class FrameSecurity {
 	 */
 	public static void reset() {
 		serverLost = false;
+		traverse = false;
+		SetPassword.pwExist = false;
 		if(t_ping_running) {
 			t_ping.cancel();
 			t_ping_running = false;
@@ -784,6 +815,7 @@ public class FrameSecurity {
 		}
 		SetPassword.succ = 0;
 		HttpPost.suc = 0;
+		ubound = 0;
 
 		if(fwRunning) {
 			fwRunning = false;

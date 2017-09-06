@@ -52,7 +52,7 @@ public class HttpPost {
 		password = FrameSecurity.fwpw;
 		
 		t = new Timer();
-		timeout = FrameSecurity.period*1000;
+		timeout = FrameSecurity.period*100;
 		t.schedule(new TimerTask(){
 			public void run(){
 				t_running = true;
@@ -99,7 +99,7 @@ public class HttpPost {
 					.append(newLine)
 					.append(boundary)
 					.append(newLine);
-					out.write(sb_pw.toString().getBytes());
+					out.write(sb_pw.toString().getBytes("UTF-8"));
 					out.flush(); //flush()很关键.
 					StringBuffer sb_fw = new StringBuffer();;
 					sb_fw.append("Content-Disposition: form-data; name=\"userfile2\";filename="+"\""+fileName+"\"") //注意格式,边看wireshark边凑.
