@@ -870,7 +870,7 @@ public class FrameSecurity {
 	private static void enablePing() {
 		if(!t_ping_running) {
 			t_ping = new Timer();
-			t_ping.schedule(window.new Ping(), 0, 10000);
+			t_ping.schedule(window.new Ping(), 0, 5000);
 			t_ping_running = true;
 		}
 	}

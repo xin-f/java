@@ -324,13 +324,13 @@ public class SetPassword {
 							if(Random.judge(newpw)) {
 								System.out.println("Set password failed. Is the current pw correct?");
 								FrameSecurity.updateTextArea("Set password failed. \nIs the current pw correct?\n");	
-//								t.cancel(); //反向测试时不停止loop。
+								t.cancel(); //反向测试在密码有效却修改失败时停loop。
 								if(FrameSecurity.save) {
 									bw.write("Valid    "+"FAIL");
 									bw.newLine();
 									bw.flush();
-//									bw.close(); //有t.cancel()的地方需要close()
-//									streamClosed = true;
+									bw.close(); //有t.cancel()的地方需要close()
+									streamClosed = true;
 								}
 //								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
 //								if(Frame.digpwRunning) Frame.digpwRunning = false;
@@ -420,7 +420,7 @@ public class SetPassword {
 					e.printStackTrace();
 				} catch (IOException e) {
 					FrameSecurity.updateTextArea(
-							"Connection not established.\nIf the IP is correct, try again or check it via browser.\n ");
+							"IOException captured.\n ");
 					e.printStackTrace();
 				} catch (NoSuchAlgorithmException e) {
 					// SSLContext.getInstance()
