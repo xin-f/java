@@ -1,6 +1,6 @@
 /*.txt
 /src/test/*
-/.classpath
-/bin/*
-/.settings/*
-/.project
+.classpath
+/bin
+/.settings
+.project
