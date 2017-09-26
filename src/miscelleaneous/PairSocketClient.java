@@ -17,6 +17,8 @@ public class PairSocketClient {
 	 *  1) In PairServer.java, server listen on 50000 port and if there's connection request, establish a socket.
 	 *  2) Client send telegram to Server. Server responds with different info accord to the telegram received from Client
 	 *  3) Client then re-use the stream and socket to send message to Server.
+	 *  
+	 *  往socket里写东西，要先把16进制数据转成byte[] 或byte, 然后发送。收到的数据要从byte[]转成String, int等可读的东西。
 	 * @param args
 	 */
 	public static void main(String[] args) {

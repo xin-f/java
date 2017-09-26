@@ -71,15 +71,16 @@ public class Random {
 	
 	/**
 	 * 遍历每个类型，每个字符。
+	 * 需求：每个类型每个字符出现时，比如大A，该类型其它字符均不出现，其它类型即小写，数字，符号都必须有。 大A是唯一的大写字母。这样可以测试两个方面：
+	 * 1，大A可被接受，2，大A被当作大写，因为没有其它大写了。对每一类每一个字符都这样处理。
 	 * @return
 	 */
 	public static String getValidRandomString_traverse() {
 		StringBuffer sb = new StringBuffer();
 		length = getRandom(16) + 7;
 		int len_traverse = 0;
+		// 以下四个判断，确保未被勾选的字符类型至少出现一次。比如，勾选大写字母，则小写，数字，符号都会出现，但大写不会出现。大写在SetPassword.java中用charAt()取。
 		if(FrameSecurity.charset != FrameSecurity.Charset.cha) {
-		//sb.append(cha.charAt(getRandom(cha.length() - 1))).append(upp.charAt(getRandom(upp.length() - 1)))
-//				.append(low.charAt(getRandom(low.length() - 1))).append(dig.charAt(getRandom(dig.length() - 1)));
 			sb.append(cha.charAt(getRandom(cha.length() - 1)));
 		}
 		if(FrameSecurity.charset != FrameSecurity.Charset.upp) {
@@ -91,7 +92,8 @@ public class Random {
 		if(FrameSecurity.charset != FrameSecurity.Charset.low) {
 			sb.append(low.charAt(getRandom(low.length() - 1)));
 		}
-//		int len_traverse = (upp+low+dig).length();
+
+		// for()把字符串由3位扩展到7~23位长度,且依然不包含勾选的字符类。
 		for (int i = 0; i < length - 3; i++) {
 			if (FrameSecurity.charset == FrameSecurity.Charset.cha) {
 				len_traverse = (upp + low + dig).length();

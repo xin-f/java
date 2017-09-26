@@ -33,8 +33,6 @@ class WebAccess implements Runnable{
 		localport = clientport;
 	}	
 	Socket socket = null;
-	//680443000000---680483000000 TESTFR
-	//680407000000---68040B000000 STARTDT
 	String STARTDT = "680407000000";
 	String TESTFR = "680443000000";
 	String TESTFRCON = "680483000000";
@@ -222,7 +220,7 @@ class WebAccess implements Runnable{
 //		String tele = null;
 		total = in.available();
 //    	System.out.println("available: "+in.available());
-    	int start;
+    	int start = 0;
     	int len;
     	while ((start = in.read()) == 0x68){
     		len = in.readUnsignedByte();
