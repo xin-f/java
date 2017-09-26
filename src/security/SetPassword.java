@@ -103,9 +103,9 @@ public class SetPassword {
 			if (!FrameSecurity.stop) {
 				try {
 					if(self)
-						url = new URL(FrameSecurity.ip);
+						{url = new URL(FrameSecurity.ip);}
 					else
-						url = new URL(FrameSecurity.ip_another);
+						{url = new URL(FrameSecurity.ip_another);}
 					setPwSucc = false;
 //					pwExist = true; 
 
@@ -217,7 +217,8 @@ public class SetPassword {
 										// 不进行遍历，即正常的case
 										newpw = Random.getValidRandomString();
 									} else {
-										// lock = FrameSecurity.prepare_traverse();
+										// 如果字符类型全选，根据prepare_traverse()函数给变量Charset的赋值顺序，traverse_最后赋的，所以此时traversea,traverseA,traverse0
+									    // 都为false。等traverse_类的即符号类的遍历完，通过setSelected(false)把这一类复选框取消选择。在本程序后面再进行prepare_traverse()判断。
 										if (FrameSecurity.charset == FrameSecurity.Charset.dig) {
 											FrameSecurity
 													.updateTextArea(Random.dig.substring(numFinished, numFinished + 1));
@@ -259,13 +260,13 @@ public class SetPassword {
 								}
 							}
 						}
-						change.append("--" + boundary + "\r\n")
-								.append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n").append(curpw)
-								.append("\r\n--" + boundary + "\r\n")
-								.append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n").append(newpw)
-								.append("\r\n--" + boundary + "\r\n")
-								.append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n").append(newpw)
-								.append("\r\n--" + boundary + "--\r\n");
+                        change.append("--" + boundary + "\r\n")
+                                .append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n").append(curpw)
+                                .append("\r\n--" + boundary + "\r\n")
+                                .append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n").append(newpw)
+                                .append("\r\n--" + boundary + "\r\n")
+                                .append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n").append(newpw)
+                                .append("\r\n--" + boundary + "--\r\n");
 
 						// out = new PrintWriter(connection.getOutputStream());
 						out = new BufferedOutputStream(connection.getOutputStream());
@@ -304,47 +305,55 @@ public class SetPassword {
 					}
 
 					if (!setPwSucc) {
-						if(!FrameSecurity.attack) {
-						if(!FrameSecurity.negative) {
-							//密码操作失败，且密码都是合规的。
-							System.out.println("Set password failed. Process terminated. Is the current pw correct?");
-							FrameSecurity.updateTextArea("Set password failed. Process terminated.\nIs the current pw correct?\n");						
-							t.cancel();
-							if(FrameSecurity.save) {
-								bw.write("Valid    "+"FAIL");
-								bw.newLine();
-								bw.flush();
-								bw.close(); //有t.cancel()的地方需要close()
-								streamClosed = true;
-							}
-							if(FrameSecurity.fwpwRunning) FrameSecurity.fwpwRunning = false;
-							if(FrameSecurity.digpwRunning) FrameSecurity.digpwRunning = false;
-						}else {
-						    //密码操作失败，此时的密码字符串未必是合规的，要作判断。
-							if(Random.judge(newpw)) {
-								System.out.println("Set password failed. Is the current pw correct?");
-								FrameSecurity.updateTextArea("Set password failed. \nIs the current pw correct?\n");	
-								t.cancel(); //反向测试在密码有效却修改失败时停loop。
-								if(FrameSecurity.save) {
-									bw.write("Valid    "+"FAIL");
+						if (!FrameSecurity.attack) {
+							if (!FrameSecurity.negative) {
+								// 密码操作失败，且密码都是合规的。
+								System.out
+										.println("Set password failed. Process terminated. Is the current pw correct?");
+								FrameSecurity.updateTextArea(
+										"Set password failed. Process terminated.\nIs the current pw correct?\n");
+								t.cancel();
+								if (FrameSecurity.save) {
+									bw.write("Valid    " + "FAIL");
 									bw.newLine();
 									bw.flush();
-									bw.close(); //有t.cancel()的地方需要close()
+									bw.close(); // 有t.cancel()的地方需要close()
 									streamClosed = true;
 								}
-//								if(Frame.fwpwRunning) Frame.fwpwRunning = false;
-//								if(Frame.digpwRunning) Frame.digpwRunning = false;
-							}else {
-								System.out.println("Invalid password is rejected by EN100.");
-								FrameSecurity.updateTextArea("Invalid password is rejected by EN100.\n");
-								if(FrameSecurity.save) {
-									bw.write("Invld    "/*+"PASS"*/);
-									bw.newLine();
-									bw.flush();
+								if (FrameSecurity.fwpwRunning)
+									FrameSecurity.fwpwRunning = false;
+								if (FrameSecurity.digpwRunning)
+									FrameSecurity.digpwRunning = false;
+							} else {
+								// 密码操作失败，此时的密码字符串未必是合规的，要作判断。
+								if (Random.judge(newpw)) {
+									System.out.println("Set password failed. Is the current pw correct?");
+									FrameSecurity.updateTextArea("Set password failed. \nIs the current pw correct?\n");
+									t.cancel(); // 反向测试在密码有效却修改失败时停loop。
+									if (FrameSecurity.save) {
+										bw.write("Valid    " + "FAIL");
+										bw.newLine();
+										bw.flush();
+										bw.close(); // 有t.cancel()的地方需要close()
+										streamClosed = true;
+									}
+									// if(Frame.fwpwRunning) Frame.fwpwRunning = false;
+									// if(Frame.digpwRunning) Frame.digpwRunning = false;
+								} else {
+									System.out.println("Invalid password is rejected by EN100.");
+									FrameSecurity.updateTextArea("Invalid password is rejected by EN100.\n");
+									if (FrameSecurity.save) {
+										bw.write("Invld    "/* +"PASS" */);
+										bw.newLine();
+										bw.flush();
+									}
 								}
-							}}
+							}
+						} else {
+							bw.newLine();
+							bw.flush();
 						}
-												
+
 					}else {//密码操作成功						
 						if(FrameSecurity.negative) {
 							//密码操作成功，密码字串可能是有效也可能是无效的。
