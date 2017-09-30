@@ -120,6 +120,8 @@ public class SetPassword {
 							conn = setHttpConnect((HttpURLConnection) url.openConnection());
 						}
 //						boundary = "----thisisfromEn100securityteam-sunxinfeng";
+						conn.setDoInput(true);
+						conn.setDoOutput(true);
 
 						in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 						while ((str = in.readLine()) != null) {
@@ -466,8 +468,10 @@ public class SetPassword {
 			c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
 			c.setRequestProperty("Accept-Encoding", "gzip, deflate");
 			c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-			c.setConnectTimeout(2000); // timeout
-			c.setReadTimeout(2000);
+			c.setConnectTimeout(5000); // timeout
+			c.setReadTimeout(5000);
+			c.setChunkedStreamingMode(2048);
+//			c.setFixedLengthStreamingMode(2048); //不能用定长的。 若定长，而实际的数据没这么长，会报insufficient data written
 			return c;
 		}
 		private HttpURLConnection setHttpConnect(HttpURLConnection c) {
