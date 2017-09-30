@@ -36,16 +36,29 @@ import javax.net.ssl.X509TrustManager;
 public class GetCertificate {
 	
 	static boolean frame;
-	public static File file = null;
-	
-	
-/*	public static void main(String[] arg){
-		if(Frame.ip == null)
-			checkCert();
-	}*/
-	public static void checkCert(){
-		URL url = null;
-		URLConnection connection = null;
+//	public static File file = null;
+	private static String[] ip_seg = null;
+	private static int seg3;
+    static URL url = null;
+//    static URLConnection connection = null;
+
+    public static void checkCert() {
+        ip_seg = FrameSecurity.ip.split("[.]");
+        seg3 = Integer.parseInt(ip_seg[3]);
+        if (!FrameSecurity.certSegment) {
+            check(seg3);
+        } else {
+            if (seg3 > FrameSecurity.certEnd)
+                FrameSecurity.updateTextArea("The END ip value should be larger than the START one.\n");
+            else {
+                for (int i = seg3; i <= FrameSecurity.certEnd; i++) {
+                    check(i);
+                }
+            }
+        }
+    }
+
+	public static void check(int tmp){
 		frame = false;
 		if(FrameSecurity.ip != null)
 			frame = true;
@@ -57,8 +70,8 @@ public class GetCertificate {
 				connection = (HttpsURLConnection)url.openConnection(proxy);
 			}		
 			else {*/
-			url = new URL(FrameSecurity.ip);
-			connection = url.openConnection();
+			url = new URL("https://" + ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp + "/home");
+			URLConnection connection = url.openConnection();
 			SSLContext sc =  SSLContext.getInstance("TLS");
 			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
 			if(FrameSecurity.tls) {
@@ -82,21 +95,29 @@ public class GetCertificate {
 			SSLSession sslSession = scc.getSession(b1);
 			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];//确定有且只有一个证书ID，所以直接访问证书数组[0]
 			javax.security.cert.X509Certificate[] certChain = sslSession.getPeerCertificateChain();
-//			if(frame) {
-//				Frame.updateTextArea("Certificate Chain: \n");
-//				for(javax.security.cert.X509Certificate x:certChain)
-//					Frame.updateTextArea(x.toString()+"\n");
-//			}				
+			
+			if(FrameSecurity.tls) ((HttpsURLConnection) connection).disconnect();
+			
 			System.out.println(sslSession.getCipherSuite());
 			System.out.println(sslSession.getLocalCertificates());//读不到东西.
 			System.out.println(sslSession.getPeerCertificates());
 			System.out.println(sslSession.getPeerCertificateChain());
 			if(FrameSecurity.save) {
-				FileOutputStream fos = new FileOutputStream(file);
-				PrintWriter pw = new PrintWriter(fos);
-				pw.write(cert.toString());
-				pw.close();
-				fos.close();
+			    if(!FrameSecurity.certSegment) {
+			        File file = new File("cert.txt");
+	                FileOutputStream fos = new FileOutputStream(file);
+	                PrintWriter pw = new PrintWriter(fos);
+	                pw.write(cert.toString());
+	                pw.close();
+	                fos.close(); 
+			    }else {
+			        File file = new File("cert_" + tmp + ".txt");
+	                FileOutputStream fos = new FileOutputStream(file);
+	                PrintWriter pw = new PrintWriter(fos);
+	                pw.write(cert.toString());
+	                pw.close();
+	                fos.close();
+			    }			    
 			}			
 			
 			byte[] serial = cert.getSerialNumber().toByteArray();  
@@ -109,12 +130,12 @@ public class GetCertificate {
 			if(frame) 
 				FrameSecurity.updateTextArea("Serial Number: "+serialNum+"\n");
 			serialN.close(); 
-	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerX500Principal());   
+//	        System.out.println("x509Certificate_getIssuerDN_发布方标识名___:"+cert.getIssuerX500Principal());   
 //	        if(frame) 
 //	        	Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
-	        System.out.println("x509Certificate_getSubjectDN_主体标识___:"+cert.getSubjectX500Principal());  
+	        /*System.out.println("x509Certificate_getSubjectDN_主体标识___:"+cert.getSubjectX500Principal());  
 	        System.out.println("x509Certificate_getSigAlgOID_证书算法OID字符串___:"+cert.getSigAlgOID()); 
-	        System.out.println("x509Certificate_getNotBefore_证书起始期___:"+cert.getNotBefore()); 
+	        System.out.println("x509Certificate_getNotBefore_证书起始期___:"+cert.getNotBefore()); */
 	        if(frame) 
 	        	FrameSecurity.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
 	        System.out.println("x509Certificate_getNotBefore_证书有效期___:"+cert.getNotAfter()); 
@@ -124,18 +145,18 @@ public class GetCertificate {
 	        if(frame) 
 	        	FrameSecurity.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
 	        System.out.println("x509Certificate_getVersion_版本号___:"+cert.getVersion());  
-	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey());  
+//	        System.out.println("x509Certificate_getPublicKey_公钥___:"+cert.getPublicKey());  
 	        Collection<List<?>> subject = cert.getSubjectAlternativeNames();
 	        String ip = subject.toString().substring(5, subject.toString().length()-2);
 	        System.out.println(ip);
 	        if(frame) 
 	        	FrameSecurity.updateTextArea("Subject ip: "+ip+"\n");
 	        if(!FrameSecurity.ForFun) {	
-	        	String str = FrameSecurity.ip;
-	        	//https://172.20.1.80/xxx
-	        	str = str.substring(8, str.length());//去掉前面八个字符(https://)
-	        	int i = str.indexOf("/");
-	        	str = str.substring(0, i);
+//	        	String str = "https://" + FrameSecurity.ip + "/home";
+//	        	str = str.substring(8, str.length());//去掉前面八个字符(https://)
+//	        	int i = str.indexOf("/");
+//	        	str = str.substring(0, i);
+	            String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
 	        	if(!ip.equals(str))
 		        	if(frame)
 		        		FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
@@ -148,7 +169,10 @@ public class GetCertificate {
 	        System.out.println(signature);
 	        sign.close();
 	        if(frame)
-        		FrameSecurity.updateTextArea("Signature: "+signature+"\n");
+        		{
+	            FrameSecurity.updateTextArea("Signature: "+signature+"\n");
+	            FrameSecurity.updateTextArea("=============================\n");
+        		}
 			FrameSecurity.chkRunning = false;
 		} catch (MalformedURLException e) {
 			System.out.println("new URL");
@@ -157,12 +181,12 @@ public class GetCertificate {
 		} catch (IOException e) {
 			FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
 			System.out.println("url.openConnection");
+			FrameSecurity.updateTextArea("=============================\n");
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("SSLContext.getInstance");
 			e.printStackTrace();
 		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (CertificateParsingException e) {
 			System.out.println("getSubjectAlternativeNames)");
@@ -177,7 +201,6 @@ public class GetCertificate {
 //	public Enumeration<byte[]> getIds() {return null;}
 //
 //	public SSLSession getSession(byte[] arg0) {
-//		// TODO Auto-generated method stub
 //		return null;
 //	}
 //	public int getSessionCacheSize() {return 0;	}

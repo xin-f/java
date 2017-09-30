@@ -20,6 +20,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
@@ -43,6 +46,7 @@ public class FrameSecurity {
 	public static String ip;
 	public static String ip_another;
 	public static int period;
+	public static int certEnd;
 	public static String fwpw;
 	public static String digpw;
 	public static String commonpw;//fwpw 和digpw 由同一个函数管理，这个公共密码用来在fwpw和digpw都没设时，点不同按钮，能把界面上相应两个字符串送到不同密码。用在SetPassword里
@@ -55,10 +59,12 @@ public class FrameSecurity {
 	public static boolean debug;
 	public static boolean ForFun;	//get the certificate such as baidu.com
 	public static boolean negative;
+	public static boolean certSegment; //检查一个IP段的证书.
 	public static int ubound; //循环次数达到此值即停。
 	private static File file = null;
 	private static PrintStream logStream = null;
 	private static JTextField textField_DigPw;
+	private static JTextField textField_end;
 	private static JRadioButton rdbtnD;
 	private static JRadioButton rdbtnF;
 	private static JTextArea textArea_ubound;
@@ -89,6 +95,7 @@ public class FrameSecurity {
 	public enum Optype{digsi,fw}
 	public enum Charset{upp,low,dig,cha}
 	public static Charset charset;
+	
 
 	/**
 	 * Launch the application.
@@ -134,17 +141,17 @@ public class FrameSecurity {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.25");
+		textField_ip.setText("172.20.1.80");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
 		PERIOD = new JLabel("Prid(0.1s)");
-		PERIOD.setBounds(122, 15, 55, 14);
+		PERIOD.setBounds(209, 14, 55, 14);
 		SecurityTest.getContentPane().add(PERIOD);
 		
 		textField_period = new JTextField();
 		textField_period.setToolTipText("Ends with \".\" will enable password attack, e.g., \"10.\" means making an attempt every 1 sec");
-		textField_period.setBounds(179, 12, 30, 20);
+		textField_period.setBounds(266, 11, 30, 20);
 		textField_period.setText("100");
 		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
@@ -372,9 +379,9 @@ public class FrameSecurity {
 		});
 		SecurityTest.getContentPane().add(btnUpldfw);
 		
-		JButton btnCert = new JButton("ChkCert");
+		JButton btnCert = new JButton("CkCrt");
 		btnCert.setToolTipText("Check server certificate.");
-		btnCert.setBounds(210, 11, 86, 23);
+		btnCert.setBounds(300, 81, 75, 23);
 		btnCert.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				/*if(!t_ping_running) {
@@ -488,22 +495,29 @@ public class FrameSecurity {
 		btnMemo.setBounds(300, 87, 75, 23);
 		SecurityTest.getContentPane().add(btnMemo);*/
 		
+		textField_end = new JTextField();
+        textField_end.setToolTipText("End of IP segment. Starting with \".\" with enable IP segment scan. ");
+        textField_end.setText(".82");
+        textField_end.setColumns(10);
+        textField_end.setBounds(115, 12, 30, 20);
+        SecurityTest.getContentPane().add(textField_end);
+        
 
 		chkbxsave = new JCheckBox("save");
-		chkbxsave.setSelected(true);
 		chkbxsave.setToolTipText("Save the log");
-		chkbxsave.setBounds(315, 135, 60, 23);
+		chkbxsave.setBounds(312, 161, 60, 23);
 		SecurityTest.getContentPane().add(chkbxsave);		
 
 		chkbxTls = new JCheckBox("tls");
+		chkbxTls.setSelected(true);
 //		chkbxTls.setSelected(true);
 		chkbxTls.setToolTipText("Enable https function");
-		chkbxTls.setBounds(315, 161, 50, 23);
+		chkbxTls.setBounds(312, 187, 50, 23);
 		SecurityTest.getContentPane().add(chkbxTls);
 		
 		chkbxAlt = new JCheckBox("alter");
 		chkbxAlt.setToolTipText("Set password alternately");
-		chkbxAlt.setBounds(315, 187, 60, 23);
+		chkbxAlt.setBounds(312, 213, 60, 23);
 		SecurityTest.getContentPane().add(chkbxAlt);
 		
 //		JTextArea
@@ -521,22 +535,22 @@ public class FrameSecurity {
 
 		chkbxA = new JCheckBox("A");
 		chkbxA.setToolTipText("");
-		chkbxA.setBounds(302, 89, 35, 23);
+		chkbxA.setBounds(312, 115, 33, 23);
 		SecurityTest.getContentPane().add(chkbxA);
 		
 		chkbxa = new JCheckBox("a");
 		chkbxa.setToolTipText("");
-		chkbxa.setBounds(340, 89, 35, 23);
+		chkbxa.setBounds(342, 115, 33, 23);
 		SecurityTest.getContentPane().add(chkbxa);
 		
 		chkbx0 = new JCheckBox("0");
 		chkbx0.setToolTipText("");
-		chkbx0.setBounds(302, 115, 35, 23);
+		chkbx0.setBounds(312, 141, 33, 23);
 		SecurityTest.getContentPane().add(chkbx0);
 		
 		chkbx_ = new JCheckBox("!");
 		chkbx_.setToolTipText("");
-		chkbx_.setBounds(340, 115, 35, 23);
+		chkbx_.setBounds(342, 141, 33, 23);
 		SecurityTest.getContentPane().add(chkbx_);
 		
 	}
@@ -554,12 +568,37 @@ public class FrameSecurity {
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
 		
-		
+				
 		js.setVisible(true);
 	}
+	
+	
 	public static void updateTextArea(String str) { 
 		textArea.append(str);
+		textArea.paintImmediately(textArea.getBounds()); //让更新立刻显示在界面上而不是等swing的主线程返回后刷新. 
+		/*不难看出是在等待线程结束导致输出滞后，点击按钮后整个界面都卡住，按钮的事件阻塞了Frame整个线程（不知道这么说是否确切），才导致JTextArea没法实时显示信息。
+		在按钮监听到append事件时，另起一个线程来执行append行为，就好了：
+		private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {            
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "output");
+            }
+    });
+     
+    public void append() {
+            button1.addActionListener(new ActionListener() {       
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    service.submit(new Runnable() {                
+                        @Override
+                        public void run() {                      
+                        }
+                    });
+                }
+            });
+        }*/
     } 
+	
 	public static void updateTextAreacnt(int i) {
 		textArea_cnt.setText(Integer.toString(i));
     } 
@@ -671,6 +710,11 @@ public class FrameSecurity {
 		}
 		else digpw = str;
 	}	
+	
+	
+	public static void prepare_chkcert() {
+	    
+	}
 
 	/**
 	 * 识别输入的IP, PERIOD, 老密码.
@@ -745,20 +789,26 @@ public class FrameSecurity {
 	 */
 	public static void prepare_ChkCert(){
 		String str = textField_ip.getText();
+		String end = textField_end.getText();
+        if (end.startsWith(".")) {
+            certSegment = true;
+            certEnd = Integer.parseInt(end.substring(1, end.length()));
+        } else {
+            certSegment = false;
+        }
 		save = chkbxsave.isSelected();
 		tls = chkbxTls.isSelected();
-		if(save)
-			GetCertificate.file = new File("cert.txt");
 		if(str.indexOf("https") == -1) {
 			if(str.matches("[a-zA-Z]+")) { //不玩了，GetCertificate.java里已去掉相关代码。
 				ForFun = true;
-				ip = "https://www."+str+".com";
+				//ip = "https://www."+str+".com";
 			}else{
 				if(!tls) {
 					updateTextArea("Enable tls first.\n");					
 				}else {
 					ForFun = false;
-					ip = "https://"+str+"/home";
+					//ip = "https://"+str+"/home";
+					ip = textField_ip.getText();
 					period = Integer.parseInt(textField_period.getText());
 					if (period == 99)
 						debug = true;
