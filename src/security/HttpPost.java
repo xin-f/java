@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -34,7 +35,7 @@ public class HttpPost {
 	private static int timeout;
 	private static URLConnection connection = null;
 	private static SSLContext sc = null;
-	
+	private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
 	public static int suc;
 	public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
 	public static boolean t_running;
@@ -68,7 +69,6 @@ public class HttpPost {
 						connection = url.openConnection();
 					}
 					
-					String boundary = "---------------------wowothisisunique-sxf";
 					String newLine = "\r\n";
 					//头部的\r\n都是系统自己加的.
 					connection.setRequestProperty("User-Agent", "sxf");
@@ -150,12 +150,12 @@ public class HttpPost {
 					while((str = in.readLine()) != null){
 						if(str.indexOf("Update in progress") > -1){
 							suc += 1;
-							System.out.println("FW upload successful "+suc+" times.");
+							System.out.println("FW transmitting finished "+suc+" times.");
 							FrameSecurity.updateTextAreacnt(suc);
 //							String str1 = "FW upload successful "+suc+" time.\n";
 //							String str2 = "FW upload successful "+suc+" times.\n";
 //							str = (suc == 1)?"":"";
-							FrameSecurity.updateTextArea((suc==1)?"FW upload successful "+suc+" time.\n":"FW upload successful "+suc+" times.\n");
+							FrameSecurity.updateTextArea((suc==1)?"FW transmitting finished "+suc+" time.\n":"FW transmitting finished "+suc+" times.\n");
 						}
 						if(str.indexOf("The password is incorrect!") > -1) {
 							System.out.println("FW upload failed. Pw is not correct.");
@@ -164,7 +164,68 @@ public class HttpPost {
 					}
 //					System.out.println(connection.getHeaderField(0));  //HTTP/1.0 200 OK
 					in.close();
+					///////////10.17
 					
+					Timer t1 = new Timer(); //t1 to check "Now restart EN100 and wait 60 seconds ...  "(write flash finished, ready to restart).
+					t1.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            URL url_status = null;
+                            URL url_restart = null;
+                            try {                                
+                                if(FrameSecurity.tls) {
+                                    url_status = new URL(FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 6) //去掉"upload"
+                                            + "modstatus");  //https://IP/modstatus
+                                    connection =  (HttpsURLConnection) url_status.openConnection();
+                                    sc = SSLContext.getInstance("TLS");
+                                    sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
+                                    ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+                                }else {
+                                    url_status = new URL(FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 6) //去掉"upload"
+                                            + "modstatus");  //http://IP/modstatus
+                                    connection = url_status.openConnection();
+                                }
+                                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                                String str1 = "";
+                                while ((str1 = in.readLine()) != null) {
+                                    if (str1.indexOf("Now restart EN100 and wait 60 seconds") > -1) {
+                                        FrameSecurity.updateTextArea("Write flash finished, restart...\n");
+                                        t1.cancel();
+                                        if(FrameSecurity.tls) {
+                                            url_restart = new URL(FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 6) //去掉"upload"
+                                                    + "En100Restart2");  //https://IP/En100Restart2
+                                            connection =  (HttpsURLConnection) url_restart.openConnection();
+                                            sc = SSLContext.getInstance("TLS");
+                                            sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
+                                            ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+                                        }else {
+                                            url_restart = new URL(FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 6) //去掉"upload"
+                                                    + "En100Restart2");  //http://IP/En100Restart2
+                                            connection = url_restart.openConnection();
+                                        }
+                                        ((HttpURLConnection)connection).getResponseCode(); 
+                                        break;
+                                    }                                    
+                                }                                
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (NoSuchAlgorithmException e) {
+                                e.printStackTrace();
+                            } catch (KeyManagementException e) {
+                                e.printStackTrace();
+                            } 
+                        }					    
+					}, 30000, 5000);
+					while(FrameSecurity.serverLost) {
+					    try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+					}
+					///////////10.17
 				
 				} catch (MalformedURLException e) {
 					//new URL()
