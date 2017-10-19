@@ -7,17 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.SocketAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -27,7 +21,6 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.TrustManager;
@@ -40,9 +33,11 @@ public class GetCertificate {
 	private static String[] ip_seg = null;
 	private static int seg3;
     static URL url = null;
-//    static URLConnection connection = null;
+    private static int cnt; //IP与证书里的IP不一样的个数，应该为0。
+    private static int cnt_total; //已读证书个数。
 
     public static void checkCert() {
+        cnt_total = 0;
         ip_seg = FrameSecurity.ip.split("[.]");
         seg3 = Integer.parseInt(ip_seg[3]);
         if (!FrameSecurity.certSegment) {
@@ -93,10 +88,18 @@ public class GetCertificate {
 			Enumeration<byte[]> id_c = scc.getIds();
 			byte[] b1 = id_c.nextElement();//确定有且只有一个证书ID，所以直接访问nextElement().其它情况要用while(hasMoreElements)
 			SSLSession sslSession = scc.getSession(b1);
-			X509Certificate cert = (X509Certificate) sslSession.getPeerCertificates()[0];//确定有且只有一个证书ID，所以直接访问证书数组[0]
+			X509Certificate cert = null;
+			cert = (X509Certificate) sslSession.getPeerCertificates()[0];//确定有且只有一个证书ID，所以直接访问证书数组[0]
 			javax.security.cert.X509Certificate[] certChain = sslSession.getPeerCertificateChain();
 			
 			if(FrameSecurity.tls) ((HttpsURLConnection) connection).disconnect();
+			
+			if(cert == null) {
+			    FrameSecurity.updateTextArea("Get certificate error!");
+			}else {
+			    cnt_total++;
+//			    FrameSecurity.updateTextAreacnt(cnt_total);
+			}
 			
 			System.out.println(sslSession.getCipherSuite());
 			System.out.println(sslSession.getLocalCertificates());//读不到东西.
@@ -158,8 +161,11 @@ public class GetCertificate {
 //	        	str = str.substring(0, i);
 	            String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
 	        	if(!ip.equals(str))
-		        	if(frame)
+		        	{if(frame)
 		        		FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
+		        	cnt++;
+		        	FrameSecurity.updateTextAreacnt(cnt);
+		        	}
 	        }		        
 	        byte[] sig = cert.getSignature();
 	        Formatter sign = new Formatter();
@@ -171,6 +177,7 @@ public class GetCertificate {
 	        if(frame)
         		{
 	            FrameSecurity.updateTextArea("Signature: "+signature+"\n");
+	            FrameSecurity.updateTextArea(cnt_total+" certificate(s) got.\n");
 	            FrameSecurity.updateTextArea("=============================\n");
         		}
 			FrameSecurity.chkRunning = false;
