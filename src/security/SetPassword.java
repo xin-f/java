@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -122,11 +123,11 @@ public class SetPassword {
 //						boundary = "----thisisfromEn100securityteam-sunxinfeng";
 						conn.setDoInput(true);
 						conn.setDoOutput(true);
-
 						in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 						while ((str = in.readLine()) != null) {
 							if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
 								pwExist = true;
+								FrameSecurity.updateTextArea("Password being set already. Try to change:\n");
 								break;
 							}
 						}
@@ -462,7 +463,7 @@ public class SetPassword {
 			return sb.toString();
 		}*/
 
-		private HttpsURLConnection setHttpsConnect(HttpsURLConnection c) {
+		public HttpsURLConnection setHttpsConnect(HttpsURLConnection c) {
 			c.setRequestProperty("User-Agent", "sunxinfeng");
 			c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 			c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
@@ -470,11 +471,11 @@ public class SetPassword {
 			c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 			c.setConnectTimeout(5000); // timeout
 			c.setReadTimeout(5000);
-			c.setChunkedStreamingMode(2048);
+//			c.setChunkedStreamingMode(2048);//设置了ChunkedStreamingMode后，不再等待OutputStream关闭后生成完整的httprequest一次过发送，而是先发送httprequest头.
 //			c.setFixedLengthStreamingMode(2048); //不能用定长的。 若定长，而实际的数据没这么长，会报insufficient data written
 			return c;
 		}
-		private HttpURLConnection setHttpConnect(HttpURLConnection c) {
+		public HttpURLConnection setHttpConnect(HttpURLConnection c) {
 			c.setRequestProperty("User-Agent", "sunxinfeng");
 			c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 			c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
