@@ -141,7 +141,7 @@ public class FrameSecurity {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.80");
+		textField_ip.setText("172.20.1.25");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
@@ -166,6 +166,7 @@ public class FrameSecurity {
 					t_ping.schedule(new Ping(), 0, 5000);
 					t_ping_running = true;
 				}*/
+			    updateTextArea("Setting Firmware upload password:\n");
 				enablePing();
 				alter = chkbxAlt.isSelected();
 				alter = chkbxAlt.isSelected();
@@ -233,6 +234,7 @@ public class FrameSecurity {
 					t_ping.schedule(new Ping(), 0, 5000);
 					t_ping_running = true;
 				}*/
+			    updateTextArea("Setting DIGSI connection password:\n");
 				enablePing();
 				alter = chkbxAlt.isSelected();
 				if(alter) {
@@ -358,10 +360,10 @@ public class FrameSecurity {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					if(period < 600){
+					if(period < 6){
 						updateTextArea("To avoid timeout, set the period no less than 60s.\n");
 					}else{
-						updateTextArea("\"Update in progress\" being detected is \\\nregarded as updating successfully.\n");
+						updateTextArea("Start to transmit firmware file to device...\n");
 						HttpPost.upldFW();
 					}
 				}
@@ -392,7 +394,8 @@ public class FrameSecurity {
 				enablePing();
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
 					chkRunning = true;
-					updateTextArea("Checking certificate:\n");				
+					updateTextArea("Checking certificate:\n");	
+					updateTextArea("The value in \"Cnt of succ oper:\" should be zero.\n");
 					debug = false;
 					prepare_ChkCert();
 					if(debug){
@@ -497,7 +500,7 @@ public class FrameSecurity {
 		
 		textField_end = new JTextField();
         textField_end.setToolTipText("End of IP segment. Starting with \".\" with enable IP segment scan. ");
-        textField_end.setText(".82");
+        textField_end.setText("82");
         textField_end.setColumns(10);
         textField_end.setBounds(115, 12, 30, 20);
         SecurityTest.getContentPane().add(textField_end);
@@ -935,19 +938,28 @@ public class FrameSecurity {
 			}						
 		}					
 	}
-	 class Ping extends TimerTask{		 
+	 class Ping extends TimerTask{
+
+	     private boolean reverse = false;
 		 public void run() {
 			 try {
 				InetAddress server = InetAddress.getByName(FrameSecurity.textField_ip.getText());
 				if(!server.isReachable(1000)) {
+				    serverLost = true;
 					updateTextArea("Server lost!!!\n");
-					t_ping.cancel();
 					if(SetPassword.t_running) {
 						SetPassword.t.cancel();
+	                    t_ping.cancel();
 					} 
-					if(HttpPost.t_running) {
+					//模拟真正下firmware过程，装置会重启，server lost不停。
+					/*if(HttpPost.t_running) {
 						HttpPost.t.cancel();
-					}
+					}*/					
+				}else {
+				    if(serverLost) { //只有在从ping不通到ping通的变化时，才会打印server is online.
+				        serverLost = false;
+				        updateTextArea("Server is online!\n");
+				    }
 				}
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
