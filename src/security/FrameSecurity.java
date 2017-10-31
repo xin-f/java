@@ -1,15 +1,7 @@
 package security;
 
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.text.DefaultCaret;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,14 +12,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.awt.event.ActionEvent;
-import javax.swing.JRadioButton;
-import javax.swing.JComboBox;
-import javax.swing.JToggleButton;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 
 public class FrameSecurity {
 
@@ -47,6 +42,7 @@ public class FrameSecurity {
 	public static String ip_another;
 	public static int period;
 	public static int certEnd;
+	public static int fwEnd; //给一个IP段下firmware时最后一个，从界面读入的。
 	public static String fwpw;
 	public static String digpw;
 	public static String commonpw;//fwpw 和digpw 由同一个函数管理，这个公共密码用来在fwpw和digpw都没设时，点不同按钮，能把界面上相应两个字符串送到不同密码。用在SetPassword里
@@ -60,6 +56,7 @@ public class FrameSecurity {
 	public static boolean ForFun;	//get the certificate such as baidu.com
 	public static boolean negative;
 	public static boolean certSegment; //检查一个IP段的证书.
+	public static boolean fwSegment; //下一个IP段的firmware.
 	public static int ubound; //循环次数达到此值即停。
 	private static File file = null;
 	private static PrintStream logStream = null;
@@ -141,7 +138,7 @@ public class FrameSecurity {
 		
 		textField_ip = new JTextField();
 		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.25");
+		textField_ip.setText("172.20.1.80");
 		SecurityTest.getContentPane().add(textField_ip);
 		textField_ip.setColumns(10);
 		
@@ -152,12 +149,12 @@ public class FrameSecurity {
 		textField_period = new JTextField();
 		textField_period.setToolTipText("Ends with \".\" will enable password attack, e.g., \"10.\" means making an attempt every 1 sec");
 		textField_period.setBounds(266, 11, 30, 20);
-		textField_period.setText("100");
+		textField_period.setText("150");
 		SecurityTest.getContentPane().add(textField_period);
 		textField_period.setColumns(10);
 		
-		JButton btnFwPW = new JButton("FwPW"); //Set Firmware upload password
-		btnFwPW.setToolTipText("Set FW upload password cyclically with specified PERIOD.");
+		JButton btnFwPW = new JButton("MntPW"); //Set Firmware upload password
+		btnFwPW.setToolTipText("Set maintenance password cyclically with specified PERIOD.");
 		btnFwPW.setBounds(210, 61, 86, 23);
 		btnFwPW.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -166,7 +163,7 @@ public class FrameSecurity {
 					t_ping.schedule(new Ping(), 0, 5000);
 					t_ping_running = true;
 				}*/
-			    updateTextArea("Setting Firmware upload password:\n");
+			    updateTextArea("Setting maintenance password:\n");
 				enablePing();
 				alter = chkbxAlt.isSelected();
 				alter = chkbxAlt.isSelected();
@@ -275,7 +272,7 @@ public class FrameSecurity {
 					updateTextArea("FW uploading is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(fwpwRunning){
-					updateTextArea("FW upload pw Setting is in progress!! \n"
+					updateTextArea("Maintenance password setting is in progress!! \n"
 							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
 				}else if(digpwRunning){
 					updateTextArea("The operation is already in progress!! \n");
@@ -312,8 +309,8 @@ public class FrameSecurity {
 		lblNumberOfTimes.setBounds(10, 117, 100, 22);
 		SecurityTest.getContentPane().add(lblNumberOfTimes);
 		
-		JLabel lblFwPw = new JLabel("FwPW");
-		lblFwPw.setBounds(10, 61, 40, 22);
+		JLabel lblFwPw = new JLabel("MntPW");
+		lblFwPw.setBounds(10, 61, 42, 22);
 		SecurityTest.getContentPane().add(lblFwPw);
 		
 		textField_FwPw = new JTextField();
@@ -334,7 +331,7 @@ public class FrameSecurity {
 		SecurityTest.getContentPane().add(textField_fw);
 		
 		JButton btnUpldfw = new JButton("UpldFW");
-		btnUpldfw.setToolTipText("Upload FW cyclically with specified PERIOD.");
+		btnUpldfw.setToolTipText("Upload FW.");
 		btnUpldfw.setBounds(210, 87, 86, 23);
 		btnUpldfw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -343,12 +340,20 @@ public class FrameSecurity {
 					t_ping.schedule(new Ping(), 0, 5000);
 					t_ping_running = true;
 				}*/
-				enablePing();
 				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
 					debug = false;
 					fwRunning = true;
 					ubound = 0;
 					prepare_upldFW();
+	                if(!fwSegment)
+	                    enablePing();
+	                else {
+	                    String[] str = textField_ip.getText().split("[.]");
+	                    t_ping = new Timer();                  //这里注意，只起一个timer，用同一个timer控制所有的ping timertask，要取消时，只要t_ping.cancel()
+	                    for (int i = Integer.parseInt(str[3]); i <= fwEnd; i++) {
+	                        enablePingForSeg(i);
+	                    }
+	                }
 					checkUbound();
 					if(debug){
 						file = new File("log.txt");
@@ -360,8 +365,8 @@ public class FrameSecurity {
 						System.setOut(logStream);
 						System.setErr(logStream);
 					}
-					if(period < 6){
-						updateTextArea("To avoid timeout, set the period no less than 60s.\n");
+					if(period < 10){
+						updateTextArea("To avoid timeout, set the period no less than 1s.\n");
 					}else{
 						updateTextArea("Start to transmit firmware file to device...\n");
 						HttpPost.upldFW();
@@ -424,7 +429,7 @@ public class FrameSecurity {
 		});
 		SecurityTest.getContentPane().add(btnCert);
 		
-		JButton btnNegPw = new JButton("NegPw");
+		JButton btnNegPw = new JButton("Negtiv");
 		btnNegPw.setToolTipText("Negative test.");
 		btnNegPw.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -451,10 +456,10 @@ public class FrameSecurity {
 		rdbtnD.setBounds(302, 61, 33, 23);
 		SecurityTest.getContentPane().add(rdbtnD);
 		
-		rdbtnF = new JRadioButton("F");
-		rdbtnF.setToolTipText("set fw upload pw");
+		rdbtnF = new JRadioButton("M");
+		rdbtnF.setToolTipText("set maintenance pw");
 		rdbtnF.setSelected(true);
-		rdbtnF.setBounds(337, 61, 32, 23);
+		rdbtnF.setBounds(337, 61, 35, 23);
 		SecurityTest.getContentPane().add(rdbtnF);
 		
 		ButtonGroup bg = new ButtonGroup();
@@ -478,25 +483,51 @@ public class FrameSecurity {
 		});
 		SecurityTest.getContentPane().add(btnExit);	
 
-		/*JButton btnMemo = new JButton("Memo");
-		btnMemo.setToolTipText("Short description.");
-		btnMemo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateTextArea("ChkCert: Read the certificate from server. Only IP part of the certificate will be checked.\n" + 
-						"DigPW: Initialize or change digsi conneciton password. If there's no password existing, initialize one "
-						+ "with string in the left box;If there's already password existing, input the current password to the "
-						+ "left box and this applet will change the password with randomly generated password which conforms the "
-						+ "rules cyclically with specified PERIOD.  The loop will stop if set password fails.\n" + 
-						"FwPW: Same as DigPW but for firmware upload password.\n" + 
-						"NegPW: together with D(digsi connection) or F(firmware upload), to test 1~24 length random string, maybe "
-						+ "Valid, probably Invalid password. Just like  'DigPW' or 'FwPW' but loop will not stop automatically.\n" + 
-						"save: Enable saving. If selected, 'ChkCert' will save certificate; 'DigPW', 'NegPW' and 'FwPW' "
-						+ "will save all the passwords which are set successfully.\n");
-				
-			}
-		});
-		btnMemo.setBounds(300, 87, 75, 23);
-		SecurityTest.getContentPane().add(btnMemo);*/
+        JButton btnMemo = new JButton("Read");
+        btnMemo.setToolTipText("Short description.");
+        btnMemo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                updateTextArea(
+                        "'DigPW': Initialize DIGSI connection password with "
+                        + "the specified string, then change the password "
+                        + "cyclically with period value in 'Prid(0.1s)'. "
+                        + "If the password is set already, input current "
+                        + "password in the text field then the program will "
+                        + "change the password cyclically with period value "
+                        + "in 'Prid(0.1s)'. It will stop if "
+                        + "initializing/changing password fails. "
+                        + "If the value in the second text box(82, in this "
+                        + "demo) after 'IP' ends with \".\" (for example, \"82.\"), "
+                        + "password attacking will be initiated with 'Prid(0.1s)'.\n"
+                        + "'MntPW': The same as 'DigPW', but effect on "
+                        + "maintenance password.\n"
+                        + "'UpldFW': If the value in the second text box after 'IP' "
+                        + "starts with \".\"(\".82\"), the specified firmware will "
+                        + "be uploaded to a cluster of servers(here, from 172.20."
+                        + "1.80 to 172.20.1.82, 3 servers in all). Else, the "
+                        + "specified firmware will be uploaded to the device "
+                        + "specified in the 1st text box(here, 172.20.1.80) repeatedly.\n"
+                        + "'Negtiv': together with radio button 'D'(digsi connection pw) "
+                        + "or 'M'(maintenance pw), to do negative test: Set any string "
+                        + "whose length is 1~30 as password cyclically. If valie "
+                        + "password is rejected or invalid password is accepted "
+                        + "by EN100, the cyclic work will stop.\n"
+                        + "'CkCrt': check certificate. 'tls' must be checked. "
+                        + "Just like UpldFW, if the value in the second text box "
+                        + "after 'IP' starts with \".\", a cluster of certificates "
+                        + "will be get. Else, only the certificate of device specified "
+                        + "in the 1st text box will be get.\n"
+                        + "'R': reset, to interrupt the cyclic work, and save the "
+                        + "log if the checkbox 'save' is checked meanwhile one of "
+                        + "DigPW, MntPW, Negtiv, or CkCrt is in progress.\n"
+                        + "'C': clear the display.\n"
+                        + "'a', 'A', '0', '!': traverse all characters. "
+                        + "For example, is 'a' is checked, all lowercase characters "
+                        + "will be set as password one by one.");
+            }
+        });
+        btnMemo.setBounds(310, 288, 65, 23);
+        SecurityTest.getContentPane().add(btnMemo);
 		
 		textField_end = new JTextField();
         textField_end.setToolTipText("End of IP segment. Starting with \".\" with enable IP segment scan. ");
@@ -571,7 +602,7 @@ public class FrameSecurity {
 		textArea.setLineWrap(true); 			//自动换行
 		textArea.setWrapStyleWord(true);		//自动换行不断字
 		
-				
+		
 		js.setVisible(true);
 	}
 	
@@ -659,9 +690,9 @@ public class FrameSecurity {
 		if(save)
 			SetPassword.file = new File("Log_fwPw.txt");
 		if(tls)
-			ip = "https://"+textField_ip.getText()+"/setfwuploadpassword";
+			ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
 		else
-			ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
+			ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
 		tmp = textField_period.getText();
 		if(tmp.endsWith(".")) {
 			tmp = tmp.substring(0, tmp.length()-1);
@@ -749,9 +780,9 @@ public class FrameSecurity {
 			if(save)
 				SetPassword.file = new File("Log_negfwPw.txt");
 			if(tls)
-				ip = "https://"+textField_ip.getText()+"/setfwuploadpassword";
+				ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
 			else
-				ip = "http://"+textField_ip.getText()+"/setfwuploadpassword";
+				ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
 			period = Integer.parseInt(textField_period.getText());
 			str = textField_FwPw.getText();
 			commonpw = str;
@@ -769,7 +800,14 @@ public class FrameSecurity {
 	 * 路径后加一个星(*),输出Log.
 	 */
 	public static void prepare_upldFW(){
-		String str;		
+		String str;	
+		String end = textField_end.getText();
+		if (end.startsWith(".")) {
+            fwSegment = true;
+            fwEnd = Integer.parseInt(end.substring(1, end.length()));
+        } else {
+            fwSegment = false;
+        }
 		int len;
 		tls = chkbxTls.isSelected();
 		if(tls)
@@ -893,7 +931,17 @@ public class FrameSecurity {
 //			if(SetPassword.t != null)
 //				SetPassword.t.cancel();
 			stop = true;
-		}	
+		}
+		
+		/*下面这段可以获得当前所有运行的线程，本来是因为新建了很多timer去分别ping不同的装置，后来只用一个timer，所以这段没用到*/
+		ThreadGroup group = Thread.currentThread().getThreadGroup();
+		int number = group.activeCount();
+		Thread[] threads = new Thread[number];
+		group.enumerate(threads);
+		for(int i = 0; i < number; i++) {
+		    System.out.println(i+" = "+threads[i].getName());
+		    
+		}
 	}
 	
 	public static String getIP(String src, Optype type) {
@@ -904,7 +952,7 @@ public class FrameSecurity {
 				str = "https://" + src + "/setconnectionpassword";
 				break;
 			case fw:
-				str = "https://" + src + "/setfwuploadpassword";
+				str = "https://" + src + "/setmaintenancepassword";
 				break;
 			}
 		} else {
@@ -913,7 +961,7 @@ public class FrameSecurity {
 				str = "http://" + src + "/setconnectionpassword";
 				break;
 			case fw:
-				str = "http://" + src + "/setfwuploadpassword";
+				str = "http://" + src + "/setmaintenancepassword";
 				break;
 			}
 		}
@@ -923,12 +971,17 @@ public class FrameSecurity {
 	private static void enablePing() {
 		if(!t_ping_running) {
 			t_ping = new Timer();
-			t_ping.schedule(window.new Ping(), 0, 5000);
+			t_ping.schedule(window.new Ping(FrameSecurity.textField_ip.getText()), 0, 5000);
 			t_ping_running = true;
 		}
 	}
 	
 	
+    private static void enablePingForSeg(int s) {
+        String[] ip = textField_ip.getText().split("[.]");
+        t_ping.schedule(window.new Ping(FrameSecurity.textField_ip.getText(), s - Integer.parseInt(ip[3])), 0, 5000);
+        t_ping_running = true;
+    }
 		
 	 class Thread_neg extends SetPassword implements Runnable{
 		@Override
@@ -938,29 +991,63 @@ public class FrameSecurity {
 			}						
 		}					
 	}
+	 
 	 class Ping extends TimerTask{
-
+	     
+	     private String ip = "";
 	     private boolean reverse = false;
+	     private boolean lost = true;
+	     public Ping(String ip){
+	         this.ip = ip;
+	     }
+	     public Ping(String ip, int i){
+	         String[] str = textField_ip.getText().split("[.]");
+	         this.ip = str[0]+"."+str[1]+"."+str[2]+"."+(Integer.parseInt(str[3]) + i);
+	     }
 		 public void run() {
 			 try {
-				InetAddress server = InetAddress.getByName(FrameSecurity.textField_ip.getText());
+				InetAddress server = InetAddress.getByName(ip);
 				if(!server.isReachable(1000)) {
-				    serverLost = true;
-					updateTextArea("Server lost!!!\n");
-					if(SetPassword.t_running) {
-						SetPassword.t.cancel();
-	                    t_ping.cancel();
-					} 
+				    //下一个IP段内所有装置的FW时，要对每个装置(server)分别ping,分别取lost的状态，所以不能用总的serverLost。之前碰到的问题是，
+				    //Server lost和server is online的log乱打，因为是用serverLost判断的，每个线程都能改这个值，且影响到其它线程。
+				    if (fwSegment) {
+                        if (false == lost) {
+                            reverse = true; // 只有在原来能ping通，现在ping不能时才算状态反转。
+                        }
+                        lost = true;
+                        if (reverse) {
+                            reverse = false;
+                            updateTextArea("Server lost!!!" + ip + "\n");
+                        }
+                        if (SetPassword.t_running) {
+                            SetPassword.t.cancel();
+                            t_ping.cancel();
+                        }
+                    } else {
+                        serverLost = true;
+                        updateTextArea("Server lost!!! " + ip + "\n");
+                    }
 					//模拟真正下firmware过程，装置会重启，server lost不停。
 					/*if(HttpPost.t_running) {
 						HttpPost.t.cancel();
 					}*/					
-				}else {
-				    if(serverLost) { //只有在从ping不通到ping通的变化时，才会打印server is online.
-				        serverLost = false;
-				        updateTextArea("Server is online!\n");
-				    }
-				}
+                } else {                   
+                    if (fwSegment) {
+                        if (lost) {
+                            reverse = true;
+                        }
+                        lost = false;
+                        if (reverse) {
+                            reverse = false;
+                            updateTextArea("Server is online! " + ip + "\n");
+                        }
+                    } else {
+                         if(serverLost) { //只有在从ping不通到ping通的变化时，才会打印server is online. 
+                             serverLost = false; 
+                             updateTextArea("Server is online! " + ip + "\n"); }
+                    }
+
+                }
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
