@@ -22,34 +22,34 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 public class HttpPost {
-//	private static BufferedReader in = null;
-//	static File file = new File("d:\\IEC61850_81.pck");
-	private static File file = null;
-//	static String fileName = "IEC61850_81.pck";
-	private static String fileName = null;
-	private static String password = null;
-//	private static int timeout;
-//	private static URLConnection connection = null;
-	private static SSLContext sc = null;
-	private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
-	public static volatile int suc;
-	public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
-	public static  boolean t_running;
-	private static String[] ip_seg = {"","","",""};
-	
-//	public  static void main(String[] s) {
-	public  static void upldFW() {	
-	    HttpPost httpPost = new HttpPost();
-		String str = FrameSecurity.fw;
-		file = new File(str);
-		int i;
-		//È¡.pckµÄÎÄ¼şÃû£¬Ö»±£Áô×îºóÒ»¸ö·´Ğ±¸ÜºóµÄÄÚÈİ¡£
-		while((i = str.indexOf("\\")) > -1){
-			str= str.substring(i+1, str.length());
-		}
-		fileName = str;
-		password = FrameSecurity.fwpw;
-		ip_seg = FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 7).split("[.]"); //https://172.20.1.100 »òhttp://172.20.1.100
+//  private static BufferedReader in = null;
+//  static File file = new File("d:\\IEC61850_81.pck");
+    private static File file = null;
+//  static String fileName = "IEC61850_81.pck";
+    private static String fileName = null;
+    private static String password = null;
+//  private static int timeout;
+//  private static URLConnection connection = null;
+    private static SSLContext sc = null;
+    private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
+    public static volatile int suc;
+    public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
+    public static  boolean t_running;
+    private static String[] ip_seg = {"","","",""};
+    
+//  public  static void main(String[] s) {
+    public  static void upldFW() {  
+        HttpPost httpPost = new HttpPost();
+        String str = FrameSecurity.fw;
+        file = new File(str);
+        int i;
+        //å–.pckçš„æ–‡ä»¶åï¼Œåªä¿ç•™æœ€åä¸€ä¸ªåæ–œæ åçš„å†…å®¹ã€‚
+        while((i = str.indexOf("\\")) > -1){
+            str= str.substring(i+1, str.length());
+        }
+        fileName = str;
+        password = FrameSecurity.fwpw;
+        ip_seg = FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 7).split("[.]"); //https://172.20.1.100 æˆ–http://172.20.1.100
         if (!FrameSecurity.fwSegment) {
             t = new Timer();
             UpldFWTask task_upldFw = httpPost.new UpldFWTask(Integer.parseInt(ip_seg[3]));
@@ -59,7 +59,6 @@ public class HttpPost {
             if (Integer.parseInt(ip_seg[3]) > FrameSecurity.fwEnd)
                 FrameSecurity.updateTextArea("The END ip value should be larger than the START one.\n");
             else {
-                
                 ExecutorService pool = Executors.newFixedThreadPool(8);
                 for (int j = Integer.parseInt(ip_seg[3]); j <= FrameSecurity.fwEnd; j++) {
                     // UpldFWTask task_upldFw = httpPost.new UpldFWTask(j);
@@ -68,13 +67,13 @@ public class HttpPost {
             }
         }
    }  
-	
+    
     class UpldFWTask extends TimerTask {
         private int seg4;
         BufferedReader in = null;
         URLConnection connection = null;
         
-        UpldFWTask(int i){
+        UpldFWTask(int i) {
             seg4 = i;
         }
 
@@ -83,29 +82,31 @@ public class HttpPost {
             t_running = true;
             try {
                 //https://172.20.1.181/upload
-//                URL url = new URL(FrameSecurity.ip + "/upload");
-                URL url = new URL(ip_seg[0] +"."+ ip_seg[1] +"."+ ip_seg[2]+"." + seg4 + "/upload");
+//                URL url_ = new URL(FrameSecurity.ip + "/upload");
+                URL url_upload = new URL(ip_seg[0] +"."+ ip_seg[1] +"."+ ip_seg[2]+"." + seg4 + "/upload");
+                SetPassword.url = new URL(ip_seg[0] +"."+ ip_seg[1] +"."+ ip_seg[2]+"." + seg4 + "/setmaintenancepassword");
+                SetPassword.check();
                 if (FrameSecurity.tls) {
-                    connection = (HttpsURLConnection) url.openConnection();
+                    connection = (HttpsURLConnection) url_upload.openConnection();
                     sc = SSLContext.getInstance("TLS");
                     sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
                     ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
                 } else {
-                    connection = url.openConnection();
+                    connection = url_upload.openConnection();
                 }
 
                 String newLine = "\r\n";
-                // Í·²¿µÄ\r\n¶¼ÊÇÏµÍ³×Ô¼º¼ÓµÄ.
+                // å¤´éƒ¨çš„\r\néƒ½æ˜¯ç³»ç»Ÿè‡ªå·±åŠ çš„.
                 connection.setRequestProperty("User-Agent", "sxf");
                 connection.setRequestProperty("Accept",
                         "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
                 connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
                 connection.setRequestProperty("Accept-Encoding", "gzip, deflate");
                 connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-                // Content-Type ÀïÖ¸Ã÷ÁËÊı¾İÊÇÒÔ multipart/form-data À´±àÂë£¬±¾´ÎÇëÇóµÄ boundary
-                // ÊÇÊ²Ã´ÄÚÈİ¡£ÏûÏ¢Ö÷ÌåÀï°´ÕÕ×Ö¶Î¸öÊıÓÖ·ÖÎª¶à¸ö½á¹¹ÀàËÆµÄ²¿·Ö£¬Ã¿²¿·Ö¶¼ÊÇÒÔ --boundary ¿ªÊ¼£¬
-                // ½ô½Ó×ÅÊÇÄÚÈİÃèÊöĞÅÏ¢£¬È»ºóÊÇ»Ø³µ£¬×îºóÊÇ×Ö¶Î¾ßÌåÄÚÈİ£¨ÎÄ±¾»ò¶ş½øÖÆ£©¡£ÓĞËü¾ÍÓĞ·Ö½ç·û,Ã»Ëü¾Í²»ĞèÒª·Ö½ç·û.
-                // Èç¹û´«ÊäµÄÊÇÎÄ¼ş£¬»¹Òª°üº¬ÎÄ¼şÃûºÍÎÄ¼şÀàĞÍĞÅÏ¢¡£ÏûÏ¢Ö÷Ìå×îºóÒÔ --boundary-- ±êÊ¾½áÊø¡£
+                // Content-Type é‡ŒæŒ‡æ˜äº†æ•°æ®æ˜¯ä»¥ multipart/form-data æ¥ç¼–ç ï¼Œæœ¬æ¬¡è¯·æ±‚çš„ boundary
+                // æ˜¯ä»€ä¹ˆå†…å®¹ã€‚æ¶ˆæ¯ä¸»ä½“é‡ŒæŒ‰ç…§å­—æ®µä¸ªæ•°åˆåˆ†ä¸ºå¤šä¸ªç»“æ„ç±»ä¼¼çš„éƒ¨åˆ†ï¼Œæ¯éƒ¨åˆ†éƒ½æ˜¯ä»¥ --boundary å¼€å§‹ï¼Œ
+                // ç´§æ¥ç€æ˜¯å†…å®¹æè¿°ä¿¡æ¯ï¼Œç„¶åæ˜¯å›è½¦ï¼Œæœ€åæ˜¯å­—æ®µå…·ä½“å†…å®¹ï¼ˆæ–‡æœ¬æˆ–äºŒè¿›åˆ¶ï¼‰ã€‚æœ‰å®ƒå°±æœ‰åˆ†ç•Œç¬¦,æ²¡å®ƒå°±ä¸éœ€è¦åˆ†ç•Œç¬¦.
+                // å¦‚æœä¼ è¾“çš„æ˜¯æ–‡ä»¶ï¼Œè¿˜è¦åŒ…å«æ–‡ä»¶åå’Œæ–‡ä»¶ç±»å‹ä¿¡æ¯ã€‚æ¶ˆæ¯ä¸»ä½“æœ€åä»¥ --boundary-- æ ‡ç¤ºç»“æŸã€‚
                 // connection.setRequestMethod("POST");
                 // connection.setRequestProperty("userfile2", fileName);
                 // connection.setConnectTimeout(2000); //timeout
@@ -116,14 +117,18 @@ public class HttpPost {
                 // connection.connect();
 
                 BufferedOutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                StringBuffer sb_pw = new StringBuffer(); // Ğ´±ß½ç·û,Ô¼¶¨ÉÏ´«ÊôĞÔ,¸ñÊ½application/octet-stream
-                sb_pw.append(boundary).append(newLine).append("Content-Disposition: form-data; name=\"curr_password\"")
-                        .append(newLine).append(newLine).append(password).append(newLine).append(boundary)
-                        .append(newLine);
-                out.write(sb_pw.toString().getBytes("UTF-8"));
-                out.flush(); // flush()ºÜ¹Ø¼ü.
+                //
+                StringBuffer sb_start = new StringBuffer();
+                sb_start
+                .append("--")  
+                .append(boundary)
+                .append(newLine);
+                out.write(sb_start.toString().getBytes());
+                out.flush();
+                //
+                 
                 StringBuffer sb_fw = new StringBuffer();
-                sb_fw.append("Content-Disposition: form-data; name=\"userfile2\";filename=" + "\"" + fileName + "\"") // ×¢Òâ¸ñÊ½,±ß¿´wireshark±ß´Õ.
+                sb_fw.append("Content-Disposition: form-data; name=\"userfile2\";filename=" + "\"" + fileName + "\"") // æ³¨æ„æ ¼å¼,è¾¹çœ‹wiresharkè¾¹å‡‘.
                         .append(newLine).append("Content-Type: application/octet-stream").append(newLine)
                         .append(newLine);
 
@@ -131,20 +136,41 @@ public class HttpPost {
                 byte[] bytes = new byte[1024];
                 int numReadByte = 0;
                 out.write(sb_fw.toString().getBytes());
-                out.flush(); // flush()ºÜ¹Ø¼ü.
-                while ((numReadByte = fis.read(bytes, 0, 1024)) > 0) { // Ğ´Êı¾İÄÚÈİ,¼´.pck
+                out.flush(); // flush()å¾ˆå…³é”®.
+                while ((numReadByte = fis.read(bytes, 0, 1024)) > 0) { // å†™æ•°æ®å†…å®¹,å³.pck
                     out.write(bytes, 0, numReadByte);
-                    // ²»´øflush(),¶¼ÊÇ624ÇëÇóFIN. È»ºó¶¼»á±¨³¬Ê±,
+                    // ä¸å¸¦flush(),éƒ½æ˜¯624è¯·æ±‚FIN. ç„¶åéƒ½ä¼šæŠ¥è¶…æ—¶,
                     out.flush();
                     // System.out.println(new String(bytes));
                 }
+                
+                if (SetPassword.pwExist) {
+                    StringBuffer sb_middle = new StringBuffer();
+                    sb_middle.append(newLine).append("--").append(boundary).append(newLine);
+                    out.write(sb_middle.toString().getBytes());
+                    out.flush();
+                    //
+
+                    StringBuffer sb_pw = new StringBuffer(); // å†™è¾¹ç•Œç¬¦,çº¦å®šä¸Šä¼ å±æ€§,æ ¼å¼application/octet-stream
+                    sb_pw/* .append(boundary).append(newLine) */.append(
+                            "Content-Disposition: form-data; name=\"curr_password\"").append(newLine).append(newLine)
+                            .append(password)/*
+                                              * .append(newLine).append(boundary) .append(newLine)
+                                              */;
+                    out.write(sb_pw.toString().getBytes("UTF-8"));
+                    out.flush();
+                }
                 StringBuffer sb_end = new StringBuffer();
-                sb_end.append(newLine).append(boundary).append(newLine);
+                sb_end.append(newLine)
+                .append("--")  //11.17.2017
+                .append(boundary)
+                .append("--") //11.17.2017
+                .append(newLine);
                 out.write(sb_end.toString().getBytes());
                 out.flush();
 
                 /*
-                 * ÓÃä¯ÀÀÆ÷ÉÏ´«Ê±µÄ¸ñÊ½: MIME Multipart Media Encapsulation, Type: multipart/form-data,
+                 * ç”¨æµè§ˆå™¨ä¸Šä¼ æ—¶çš„æ ¼å¼: MIME Multipart Media Encapsulation, Type: multipart/form-data,
                  * Boundary: "---------------------------177882047830227" [Type:
                  * multipart/form-data] First boundary:
                  * -----------------------------177882047830227\r\n Encapsulated multipart part:
@@ -180,8 +206,8 @@ public class HttpPost {
                 // System.out.println(connection.getHeaderField(0)); //HTTP/1.0 200 OK
                 in.close();
 
-                // ÉèÖÃ×èÈû£¬Ã¿5Ãë²éÑ¯Ò»´ÎÒ³ÃæÄÚÈİ£¬Ö±µ½³öÏÖ"Now restart EN100 and wait 60 seconds".
-                // ÔÙ·ÃÎÊip/En100Restart2×Ô¶¯Íê³ÉÖØÆô
+                // è®¾ç½®é˜»å¡ï¼Œæ¯5ç§’æŸ¥è¯¢ä¸€æ¬¡é¡µé¢å†…å®¹ï¼Œç›´åˆ°å‡ºç°"Now restart EN100 and wait 60 seconds".
+                // å†è®¿é—®ip/En100Restart2è‡ªåŠ¨å®Œæˆé‡å¯
                 boolean write_finish = false;
                 while (!write_finish) {
                     URL url_status = null;
@@ -239,7 +265,7 @@ public class HttpPost {
                     }
                 }
 
-                // ÉèÖÃ×èÈû£¬ping²»ÄÜ×°ÖÃ¾ÍµÈ5Ãë£¬Ö±µ½ÖØÆôÍê³ÉºóÔÙÈÃtimer¼ÌĞø¡£
+                // è®¾ç½®é˜»å¡ï¼Œpingä¸èƒ½è£…ç½®å°±ç­‰5ç§’ï¼Œç›´åˆ°é‡å¯å®Œæˆåå†è®©timerç»§ç»­ã€‚
                 while (FrameSecurity.serverLost) {
                     try {
                         Thread.sleep(5000);
@@ -266,7 +292,7 @@ public class HttpPost {
 
 
 /*
-³É¹¦Ê±µÄlog:
+æˆåŠŸæ—¶çš„log:
 +++ 00001 00298355 Mo 26.06.2017 15:18:18:306 start firmware upload from client 172.020.001.001:52067
 +++ 00002 00298357 Mo 26.06.2017 15:18:18:308 HTTP: Start Upload max. 3194880 Bytes
 +++ 00003 00298653 Mo 26.06.2017 15:18:18:605 HTTP: file "IEC61850_81.pck"
@@ -274,7 +300,7 @@ public class HttpPost {
 +++ 00005 00302091 Mo 26.06.2017 15:18:22:042 HTTP: Code flashed len = 1529332
 +++ 00006 00327833 Mo 26.06.2017 15:18:47:786 HTTP: Code flash OK.
 
-³¬Ê±Ê±µÄlog: no flush().
+è¶…æ—¶æ—¶çš„log: no flush().
 +++ 00007 00429859 Mo 26.06.2017 15:20:29:814 start firmware upload from client 172.020.001.001:52070
 +++ 00008 00429859 Mo 26.06.2017 15:20:29:814 HTTP: Start Upload max. 3194880 Bytes
 +++ 00009 00430149 Mo 26.06.2017 15:20:30:104 HTTP: file "IEC61850_81.pck"

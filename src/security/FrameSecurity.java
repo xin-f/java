@@ -26,462 +26,462 @@ import javax.swing.text.DefaultCaret;
 
 public class FrameSecurity {
 
-	private static JFrame SecurityTest;
-	private static JTextArea textArea;
-	private static JTextArea textArea_cnt;
-	public static JTextField textField_ip;
-	private static JLabel PERIOD;
-	private static JTextField textField_period;
-	private static JTextField textField_FwPw;
-	private static JTextField textField_fw;
-	private static JCheckBox chkbxsave;	
-	private static JCheckBox chkbxTls;
-	private static JCheckBox chkbxAlt;
-	
-	public static String ip;
-	public static String ip_another;
-	public static int period;
-	public static int certEnd;
-	public static int fwEnd; //¸øÒ»¸öIP¶ÎÏÂfirmwareÊ±×îºóÒ»¸ö£¬´Ó½çÃæ¶ÁÈëµÄ¡£
-	public static String fwpw;
-	public static String digpw;
-	public static String commonpw;//fwpw ºÍdigpw ÓÉÍ¬Ò»¸öº¯Êı¹ÜÀí£¬Õâ¸ö¹«¹²ÃÜÂëÓÃÀ´ÔÚfwpwºÍdigpw¶¼Ã»ÉèÊ±£¬µã²»Í¬°´Å¥£¬ÄÜ°Ñ½çÃæÉÏÏàÓ¦Á½¸ö×Ö·û´®ËÍµ½²»Í¬ÃÜÂë¡£ÓÃÔÚSetPasswordÀï
-	public static String fw;
-	public static boolean fwpwRunning; //password is being set. ÓÃÓÚµãResetºóÍ£Ö¹¸ÄÃÜÂëµÄloop, ÒÔ¼°ÓëÆäËü²Ù×÷µÄ»¥³â¡£ 
-	public static boolean digpwRunning; //password is being set. ÓÃÓÚµãResetºóÍ£Ö¹¸ÄÃÜÂëµÄloop, ÒÔ¼°ÓëÆäËü²Ù×÷µÄ»¥³â¡£
-	public static boolean fwRunning; //fw is being uploaded. ÓÃÓÚµãResetºóÍ£Ö¹¸ÄÃÜÂëµÄloop, ÒÔ¼°ÓëÆäËü²Ù×÷µÄ»¥³â¡£
-	public static boolean chkRunning; //¼ì²éÖ¤Êé. ÓÃÓÚÓëÆäËü²Ù×÷µÄ»¥³â¡£
-	public static boolean negRunning; //·´Ïò²âÊÔÔËĞĞÖĞ£¬¼´1-24Î»Ëæ»ú×Ö·û´®ÉèÃÜÂë¡£Ò²²»Ò»¶¨¶¼ÊÇ·´Ïò²âÊÔ£¬´æÔÚ×Ö·û´®Âú×ãÃÜÂëÌõ¼şµÄÇé¿ö¡£
-	public static boolean debug;
-	public static boolean ForFun;	//get the certificate such as baidu.com
-	public static boolean negative;
-	public static boolean certSegment; //¼ì²éÒ»¸öIP¶ÎµÄÖ¤Êé.
-	public static boolean fwSegment; //ÏÂÒ»¸öIP¶ÎµÄfirmware.
-	public static int ubound; //Ñ­»·´ÎÊı´ïµ½´ËÖµ¼´Í£¡£
-	private static File file = null;
-	private static PrintStream logStream = null;
-	private static JTextField textField_DigPw;
-	private static JTextField textField_end;
-	private static JRadioButton rdbtnD;
-	private static JRadioButton rdbtnF;
-	private static JTextArea textArea_ubound;
-	public static JCheckBox chkbxA;
-	public static JCheckBox chkbxa;
-	public static JCheckBox chkbx0;
-	public static JCheckBox chkbx_;
-	
-	private static Timer t_ping = null; //ĞÂ½¨Ò»Ïß³Ì¼ì²éserverÊÇ·ñÔÚÏß¡£Ä¬ÈÏÆô¶¯£¬Reset¸´¹é£¬Ã¿¸ö²Ù×÷¶¼»áÔÙÆô¶¯¡£
-	private static boolean t_ping_running = false;
-	public static boolean serverLost = false;
-	
-	private static Thread thread_neg = null;
-	public static boolean stop;
-	public static boolean save;
-	public static boolean tls;
-	public static FrameSecurity window;
-	public static boolean alter;
-	public static boolean traverse;
-	public static boolean traverseA;
-	public static boolean traversea;
-	public static boolean traverse0;
-	public static boolean traverse_;
-	public static boolean turn;
-	
-	public static boolean attack;
-	
-	public enum Optype{digsi,fw}
-	public enum Charset{upp,low,dig,cha}
-	public static Charset charset;
-	
+    private static JFrame SecurityTest;
+    private static JTextArea textArea;
+    private static JTextArea textArea_cnt;
+    public static JTextField textField_ip;
+    private static JLabel PERIOD;
+    private static JTextField textField_period;
+    private static JTextField textField_FwPw;
+    private static JTextField textField_fw;
+    private static JCheckBox chkbxsave; 
+    private static JCheckBox chkbxTls;
+    private static JCheckBox chkbxAlt;
+    
+    public static String ip;
+    public static String ip_another;
+    public static int period;
+    public static int certEnd;
+    public static int fwEnd; //ç»™ä¸€ä¸ªIPæ®µä¸‹firmwareæ—¶æœ€åä¸€ä¸ªï¼Œä»ç•Œé¢è¯»å…¥çš„ã€‚
+    public static String fwpw;
+    public static String digpw;
+    public static String commonpw;//fwpw å’Œdigpw ç”±åŒä¸€ä¸ªå‡½æ•°ç®¡ç†ï¼Œè¿™ä¸ªå…¬å…±å¯†ç ç”¨æ¥åœ¨fwpwå’Œdigpwéƒ½æ²¡è®¾æ—¶ï¼Œç‚¹ä¸åŒæŒ‰é’®ï¼Œèƒ½æŠŠç•Œé¢ä¸Šç›¸åº”ä¸¤ä¸ªå­—ç¬¦ä¸²é€åˆ°ä¸åŒå¯†ç ã€‚ç”¨åœ¨SetPasswordé‡Œ
+    public static String fw;
+    public static boolean fwpwRunning; //password is being set. ç”¨äºç‚¹Resetååœæ­¢æ”¹å¯†ç çš„loop, ä»¥åŠä¸å…¶å®ƒæ“ä½œçš„äº’æ–¥ã€‚ 
+    public static boolean digpwRunning; //password is being set. ç”¨äºç‚¹Resetååœæ­¢æ”¹å¯†ç çš„loop, ä»¥åŠä¸å…¶å®ƒæ“ä½œçš„äº’æ–¥ã€‚
+    public static boolean fwRunning; //fw is being uploaded. ç”¨äºç‚¹Resetååœæ­¢æ”¹å¯†ç çš„loop, ä»¥åŠä¸å…¶å®ƒæ“ä½œçš„äº’æ–¥ã€‚
+    public static boolean chkRunning; //æ£€æŸ¥è¯ä¹¦. ç”¨äºä¸å…¶å®ƒæ“ä½œçš„äº’æ–¥ã€‚
+    public static boolean negRunning; //åå‘æµ‹è¯•è¿è¡Œä¸­ï¼Œå³1-24ä½éšæœºå­—ç¬¦ä¸²è®¾å¯†ç ã€‚ä¹Ÿä¸ä¸€å®šéƒ½æ˜¯åå‘æµ‹è¯•ï¼Œå­˜åœ¨å­—ç¬¦ä¸²æ»¡è¶³å¯†ç æ¡ä»¶çš„æƒ…å†µã€‚
+    public static boolean debug;
+    public static boolean ForFun;   //get the certificate such as baidu.com
+    public static boolean negative;
+    public static boolean certSegment; //æ£€æŸ¥ä¸€ä¸ªIPæ®µçš„è¯ä¹¦.
+    public static boolean fwSegment; //ä¸‹ä¸€ä¸ªIPæ®µçš„firmware.
+    public static int ubound; //å¾ªç¯æ¬¡æ•°è¾¾åˆ°æ­¤å€¼å³åœã€‚
+    private static File file = null;
+    private static PrintStream logStream = null;
+    private static JTextField textField_DigPw;
+    private static JTextField textField_end;
+    private static JRadioButton rdbtnD;
+    private static JRadioButton rdbtnF;
+    private static JTextArea textArea_ubound;
+    public static JCheckBox chkbxA;
+    public static JCheckBox chkbxa;
+    public static JCheckBox chkbx0;
+    public static JCheckBox chkbx_;
+    
+    private static Timer t_ping = null; //æ–°å»ºä¸€çº¿ç¨‹æ£€æŸ¥serveræ˜¯å¦åœ¨çº¿ã€‚é»˜è®¤å¯åŠ¨ï¼ŒResetå¤å½’ï¼Œæ¯ä¸ªæ“ä½œéƒ½ä¼šå†å¯åŠ¨ã€‚
+    private static boolean t_ping_running = false;
+    public static boolean serverLost = false;
+    
+    private static Thread thread_neg = null;
+    public static boolean stop;
+    public static boolean save;
+    public static boolean tls;
+    public static FrameSecurity window;
+    public static boolean alter;
+    public static boolean traverse;
+    public static boolean traverseA;
+    public static boolean traversea;
+    public static boolean traverse0;
+    public static boolean traverse_;
+    public static boolean turn;
+    
+    public static boolean attack;
+    
+    public enum Optype{digsi,fw}
+    public enum Charset{upp,low,dig,cha}
+    public static Charset charset;
+    
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					window = new FrameSecurity();					
-					buildTextArea();
-					SecurityTest.setVisible(true);
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    window = new FrameSecurity();                   
+                    buildTextArea();
+                    SecurityTest.setVisible(true);
 
-//					t_ping = new Timer(); 
-//					t_ping.schedule(window.new Ping(), 0, 10000);
-//					t_ping_running = true;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//                  t_ping = new Timer(); 
+//                  t_ping.schedule(window.new Ping(), 0, 10000);
+//                  t_ping_running = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-	/**
-	 * Create the application.
-	 */
-	public FrameSecurity() {
-		initialize();
-	}
+    /**
+     * Create the application.
+     */
+    public FrameSecurity() {
+        initialize();
+    }
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		SecurityTest = new JFrame();
-		SecurityTest.setTitle("Security Test");
-		SecurityTest.setBounds(100, 100, 399, 360);
-		SecurityTest.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SecurityTest.getContentPane().setLayout(null);
-		
-		JLabel IPADDR = new JLabel("IP");
-		IPADDR.setBounds(10, 11, 17, 22);
-		SecurityTest.getContentPane().add(IPADDR);
-		
-		textField_ip = new JTextField();
-		textField_ip.setBounds(26, 12, 86, 20);
-		textField_ip.setText("172.20.1.80");
-		SecurityTest.getContentPane().add(textField_ip);
-		textField_ip.setColumns(10);
-		
-		PERIOD = new JLabel("Prid(0.1s)");
-		PERIOD.setBounds(209, 14, 55, 14);
-		SecurityTest.getContentPane().add(PERIOD);
-		
-		textField_period = new JTextField();
-		textField_period.setToolTipText("Ends with \".\" will enable password attack, e.g., \"10.\" means making an attempt every 1 sec");
-		textField_period.setBounds(266, 11, 30, 20);
-		textField_period.setText("150");
-		SecurityTest.getContentPane().add(textField_period);
-		textField_period.setColumns(10);
-		
-		JButton btnFwPW = new JButton("MntPW"); //Set Firmware upload password
-		btnFwPW.setToolTipText("Set maintenance password cyclically with specified PERIOD.");
-		btnFwPW.setBounds(210, 61, 86, 23);
-		btnFwPW.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				/*if(!t_ping_running) {
-					t_ping = new Timer();
-					t_ping.schedule(new Ping(), 0, 5000);
-					t_ping_running = true;
-				}*/
-			    updateTextArea("Setting maintenance password:\n");
-				enablePing();
-				alter = chkbxAlt.isSelected();
-				alter = chkbxAlt.isSelected();
-				if(alter) {
-					ip_another = getIP(textField_ip.getText(),Optype.digsi);
-				}
-				stop = false;
-				attack = false;
-				ubound = 0;
-				if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
-					debug = false;
-					fwpwRunning = true;
-					ubound = 0;
-					prepare_setFwPW();
-					checkUbound();
-					prepare_traverse();
-					if(debug){
-						file = new File("log.txt");
-						try {
-							logStream = new PrintStream(new FileOutputStream(file));
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
-						System.setOut(logStream);
-						System.setErr(logStream);
-					}
-					if (attack) {
-						SetPassword.set();
-					} else {
-						if (period < 50) {
-							updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-						}else
-							SetPassword.set();
-					}
-				}else if(fwRunning){
-					updateTextArea("FW uploading is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(digpwRunning){
-					updateTextArea("Digsi connection pw Setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(fwpwRunning){
-					updateTextArea("The operation is already in progress!! \n");
-				}				
-			}
-		});
-		SecurityTest.getContentPane().add(btnFwPW);
-		
-		JLabel lblDigpw = new JLabel("DigPW");
-		lblDigpw.setBounds(10, 34, 40, 22);
-		SecurityTest.getContentPane().add(lblDigpw);
-		
-		textField_DigPw = new JTextField();
-//		textField_DigPw.setText("21!qQ/nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@=");
-		textField_DigPw.setText("1!qQ1234");
-		textField_DigPw.setColumns(10);
-		textField_DigPw.setBounds(54, 35, 155, 20);
-		SecurityTest.getContentPane().add(textField_DigPw);
-		
-		JButton btnDigPW = new JButton("DigPW");
-		btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
-		btnDigPW.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				/*if(!t_ping_running) {
-					t_ping = new Timer();
-					t_ping.schedule(new Ping(), 0, 5000);
-					t_ping_running = true;
-				}*/
-			    updateTextArea("Setting DIGSI connection password:\n");
-				enablePing();
-				alter = chkbxAlt.isSelected();
-				if(alter) {
-					ip_another = getIP(textField_ip.getText(),Optype.fw);
-				}
-				stop = false;
-				attack = false;
-				ubound = 0;
-				if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
-					debug = false;
-					digpwRunning = true;
-					ubound = 0;
-					prepare_setDigPW();
-					checkUbound();
-//					if(prepare_traverse()>1) {
-//						return; //±éÀúµÄ×Ö·ûÀàĞÍ´óÓÚÒ»¸ö£¬ÍË³öµ±Ç°·½·¨£¬ÖØĞÂÑ¡¡£
-//					}
-					prepare_traverse();
-					if(debug){
-						file = new File("log.txt");
-						try {
-							logStream = new PrintStream(new FileOutputStream(file));
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
-						System.setOut(logStream);
-						System.setErr(logStream);
-					}
-					if (attack) {
-						SetPassword.set();
-					} else {
-						if (period < 50) {
-							updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-						}else
-							SetPassword.set();
-					}
-				}else if(fwRunning){
-					updateTextArea("FW uploading is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(fwpwRunning){
-					updateTextArea("Maintenance password setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(digpwRunning){
-					updateTextArea("The operation is already in progress!! \n");
-				}
-			}
-		});
-		btnDigPW.setBounds(210, 35, 86, 23);
-		SecurityTest.getContentPane().add(btnDigPW);
-		
-		JButton btnReset = new JButton("R");
-		btnReset.setToolTipText("Reset");
-		btnReset.setBounds(210, 115, 42, 23);
-		btnReset.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				reset();
-			}
-		});
-		SecurityTest.getContentPane().add(btnReset);
-		
-		JButton btnClear = new JButton("C");
-		btnClear.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				textArea.setText("");
-				updateTextAreacnt(0);
-			}
-		});
-		btnClear.setToolTipText("Clear");
-		btnClear.setBounds(254, 115, 42, 23);
-		SecurityTest.getContentPane().add(btnClear);
-		
-		
-		
-		JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
-		lblNumberOfTimes.setBounds(10, 117, 100, 22);
-		SecurityTest.getContentPane().add(lblNumberOfTimes);
-		
-		JLabel lblFwPw = new JLabel("MntPW");
-		lblFwPw.setBounds(10, 61, 42, 22);
-		SecurityTest.getContentPane().add(lblFwPw);
-		
-		textField_FwPw = new JTextField();
-		textField_FwPw.setBounds(54, 62, 155, 20);
-//		textField_FwPw.setText("ddfasdfsASDDFSDf4654+65.;''.ddfasdfsASDDFSDf4654+65.;''.'';,!*(#^#^#, ");
-		textField_FwPw.setText("12341!qQ");
-		textField_FwPw.setColumns(10);
-		SecurityTest.getContentPane().add(textField_FwPw);
+    /**
+     * Initialize the contents of the frame.
+     */
+    private void initialize() {
+        SecurityTest = new JFrame();
+        SecurityTest.setTitle("Security Test");
+        SecurityTest.setBounds(100, 100, 399, 360);
+        SecurityTest.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        SecurityTest.getContentPane().setLayout(null);
+        
+        JLabel IPADDR = new JLabel("IP");
+        IPADDR.setBounds(10, 11, 17, 22);
+        SecurityTest.getContentPane().add(IPADDR);
+        
+        textField_ip = new JTextField();
+        textField_ip.setBounds(26, 12, 86, 20);
+        textField_ip.setText("172.20.1.80");
+        SecurityTest.getContentPane().add(textField_ip);
+        textField_ip.setColumns(10);
+        
+        PERIOD = new JLabel("Prid(0.1s)");
+        PERIOD.setBounds(209, 14, 55, 14);
+        SecurityTest.getContentPane().add(PERIOD);
+        
+        textField_period = new JTextField();
+        textField_period.setToolTipText("Ends with \".\" will enable password attack, e.g., \"10.\" means making an attempt every 1 sec");
+        textField_period.setBounds(266, 11, 30, 20);
+        textField_period.setText("150");
+        SecurityTest.getContentPane().add(textField_period);
+        textField_period.setColumns(10);
+        
+        JButton btnFwPW = new JButton("MntPW"); //Set Firmware upload password
+        btnFwPW.setToolTipText("Set maintenance password cyclically with specified PERIOD.");
+        btnFwPW.setBounds(210, 61, 86, 23);
+        btnFwPW.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                /*if(!t_ping_running) {
+                    t_ping = new Timer();
+                    t_ping.schedule(new Ping(), 0, 5000);
+                    t_ping_running = true;
+                }*/
+                updateTextArea("Setting maintenance password:\n");
+                enablePing();
+                alter = chkbxAlt.isSelected();
+                alter = chkbxAlt.isSelected();
+                if(alter) {
+                    ip_another = getIP(textField_ip.getText(),Optype.digsi);
+                }
+                stop = false;
+                attack = false;
+                ubound = 0;
+                if((!fwRunning) && (!digpwRunning) && (!fwpwRunning)){
+                    debug = false;
+                    fwpwRunning = true;
+                    ubound = 0;
+                    prepare_setFwPW();
+                    checkUbound();
+                    prepare_traverse();
+                    if(debug){
+                        file = new File("log.txt");
+                        try {
+                            logStream = new PrintStream(new FileOutputStream(file));
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                        System.setOut(logStream);
+                        System.setErr(logStream);
+                    }
+                    if (attack) {
+                        SetPassword.set();
+                    } else {
+                        if (period < 50) {
+                            updateTextArea("To avoid timeout, set the period no less than 5s.\n");
+                        }else
+                            SetPassword.set();
+                    }
+                }else if(fwRunning){
+                    updateTextArea("FW uploading is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(digpwRunning){
+                    updateTextArea("Digsi connection pw Setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(fwpwRunning){
+                    updateTextArea("The operation is already in progress!! \n");
+                }               
+            }
+        });
+        SecurityTest.getContentPane().add(btnFwPW);
+        
+        JLabel lblDigpw = new JLabel("DigPW");
+        lblDigpw.setBounds(10, 34, 40, 22);
+        SecurityTest.getContentPane().add(lblDigpw);
+        
+        textField_DigPw = new JTextField();
+//      textField_DigPw.setText("21!qQ/nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@=");
+        textField_DigPw.setText("1!qQ1234");
+        textField_DigPw.setColumns(10);
+        textField_DigPw.setBounds(54, 35, 155, 20);
+        SecurityTest.getContentPane().add(textField_DigPw);
+        
+        JButton btnDigPW = new JButton("DigPW");
+        btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
+        btnDigPW.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                /*if(!t_ping_running) {
+                    t_ping = new Timer();
+                    t_ping.schedule(new Ping(), 0, 5000);
+                    t_ping_running = true;
+                }*/
+                updateTextArea("Setting DIGSI connection password:\n");
+                enablePing();
+                alter = chkbxAlt.isSelected();
+                if(alter) {
+                    ip_another = getIP(textField_ip.getText(),Optype.fw);
+                }
+                stop = false;
+                attack = false;
+                ubound = 0;
+                if((!fwRunning) && (!fwpwRunning) && (!digpwRunning)){
+                    debug = false;
+                    digpwRunning = true;
+                    ubound = 0;
+                    prepare_setDigPW();
+                    checkUbound();
+//                  if(prepare_traverse()>1) {
+//                      return; //éå†çš„å­—ç¬¦ç±»å‹å¤§äºä¸€ä¸ªï¼Œé€€å‡ºå½“å‰æ–¹æ³•ï¼Œé‡æ–°é€‰ã€‚
+//                  }
+                    prepare_traverse();
+                    if(debug){
+                        file = new File("log.txt");
+                        try {
+                            logStream = new PrintStream(new FileOutputStream(file));
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                        System.setOut(logStream);
+                        System.setErr(logStream);
+                    }
+                    if (attack) {
+                        SetPassword.set();
+                    } else {
+                        if (period < 50) {
+                            updateTextArea("To avoid timeout, set the period no less than 5s.\n");
+                        }else
+                            SetPassword.set();
+                    }
+                }else if(fwRunning){
+                    updateTextArea("FW uploading is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(fwpwRunning){
+                    updateTextArea("Maintenance password setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(digpwRunning){
+                    updateTextArea("The operation is already in progress!! \n");
+                }
+            }
+        });
+        btnDigPW.setBounds(210, 35, 86, 23);
+        SecurityTest.getContentPane().add(btnDigPW);
+        
+        JButton btnReset = new JButton("R");
+        btnReset.setToolTipText("Reset");
+        btnReset.setBounds(210, 115, 42, 23);
+        btnReset.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                reset();
+            }
+        });
+        SecurityTest.getContentPane().add(btnReset);
+        
+        JButton btnClear = new JButton("C");
+        btnClear.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                textArea.setText("");
+                updateTextAreacnt(0);
+            }
+        });
+        btnClear.setToolTipText("Clear");
+        btnClear.setBounds(254, 115, 42, 23);
+        SecurityTest.getContentPane().add(btnClear);
+        
+        
+        
+        JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
+        lblNumberOfTimes.setBounds(10, 117, 100, 22);
+        SecurityTest.getContentPane().add(lblNumberOfTimes);
+        
+        JLabel lblFwPw = new JLabel("MntPW");
+        lblFwPw.setBounds(10, 61, 42, 22);
+        SecurityTest.getContentPane().add(lblFwPw);
+        
+        textField_FwPw = new JTextField();
+        textField_FwPw.setBounds(54, 62, 155, 20);
+//      textField_FwPw.setText("ddfasdfsASDDFSDf4654+65.;''.ddfasdfsASDDFSDf4654+65.;''.'';,!*(#^#^#, ");
+        textField_FwPw.setText("12341!qQ");
+        textField_FwPw.setColumns(10);
+        SecurityTest.getContentPane().add(textField_FwPw);
 
-		JLabel lblFw = new JLabel("FW");
-		lblFw.setBounds(10, 89, 40, 22);
-		SecurityTest.getContentPane().add(lblFw);
-		
-		textField_fw = new JTextField();
-		textField_fw.setBounds(54, 90, 155, 20);
-		textField_fw.setText("D:\\IEC61850_81.pck");
-		textField_fw.setColumns(10);
-		SecurityTest.getContentPane().add(textField_fw);
-		
-		JButton btnUpldfw = new JButton("UpldFW");
-		btnUpldfw.setToolTipText("Upload FW.");
-		btnUpldfw.setBounds(210, 87, 86, 23);
-		btnUpldfw.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				/*if(!t_ping_running) {
-					t_ping = new Timer();
-					t_ping.schedule(new Ping(), 0, 5000);
-					t_ping_running = true;
-				}*/
-				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
-					debug = false;
-					fwRunning = true;
-					ubound = 0;
-					prepare_upldFW();
-	                if(!fwSegment)
-	                    enablePing();
-	                else {
-	                    String[] str = textField_ip.getText().split("[.]");
-	                    t_ping = new Timer();                  //ÕâÀï×¢Òâ£¬Ö»ÆğÒ»¸ötimer£¬ÓÃÍ¬Ò»¸ötimer¿ØÖÆËùÓĞµÄping timertask£¬ÒªÈ¡ÏûÊ±£¬Ö»Òªt_ping.cancel()
-	                    for (int i = Integer.parseInt(str[3]); i <= fwEnd; i++) {
-	                        enablePingForSeg(i);
-	                    }
-	                }
-					checkUbound();
-					if(debug){
-						file = new File("log.txt");
-						try {
-							logStream = new PrintStream(new FileOutputStream(file));
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
-						System.setOut(logStream);
-						System.setErr(logStream);
-					}
-					if(period < 10){
-						updateTextArea("To avoid timeout, set the period no less than 1s.\n");
-					}else{
-						updateTextArea("Start to transmit firmware file to device...\n");
-						HttpPost.upldFW();
-					}
-				}
-				else  if(fwpwRunning){
-					updateTextArea("FW upload pw setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else  if(digpwRunning){
-					updateTextArea("Digsi connection pw setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(fwRunning){
-					updateTextArea("FW uploading is already in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}
-			}
-		});
-		SecurityTest.getContentPane().add(btnUpldfw);
-		
-		JButton btnCert = new JButton("CkCrt");
-		btnCert.setToolTipText("Check server certificate.");
-		btnCert.setBounds(300, 81, 75, 23);
-		btnCert.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				/*if(!t_ping_running) {
-					t_ping = new Timer();
-					t_ping.schedule(new Ping(), 0, 5000);
-					t_ping_running = true;
-				}*/
-				enablePing();
-				if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
-					chkRunning = true;
-					updateTextArea("Checking certificate:\n");	
-					updateTextArea("The value in \"Cnt of succ oper:\" should be zero.\n");
-					debug = false;
-					prepare_ChkCert();
-					if(debug){
-						file = new File("log.txt");
-						try {
-							logStream = new PrintStream(new FileOutputStream(file));
-						} catch (FileNotFoundException e1) {
-							e1.printStackTrace();
-						}
-						System.setOut(logStream);
-						System.setErr(logStream);
-					}
-					if(tls)
-						GetCertificate.checkCert();						
-				}else  if(fwpwRunning){
-					updateTextArea("FW upload pw setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else  if(digpwRunning){
-					updateTextArea("Digsi connection pw setting is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}else if(fwRunning){
-					updateTextArea("FW uploading is in progress!! \n"
-							+ "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
-				}			
-			}
-		});
-		SecurityTest.getContentPane().add(btnCert);
-		
-		JButton btnNegPw = new JButton("Negtiv");
-		btnNegPw.setToolTipText("Negative test.");
-		btnNegPw.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				enablePing();
-				stop = false;
-				negative = true;
-				negRunning = true;	
-				ubound = 0;
-				prepare_setNegPW();	
-//				prepare_traverse();
-				checkUbound();
-				Thread_neg a = new Thread_neg();
-				thread_neg = new Thread(a);
-				thread_neg.start();
-				
-			}
-		});
-		btnNegPw.setBounds(300, 34, 75, 23);
-		SecurityTest.getContentPane().add(btnNegPw);
-		
+        JLabel lblFw = new JLabel("FW");
+        lblFw.setBounds(10, 89, 40, 22);
+        SecurityTest.getContentPane().add(lblFw);
+        
+        textField_fw = new JTextField();
+        textField_fw.setBounds(54, 90, 155, 20);
+        textField_fw.setText("D:\\IEC61850_81.pck");
+        textField_fw.setColumns(10);
+        SecurityTest.getContentPane().add(textField_fw);
+        
+        JButton btnUpldfw = new JButton("UpldFW");
+        btnUpldfw.setToolTipText("Upload FW.");
+        btnUpldfw.setBounds(210, 87, 86, 23);
+        btnUpldfw.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                /*if(!t_ping_running) {
+                    t_ping = new Timer();
+                    t_ping.schedule(new Ping(), 0, 5000);
+                    t_ping_running = true;
+                }*/
+                if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
+                    debug = false;
+                    fwRunning = true;
+                    ubound = 0;
+                    prepare_upldFW();
+                    if(!fwSegment)
+                        enablePing();
+                    else {
+                        String[] str = textField_ip.getText().split("[.]");
+                        t_ping = new Timer();                  //è¿™é‡Œæ³¨æ„ï¼Œåªèµ·ä¸€ä¸ªtimerï¼Œç”¨åŒä¸€ä¸ªtimeræ§åˆ¶æ‰€æœ‰çš„ping timertaskï¼Œè¦å–æ¶ˆæ—¶ï¼Œåªè¦t_ping.cancel()
+                        for (int i = Integer.parseInt(str[3]); i <= fwEnd; i++) {
+                            enablePingForSeg(i);
+                        }
+                    }
+                    checkUbound();
+                    if(debug){
+                        file = new File("log.txt");
+                        try {
+                            logStream = new PrintStream(new FileOutputStream(file));
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                        System.setOut(logStream);
+                        System.setErr(logStream);
+                    }
+                    if(period < 10){
+                        updateTextArea("To avoid timeout, set the period no less than 1s.\n");
+                    }else{
+                        updateTextArea("Start to transmit firmware file to device...\n");
+                        HttpPost.upldFW();
+                    }
+                }
+                else  if(fwpwRunning){
+                    updateTextArea("FW upload pw setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else  if(digpwRunning){
+                    updateTextArea("Digsi connection pw setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(fwRunning){
+                    updateTextArea("FW uploading is already in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }
+            }
+        });
+        SecurityTest.getContentPane().add(btnUpldfw);
+        
+        JButton btnCert = new JButton("CkCrt");
+        btnCert.setToolTipText("Check server certificate.");
+        btnCert.setBounds(300, 81, 75, 23);
+        btnCert.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                /*if(!t_ping_running) {
+                    t_ping = new Timer();
+                    t_ping.schedule(new Ping(), 0, 5000);
+                    t_ping_running = true;
+                }*/
+                enablePing();
+                if((!fwpwRunning)&&(!digpwRunning)&&(!fwRunning)){
+                    chkRunning = true;
+                    updateTextArea("Checking certificate:\n");  
+                    updateTextArea("The value in \"Cnt of succ oper:\" should be zero.\n");
+                    debug = false;
+                    prepare_ChkCert();
+                    if(debug){
+                        file = new File("log.txt");
+                        try {
+                            logStream = new PrintStream(new FileOutputStream(file));
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                        System.setOut(logStream);
+                        System.setErr(logStream);
+                    }
+                    if(tls)
+                        GetCertificate.checkCert();                     
+                }else  if(fwpwRunning){
+                    updateTextArea("FW upload pw setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else  if(digpwRunning){
+                    updateTextArea("Digsi connection pw setting is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }else if(fwRunning){
+                    updateTextArea("FW uploading is in progress!! \n"
+                            + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
+                }           
+            }
+        });
+        SecurityTest.getContentPane().add(btnCert);
+        
+        JButton btnNegPw = new JButton("Negtiv");
+        btnNegPw.setToolTipText("Negative test.");
+        btnNegPw.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                enablePing();
+                stop = false;
+                negative = true;
+                negRunning = true;  
+                ubound = 0;
+                prepare_setNegPW(); 
+//              prepare_traverse();
+                checkUbound();
+                Thread_neg a = new Thread_neg();
+                thread_neg = new Thread(a);
+                thread_neg.start();
+                
+            }
+        });
+        btnNegPw.setBounds(300, 34, 75, 23);
+        SecurityTest.getContentPane().add(btnNegPw);
+        
 
-		rdbtnD = new JRadioButton("D");
-		rdbtnD.setToolTipText("set digsi connection pw");
-		rdbtnD.setBounds(302, 61, 33, 23);
-		SecurityTest.getContentPane().add(rdbtnD);
-		
-		rdbtnF = new JRadioButton("M");
-		rdbtnF.setToolTipText("set maintenance pw");
-		rdbtnF.setSelected(true);
-		rdbtnF.setBounds(337, 61, 35, 23);
-		SecurityTest.getContentPane().add(rdbtnF);
-		
-		ButtonGroup bg = new ButtonGroup();
-		bg.add(rdbtnD);
-		bg.add(rdbtnF);
-		
-		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(300, 11, 75, 23);
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(save && (SetPassword.bw != null)) {
-					try {
-						SetPassword.bw.flush();
-						SetPassword.bw.close();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-				System.exit(0);
-			}
-		});
-		SecurityTest.getContentPane().add(btnExit);	
+        rdbtnD = new JRadioButton("D");
+        rdbtnD.setToolTipText("set digsi connection pw");
+        rdbtnD.setBounds(302, 61, 33, 23);
+        SecurityTest.getContentPane().add(rdbtnD);
+        
+        rdbtnF = new JRadioButton("M");
+        rdbtnF.setToolTipText("set maintenance pw");
+        rdbtnF.setSelected(true);
+        rdbtnF.setBounds(337, 61, 35, 23);
+        SecurityTest.getContentPane().add(rdbtnF);
+        
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(rdbtnD);
+        bg.add(rdbtnF);
+        
+        JButton btnExit = new JButton("Exit");
+        btnExit.setBounds(300, 11, 75, 23);
+        btnExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(save && (SetPassword.bw != null)) {
+                    try {
+                        SetPassword.bw.flush();
+                        SetPassword.bw.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                System.exit(0);
+            }
+        });
+        SecurityTest.getContentPane().add(btnExit); 
 
         JButton btnMemo = new JButton("Read");
         btnMemo.setToolTipText("Short description.");
@@ -528,8 +528,8 @@ public class FrameSecurity {
         });
         btnMemo.setBounds(310, 288, 65, 23);
         SecurityTest.getContentPane().add(btnMemo);
-		
-		textField_end = new JTextField();
+        
+        textField_end = new JTextField();
         textField_end.setToolTipText("End of IP segment. Starting with \".\" with enable IP segment scan. ");
         textField_end.setText("82");
         textField_end.setColumns(10);
@@ -537,82 +537,82 @@ public class FrameSecurity {
         SecurityTest.getContentPane().add(textField_end);
         
 
-		chkbxsave = new JCheckBox("save");
-		chkbxsave.setToolTipText("Save the log");
-		chkbxsave.setBounds(312, 161, 60, 23);
-		SecurityTest.getContentPane().add(chkbxsave);		
+        chkbxsave = new JCheckBox("save");
+        chkbxsave.setToolTipText("Save the log");
+        chkbxsave.setBounds(312, 161, 60, 23);
+        SecurityTest.getContentPane().add(chkbxsave);       
 
-		chkbxTls = new JCheckBox("tls");
-		chkbxTls.setSelected(true);
-//		chkbxTls.setSelected(true);
-		chkbxTls.setToolTipText("Enable https function");
-		chkbxTls.setBounds(312, 187, 50, 23);
-		SecurityTest.getContentPane().add(chkbxTls);
-		
-		chkbxAlt = new JCheckBox("alter");
-		chkbxAlt.setToolTipText("Set password alternately");
-		chkbxAlt.setBounds(312, 213, 60, 23);
-		SecurityTest.getContentPane().add(chkbxAlt);
-		
-//		JTextArea
-		textArea_cnt = new JTextArea();
-		textArea_cnt.setBounds(115, 119, 30, 18);
-		textArea_cnt.setText("0");
-		SecurityTest.getContentPane().add(textArea_cnt);
+        chkbxTls = new JCheckBox("tls");
+        chkbxTls.setSelected(true);
+//      chkbxTls.setSelected(true);
+        chkbxTls.setToolTipText("Enable https function");
+        chkbxTls.setBounds(312, 187, 50, 23);
+        SecurityTest.getContentPane().add(chkbxTls);
+        
+        chkbxAlt = new JCheckBox("alter");
+        chkbxAlt.setToolTipText("Set password alternately");
+        chkbxAlt.setBounds(312, 213, 60, 23);
+        SecurityTest.getContentPane().add(chkbxAlt);
+        
+//      JTextArea
+        textArea_cnt = new JTextArea();
+        textArea_cnt.setBounds(115, 119, 30, 18);
+        textArea_cnt.setText("0");
+        SecurityTest.getContentPane().add(textArea_cnt);
 
-		textArea_ubound = new JTextArea();
-		textArea_ubound.setToolTipText("Number of times the loop will run.");
-		textArea_ubound.setText("0");
-		textArea_ubound.setBounds(167, 119, 30, 18);
-		SecurityTest.getContentPane().add(textArea_ubound);
-		
+        textArea_ubound = new JTextArea();
+        textArea_ubound.setToolTipText("Number of times the loop will run.");
+        textArea_ubound.setText("0");
+        textArea_ubound.setBounds(167, 119, 30, 18);
+        SecurityTest.getContentPane().add(textArea_ubound);
+        
 
-		chkbxA = new JCheckBox("A");
-		chkbxA.setToolTipText("");
-		chkbxA.setBounds(312, 115, 33, 23);
-		SecurityTest.getContentPane().add(chkbxA);
-		
-		chkbxa = new JCheckBox("a");
-		chkbxa.setToolTipText("");
-		chkbxa.setBounds(342, 115, 33, 23);
-		SecurityTest.getContentPane().add(chkbxa);
-		
-		chkbx0 = new JCheckBox("0");
-		chkbx0.setToolTipText("");
-		chkbx0.setBounds(312, 141, 33, 23);
-		SecurityTest.getContentPane().add(chkbx0);
-		
-		chkbx_ = new JCheckBox("!");
-		chkbx_.setToolTipText("");
-		chkbx_.setBounds(342, 141, 33, 23);
-		SecurityTest.getContentPane().add(chkbx_);
-		
-	}
-	
-	private static void buildTextArea(){
-		textArea = new JTextArea();
-//		textArea.setBounds(10, 90, 275, 161);
-//		frame.getContentPane().add(textArea);
-		JScrollPane js=new JScrollPane(textArea);
-		js.setBounds(10, 140, 300, 170);
-		SecurityTest.getContentPane().add(js);	
-				
-		DefaultCaret caret = (DefaultCaret) textArea.getCaret(); // ÕâÁ½ĞĞÈÃÎÄ±¾¿òµÄ¹ö¶¯Ìõ×Ô¶¯ÔÚ×îÏÂÃæ.
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		textArea.setLineWrap(true); 			//×Ô¶¯»»ĞĞ
-		textArea.setWrapStyleWord(true);		//×Ô¶¯»»ĞĞ²»¶Ï×Ö
-		
-		
-		js.setVisible(true);
-	}
-	
-	
-	public static void updateTextArea(String str) { 
-		textArea.append(str);
-		textArea.paintImmediately(textArea.getBounds()); //ÈÃ¸üĞÂÁ¢¿ÌÏÔÊ¾ÔÚ½çÃæÉÏ¶ø²»ÊÇµÈswingµÄÖ÷Ïß³Ì·µ»ØºóË¢ĞÂ. 
-		/*²»ÄÑ¿´³öÊÇÔÚµÈ´ıÏß³Ì½áÊøµ¼ÖÂÊä³öÖÍºó£¬µã»÷°´Å¥ºóÕû¸ö½çÃæ¶¼¿¨×¡£¬°´Å¥µÄÊÂ¼ş×èÈûÁËFrameÕû¸öÏß³Ì£¨²»ÖªµÀÕâÃ´ËµÊÇ·ñÈ·ÇĞ£©£¬²Åµ¼ÖÂJTextAreaÃ»·¨ÊµÊ±ÏÔÊ¾ĞÅÏ¢¡£
-		ÔÚ°´Å¥¼àÌıµ½appendÊÂ¼şÊ±£¬ÁíÆğÒ»¸öÏß³ÌÀ´Ö´ĞĞappendĞĞÎª£¬¾ÍºÃÁË£º
-		private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {            
+        chkbxA = new JCheckBox("A");
+        chkbxA.setToolTipText("");
+        chkbxA.setBounds(312, 115, 33, 23);
+        SecurityTest.getContentPane().add(chkbxA);
+        
+        chkbxa = new JCheckBox("a");
+        chkbxa.setToolTipText("");
+        chkbxa.setBounds(342, 115, 33, 23);
+        SecurityTest.getContentPane().add(chkbxa);
+        
+        chkbx0 = new JCheckBox("0");
+        chkbx0.setToolTipText("");
+        chkbx0.setBounds(312, 141, 33, 23);
+        SecurityTest.getContentPane().add(chkbx0);
+        
+        chkbx_ = new JCheckBox("!");
+        chkbx_.setToolTipText("");
+        chkbx_.setBounds(342, 141, 33, 23);
+        SecurityTest.getContentPane().add(chkbx_);
+        
+    }
+    
+    private static void buildTextArea(){
+        textArea = new JTextArea();
+//      textArea.setBounds(10, 90, 275, 161);
+//      frame.getContentPane().add(textArea);
+        JScrollPane js=new JScrollPane(textArea);
+        js.setBounds(10, 140, 300, 170);
+        SecurityTest.getContentPane().add(js);  
+                
+        DefaultCaret caret = (DefaultCaret) textArea.getCaret(); // è¿™ä¸¤è¡Œè®©æ–‡æœ¬æ¡†çš„æ»šåŠ¨æ¡è‡ªåŠ¨åœ¨æœ€ä¸‹é¢.
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        textArea.setLineWrap(true);             //è‡ªåŠ¨æ¢è¡Œ
+        textArea.setWrapStyleWord(true);        //è‡ªåŠ¨æ¢è¡Œä¸æ–­å­—
+        
+        
+        js.setVisible(true);
+    }
+    
+    
+    public static void updateTextArea(String str) { 
+        textArea.append(str);
+        textArea.paintImmediately(textArea.getBounds()); //è®©æ›´æ–°ç«‹åˆ»æ˜¾ç¤ºåœ¨ç•Œé¢ä¸Šè€Œä¸æ˜¯ç­‰swingçš„ä¸»çº¿ç¨‹è¿”å›ååˆ·æ–°. 
+        /*ä¸éš¾çœ‹å‡ºæ˜¯åœ¨ç­‰å¾…çº¿ç¨‹ç»“æŸå¯¼è‡´è¾“å‡ºæ»åï¼Œç‚¹å‡»æŒ‰é’®åæ•´ä¸ªç•Œé¢éƒ½å¡ä½ï¼ŒæŒ‰é’®çš„äº‹ä»¶é˜»å¡äº†Frameæ•´ä¸ªçº¿ç¨‹ï¼ˆä¸çŸ¥é“è¿™ä¹ˆè¯´æ˜¯å¦ç¡®åˆ‡ï¼‰ï¼Œæ‰å¯¼è‡´JTextAreaæ²¡æ³•å®æ—¶æ˜¾ç¤ºä¿¡æ¯ã€‚
+        åœ¨æŒ‰é’®ç›‘å¬åˆ°appendäº‹ä»¶æ—¶ï¼Œå¦èµ·ä¸€ä¸ªçº¿ç¨‹æ¥æ‰§è¡Œappendè¡Œä¸ºï¼Œå°±å¥½äº†ï¼š
+        private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {            
             @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "output");
@@ -632,387 +632,386 @@ public class FrameSecurity {
             });
         }*/
     } 
-	
-	public static void updateTextAreacnt(int i) {
-		textArea_cnt.setText(Integer.toString(i));
+    
+    public static void updateTextAreacnt(int i) {
+        textArea_cnt.setText(Integer.toString(i));
     } 
-	
-	public static boolean prepare_traverse(/*Charset cs*/) {
-		int i = 0;
-		traverse = false;
-		turn = false;
-		traverseA = chkbxA.isSelected();
-		traversea = chkbxa.isSelected();
-		traverse0 = chkbx0.isSelected();
-		traverse_ = chkbx_.isSelected();
-		if(traversea) {
-			ubound = 26;
-			charset = Charset.low;
-			i++;
-			traverse = true;
-		}
-		if(traverseA ) {
-			ubound = 26;
-			charset = Charset.upp;
-			i++;
-			traverse = true;
-		}
-		if(traverse0) {
-			ubound = 10;
-			charset = Charset.dig;
-			i++;
-			traverse = true;
-		}			
-		if(traverse_) {
-			ubound = 33;
-			charset = Charset.cha;
-			i++;
-			traverse = true;
-		}
-		if(i > 1) {
-//			updateTextArea("Select at most 1 type.\n");
-			//Èç¹ûÏëÔÚÕâÀïµ÷ÓÃreset()ÍË³ö£¬Ã»ÓÃ¡£reset()Ö´ĞĞÍêºó»á¼ÌĞøÖ´ĞĞĞ´ÃÜÂëµÄ·½·¨ºóÃæµÄ²¿·Ö¡£
-			turn = true;
-		}
-		return turn;
-	}
-	
-	/**
-	 * Ê¶±ğÊäÈëµÄIP, PERIOD, ÀÏÃÜÂë.
-	 * ÃÜÂëºó¼ÓÎå¸öĞÇ(*****)Êä³öLog.
-	 */
-	public static void prepare_setFwPW(){
-		String str;
-		String tmp;
-		int len;
-		save = chkbxsave.isSelected();
-		tls = chkbxTls.isSelected();
-		if(save)
-			SetPassword.file = new File("Log_fwPw.txt");
-		if(tls)
-			ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
-		else
-			ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
-		tmp = textField_period.getText();
-		if(tmp.endsWith(".")) {
-			tmp = tmp.substring(0, tmp.length()-1);
-			attack = true;
-			updateTextArea("Password attempting:\n");
-			SetPassword.pwExist = true; //¼ÈÈ»Òª¹¥»÷£¬¾ÍÈÏÎªÃÜÂë´æÔÚ¡£
-		}
-		period = Integer.parseInt(tmp);
-		str = textField_FwPw.getText();
-		commonpw = str;
-		len = str.length();
-		if(str.endsWith("*****")){
-			debug = true;
-			fwpw = str.substring(0, len - 5);
-		}
-		else fwpw = str;
-	}
-	
-	/**
-	 * Ê¶±ğÊäÈëµÄIP, PERIOD, ÀÏÃÜÂë.
-	 * ÃÜÂëºó¼ÓÎå¸öĞÇ(*****)Êä³öLog.
-	 */
-	public static void prepare_setDigPW(){
-		String str;
-		String tmp;
-		save = chkbxsave.isSelected();
-		tls = chkbxTls.isSelected();
-		if(save)
-			SetPassword.file = new File("Log_digsiPw.txt");
-		int len;
-		if(tls)
-			ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
-		else
-			ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
-		tmp = textField_period.getText();
-		if(tmp.endsWith(".")) {
-			tmp = tmp.substring(0, tmp.length()-1);
-			attack = true;
-			updateTextArea("Password attempting:\n");
-			SetPassword.pwExist = true; //¼ÈÈ»Òª¹¥»÷£¬¾ÍÈÏÎªÃÜÂë´æÔÚ¡£
-		}
-		period = Integer.parseInt(tmp);
-		str = textField_DigPw.getText();
-		commonpw = str;
-		len = str.length();
-		if(str.endsWith("*****")){
-			debug = true;
-			digpw = str.substring(0, len - 5);
-		}
-		else digpw = str;
-	}	
-	
-	
-	public static void prepare_chkcert() {
-	    
-	}
+    
+    public static boolean prepare_traverse(/*Charset cs*/) {
+        int i = 0;
+        traverse = false;
+        turn = false;
+        traverseA = chkbxA.isSelected();
+        traversea = chkbxa.isSelected();
+        traverse0 = chkbx0.isSelected();
+        traverse_ = chkbx_.isSelected();
+        if(traversea) {
+            ubound = 26;
+            charset = Charset.low;
+            i++;
+            traverse = true;
+        }
+        if(traverseA ) {
+            ubound = 26;
+            charset = Charset.upp;
+            i++;
+            traverse = true;
+        }
+        if(traverse0) {
+            ubound = 10;
+            charset = Charset.dig;
+            i++;
+            traverse = true;
+        }           
+        if(traverse_) {
+            ubound = 33;
+            charset = Charset.cha;
+            i++;
+            traverse = true;
+        }
+        if(i > 1) {
+//          updateTextArea("Select at most 1 type.\n");
+            //å¦‚æœæƒ³åœ¨è¿™é‡Œè°ƒç”¨reset()é€€å‡ºï¼Œæ²¡ç”¨ã€‚reset()æ‰§è¡Œå®Œåä¼šç»§ç»­æ‰§è¡Œå†™å¯†ç çš„æ–¹æ³•åé¢çš„éƒ¨åˆ†ã€‚
+            turn = true;
+        }
+        return turn;
+    }
+    
+    /**
+     * è¯†åˆ«è¾“å…¥çš„IP, PERIOD, è€å¯†ç .
+     * å¯†ç ååŠ äº”ä¸ªæ˜Ÿ(*****)è¾“å‡ºLog.
+     */
+    public static void prepare_setFwPW(){
+        String str;
+        String tmp;
+        int len;
+        save = chkbxsave.isSelected();
+        tls = chkbxTls.isSelected();
+        if(save)
+            SetPassword.file = new File("Log_fwPw.txt");
+        if(tls)
+            ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
+        else
+            ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
+        tmp = textField_period.getText();
+        if(tmp.endsWith(".")) {
+            tmp = tmp.substring(0, tmp.length()-1);
+            attack = true;
+            updateTextArea("Password attempting:\n");
+            SetPassword.pwExist = true; //æ—¢ç„¶è¦æ”»å‡»ï¼Œå°±è®¤ä¸ºå¯†ç å­˜åœ¨ã€‚
+        }
+        period = Integer.parseInt(tmp);
+        str = textField_FwPw.getText();
+        commonpw = str;
+        len = str.length();
+        if(str.endsWith("*****")){
+            debug = true;
+            fwpw = str.substring(0, len - 5);
+        }
+        else fwpw = str;
+    }
+    
+    /**
+     * è¯†åˆ«è¾“å…¥çš„IP, PERIOD, è€å¯†ç .
+     * å¯†ç ååŠ äº”ä¸ªæ˜Ÿ(*****)è¾“å‡ºLog.
+     */
+    public static void prepare_setDigPW(){
+        String str;
+        String tmp;
+        save = chkbxsave.isSelected();
+        tls = chkbxTls.isSelected();
+        if(save)
+            SetPassword.file = new File("Log_digsiPw.txt");
+        int len;
+        if(tls)
+            ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
+        else
+            ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+        tmp = textField_period.getText();
+        if(tmp.endsWith(".")) {
+            tmp = tmp.substring(0, tmp.length()-1);
+            attack = true;
+            updateTextArea("Password attempting:\n");
+            SetPassword.pwExist = true; //æ—¢ç„¶è¦æ”»å‡»ï¼Œå°±è®¤ä¸ºå¯†ç å­˜åœ¨ã€‚
+        }
+        period = Integer.parseInt(tmp);
+        str = textField_DigPw.getText();
+        commonpw = str;
+        len = str.length();
+        if(str.endsWith("*****")){
+            debug = true;
+            digpw = str.substring(0, len - 5);
+        }
+        else digpw = str;
+    }   
+    
+    
+    public static void prepare_chkcert() {
+        
+    }
 
-	/**
-	 * Ê¶±ğÊäÈëµÄIP, PERIOD, ÀÏÃÜÂë.
-	 * ÃÜÂëºó¼ÓÎå¸öĞÇ(*****)Êä³öLog.
-	 */
-	public static void prepare_setNegPW(){
-		String str;
-		int len;
-		save = chkbxsave.isSelected();
-		tls = chkbxTls.isSelected();
-		if(rdbtnD.isSelected()) {
-			if(save)
-				SetPassword.file = new File("Log_negdigsiPw.txt");
-			if(tls)
-				ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
-			else
-				ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
-			period = Integer.parseInt(textField_period.getText());
-			str = textField_DigPw.getText();
-			commonpw = str;
-			len = str.length();
-			if(str.endsWith("*****")){
-				debug = true;
-				digpw = str.substring(0, len - 5);
-			}
-			else digpw = str;
-		}
-		if(rdbtnF.isSelected()) {
-			if(save)
-				SetPassword.file = new File("Log_negfwPw.txt");
-			if(tls)
-				ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
-			else
-				ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
-			period = Integer.parseInt(textField_period.getText());
-			str = textField_FwPw.getText();
-			commonpw = str;
-			len = str.length();
-			if(str.endsWith("*****")){
-				debug = true;
-				fwpw = str.substring(0, len - 5);
-			}
-			else fwpw = str;
-		}
-	}
-	
-	/**
-	 * Ê¶±ğÊäÈëµÄIP, PERIOD, FW Â·¾¶.
-	 * Â·¾¶ºó¼ÓÒ»¸öĞÇ(*),Êä³öLog.
-	 */
-	public static void prepare_upldFW(){
-		String str;	
-		String end = textField_end.getText();
-		if (end.startsWith(".")) {
+    /**
+     * è¯†åˆ«è¾“å…¥çš„IP, PERIOD, è€å¯†ç .
+     * å¯†ç ååŠ äº”ä¸ªæ˜Ÿ(*****)è¾“å‡ºLog.
+     */
+    public static void prepare_setNegPW(){
+        String str;
+        int len;
+        save = chkbxsave.isSelected();
+        tls = chkbxTls.isSelected();
+        if(rdbtnD.isSelected()) {
+            if(save)
+                SetPassword.file = new File("Log_negdigsiPw.txt");
+            if(tls)
+                ip = "https://"+textField_ip.getText()+"/setconnectionpassword";
+            else
+                ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
+            period = Integer.parseInt(textField_period.getText());
+            str = textField_DigPw.getText();
+            commonpw = str;
+            len = str.length();
+            if(str.endsWith("*****")){
+                debug = true;
+                digpw = str.substring(0, len - 5);
+            }
+            else digpw = str;
+        }
+        if(rdbtnF.isSelected()) {
+            if(save)
+                SetPassword.file = new File("Log_negfwPw.txt");
+            if(tls)
+                ip = "https://"+textField_ip.getText()+"/setmaintenancepassword";
+            else
+                ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
+            period = Integer.parseInt(textField_period.getText());
+            str = textField_FwPw.getText();
+            commonpw = str;
+            len = str.length();
+            if(str.endsWith("*****")){
+                debug = true;
+                fwpw = str.substring(0, len - 5);
+            }
+            else fwpw = str;
+        }
+    }
+    
+    /**
+     * è¯†åˆ«è¾“å…¥çš„IP, PERIOD, FW è·¯å¾„.
+     * è·¯å¾„ååŠ ä¸€ä¸ªæ˜Ÿ(*),è¾“å‡ºLog.
+     */
+    public static void prepare_upldFW(){
+        String str; 
+        String end = textField_end.getText();
+        if (end.startsWith(".")) {
             fwSegment = true;
             fwEnd = Integer.parseInt(end.substring(1, end.length()));
         } else {
             fwSegment = false;
         }
-		int len;
-		tls = chkbxTls.isSelected();
-		if(tls)
-			ip = "https://"+textField_ip.getText()+"/upload";
-		else
-			ip = "http://"+textField_ip.getText()+"/upload";
-		period = Integer.parseInt(textField_period.getText());
-		str = textField_fw.getText();
-		len = str.length();
-		if (str.endsWith("*")){
-			fw = str.substring(0, len - 1);
-			debug = true;
-		}else
-			fw =str;
-		fwpw = textField_FwPw.getText();		
-	}
-	/**
-	 * Ê¶±ğÊäÈëµÄIP.
-	 * periodÎª99Ê±,Êä³öLog.
-	 */
-	public static void prepare_ChkCert(){
-		String str = textField_ip.getText();
-		String end = textField_end.getText();
+        int len;
+        tls = chkbxTls.isSelected();
+        if(tls)
+            ip = "https://"+textField_ip.getText()+"/upload";
+        else
+            ip = "http://"+textField_ip.getText()+"/upload";
+        period = Integer.parseInt(textField_period.getText());
+        str = textField_fw.getText();
+        len = str.length();
+        if (str.endsWith("*")){
+            fw = str.substring(0, len - 1);
+            debug = true;
+        }else
+            fw =str;
+        fwpw = textField_FwPw.getText();        
+    }
+    /**
+     * è¯†åˆ«è¾“å…¥çš„IP.
+     * periodä¸º99æ—¶,è¾“å‡ºLog.
+     */
+    public static void prepare_ChkCert(){
+        String str = textField_ip.getText();
+        String end = textField_end.getText();
         if (end.startsWith(".")) {
             certSegment = true;
             certEnd = Integer.parseInt(end.substring(1, end.length()));
         } else {
             certSegment = false;
         }
-		save = chkbxsave.isSelected();
-		tls = chkbxTls.isSelected();
-		if(str.indexOf("https") == -1) {
-			if(str.matches("[a-zA-Z]+")) { //²»ÍæÁË£¬GetCertificate.javaÀïÒÑÈ¥µôÏà¹Ø´úÂë¡£
-				ForFun = true;
-				//ip = "https://www."+str+".com";
-			}else{
-				if(!tls) {
-					updateTextArea("Enable tls first.\n");					
-				}else {
-					ForFun = false;
-					//ip = "https://"+str+"/home";
-					ip = textField_ip.getText();
-					period = Integer.parseInt(textField_period.getText());
-					if (period == 99)
-						debug = true;
-				}							
-			}
-		}		
-//		if(str.indexOf("https") > -1) {
-		else {			
-			ForFun = true;
-			ip = str;
-		}
-	}
-	
-	/**
-	 * ¼ì²éÑ­»·´ÎÊıÉÏÏŞ£¬¶ÁÒ»¸öÖµ£¬ÉèÒ»¸ö±êÖ¾Î»¡£ÊäÈëÊıÖµÒÔ¼ÓºÅ½áÎ²Ê±£¬·µ»Øtrue£¬ÈÃ·´Ïò²âÊÔÒ²ÓÃÕâ¸ö´ÎÊı¡£·ñÔòÖ»ÓĞÕıÏò²âÊÔÓÃÕâ¸ö´ÎÊı¡£
-	 * @return
-	 */
-	public static boolean checkUbound() {
-		String str = textArea_ubound.getText();
-		boolean result = false;
-		if(str.endsWith("+")) {
-			result = true;
-			str = str.substring(0, str.length()-1);
-		}
-		ubound = Integer.parseInt(str);
-		return result;
-	}
-	
-	/**
-	 * Encapsulate Reset to a method. Facilitate calling.
-	 */
-	public static void reset() {
-		serverLost = false;
-		traverse = false;
-		SetPassword.pwExist = false;
-		if(t_ping_running) {
-			t_ping.cancel();
-			t_ping_running = false;
-		}
-		if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
-			try {
-				while(!SetPassword.end) {
-					Thread.sleep(100);
-				}
-				SetPassword.bw.flush();
-				SetPassword.bw.close();
-				SetPassword.streamClosed = true;
-				SetPassword.bw = null;
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			} 
-		}
-		SetPassword.succ = 0;
-		HttpPost.suc = 0;
-		ubound = 0;
+        save = chkbxsave.isSelected();
+        tls = chkbxTls.isSelected();
+        if(str.indexOf("https") == -1) {
+            if(str.matches("[a-zA-Z]+")) { //ä¸ç©äº†ï¼ŒGetCertificate.javaé‡Œå·²å»æ‰ç›¸å…³ä»£ç ã€‚
+                ForFun = true;
+                //ip = "https://www."+str+".com";
+            }else{
+                if(!tls) {
+                    updateTextArea("Enable tls first.\n");                  
+                }else {
+                    ForFun = false;
+                    //ip = "https://"+str+"/home";
+                    ip = textField_ip.getText();
+                    period = Integer.parseInt(textField_period.getText());
+                    if (period == 99)
+                        debug = true;
+                }                           
+            }
+        }       
+//      if(str.indexOf("https") > -1) {
+        else {          
+            ForFun = true;
+            ip = str;
+        }
+    }
+    
+    /**
+     * æ£€æŸ¥å¾ªç¯æ¬¡æ•°ä¸Šé™ï¼Œè¯»ä¸€ä¸ªå€¼ï¼Œè®¾ä¸€ä¸ªæ ‡å¿—ä½ã€‚è¾“å…¥æ•°å€¼ä»¥åŠ å·ç»“å°¾æ—¶ï¼Œè¿”å›trueï¼Œè®©åå‘æµ‹è¯•ä¹Ÿç”¨è¿™ä¸ªæ¬¡æ•°ã€‚å¦åˆ™åªæœ‰æ­£å‘æµ‹è¯•ç”¨è¿™ä¸ªæ¬¡æ•°ã€‚
+     * @return
+     */
+    public static boolean checkUbound() {
+        String str = textArea_ubound.getText();
+        boolean result = false;
+        if(str.endsWith("+")) {
+            result = true;
+            str = str.substring(0, str.length()-1);
+        }
+        ubound = Integer.parseInt(str);
+        return result;
+    }
+    
+    /**
+     * Encapsulate Reset to a method. Facilitate calling.
+     */
+    public static void reset() {
+        serverLost = false;
+        traverse = false;
+        SetPassword.pwExist = false;
+        if(t_ping_running) {
+            t_ping.cancel();
+            t_ping_running = false;
+        }
+        if(save && (SetPassword.streamClosed == false) && (fwpwRunning || digpwRunning || negRunning)) {
+            try {
+                while(!SetPassword.end) {
+                    Thread.sleep(100);
+                }
+                SetPassword.bw.flush();
+                SetPassword.bw.close();
+                SetPassword.streamClosed = true;
+                SetPassword.bw = null;
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            } 
+        }
+        SetPassword.succ = 0;
+        HttpPost.suc = 0;
+        ubound = 0;
 
-		if(fwRunning) {
-			fwRunning = false;
-			if(HttpPost.t != null) {
-				HttpPost.t.cancel();
-				HttpPost.t_running = false;
-			}												
-		}
-		if(fwpwRunning || digpwRunning) {
-			fwpwRunning = false;
-			digpwRunning = false;
-			// Èç¹ûÖ»ÓÃt.cancel()£¬Ôò¼ÆÊ±Æ÷±»È¡Ïû£¬±¾´ÎÊÇ×îºóÒ»´Î¡£µ«±¾´Î»¹ÊÇ»áÔËĞĞÏÂÈ¥£¬¿ÉÄÜ»áÓëÔ¤ÆÚ²»Í¬¡£
-			stop = true;
-			if(SetPassword.t != null) {
-				SetPassword.t.cancel();
-				SetPassword.t_running = false;
-			}						
-		}
-		if(thread_neg != null) {
-			negRunning = false;
-			negative = false;					
-//			if(SetPassword.t != null)
-//				SetPassword.t.cancel();
-			stop = true;
-		}
-		
-		/*ÏÂÃæÕâ¶Î¿ÉÒÔ»ñµÃµ±Ç°ËùÓĞÔËĞĞµÄÏß³Ì£¬±¾À´ÊÇÒòÎªĞÂ½¨ÁËºÜ¶àtimerÈ¥·Ö±ğping²»Í¬µÄ×°ÖÃ£¬ºóÀ´Ö»ÓÃÒ»¸ötimer£¬ËùÒÔÕâ¶ÎÃ»ÓÃµ½*/
-		ThreadGroup group = Thread.currentThread().getThreadGroup();
-		int number = group.activeCount();
-		Thread[] threads = new Thread[number];
-		group.enumerate(threads);
-		for(int i = 0; i < number; i++) {
-		    System.out.println(i+" = "+threads[i].getName());
-		    
-		}
-	}
-	
-	public static String getIP(String src, Optype type) {
-		String str = null;
-		if (tls) {
-			switch (type) {
-			case digsi:
-				str = "https://" + src + "/setconnectionpassword";
-				break;
-			case fw:
-				str = "https://" + src + "/setmaintenancepassword";
-				break;
-			}
-		} else {
-			switch (type) {
-			case digsi:
-				str = "http://" + src + "/setconnectionpassword";
-				break;
-			case fw:
-				str = "http://" + src + "/setmaintenancepassword";
-				break;
-			}
-		}
-		return str;
-	}
-	
-	private static void enablePing() {
-		if(!t_ping_running) {
-			t_ping = new Timer();
-			t_ping.schedule(window.new Ping(FrameSecurity.textField_ip.getText()), 0, 5000);
-			t_ping_running = true;
-		}
-	}
-	
-	
+        if(fwRunning) {
+            fwRunning = false;
+            if(HttpPost.t != null) {
+                HttpPost.t.cancel();
+                HttpPost.t_running = false;
+            }                                               
+        }
+        if(fwpwRunning || digpwRunning) {
+            fwpwRunning = false;
+            digpwRunning = false;
+            // å¦‚æœåªç”¨t.cancel()ï¼Œåˆ™è®¡æ—¶å™¨è¢«å–æ¶ˆï¼Œæœ¬æ¬¡æ˜¯æœ€åä¸€æ¬¡ã€‚ä½†æœ¬æ¬¡è¿˜æ˜¯ä¼šè¿è¡Œä¸‹å»ï¼Œå¯èƒ½ä¼šä¸é¢„æœŸä¸åŒã€‚
+            stop = true;
+            if(SetPassword.t != null) {
+                SetPassword.t.cancel();
+                SetPassword.t_running = false;
+            }                       
+        }
+        if(thread_neg != null) {
+            negRunning = false;
+            negative = false;                   
+//          if(SetPassword.t != null)
+//              SetPassword.t.cancel();
+            stop = true;
+        }
+        
+        /*ä¸‹é¢è¿™æ®µå¯ä»¥è·å¾—å½“å‰æ‰€æœ‰è¿è¡Œçš„çº¿ç¨‹ï¼Œæœ¬æ¥æ˜¯å› ä¸ºæ–°å»ºäº†å¾ˆå¤štimerå»åˆ†åˆ«pingä¸åŒçš„è£…ç½®ï¼Œåæ¥åªç”¨ä¸€ä¸ªtimerï¼Œæ‰€ä»¥è¿™æ®µæ²¡ç”¨åˆ°*/
+        /*ThreadGroup group = Thread.currentThread().getThreadGroup();
+        int number = group.activeCount();
+        Thread[] threads = new Thread[number];
+        group.enumerate(threads);
+        for(int i = 0; i < number; i++) {
+            System.out.println(i+" = "+threads[i].getName());
+        }*/
+    }
+    
+    public static String getIP(String src, Optype type) {
+        String str = null;
+        if (tls) {
+            switch (type) {
+            case digsi:
+                str = "https://" + src + "/setconnectionpassword";
+                break;
+            case fw:
+                str = "https://" + src + "/setmaintenancepassword";
+                break;
+            }
+        } else {
+            switch (type) {
+            case digsi:
+                str = "http://" + src + "/setconnectionpassword";
+                break;
+            case fw:
+                str = "http://" + src + "/setmaintenancepassword";
+                break;
+            }
+        }
+        return str;
+    }
+    
+    private static void enablePing() {
+        if(!t_ping_running) {
+            t_ping = new Timer();
+            t_ping.schedule(window.new Ping(FrameSecurity.textField_ip.getText()), 0, 5000);
+            t_ping_running = true;
+        }
+    }
+    
+    
     private static void enablePingForSeg(int s) {
         String[] ip = textField_ip.getText().split("[.]");
         t_ping.schedule(window.new Ping(FrameSecurity.textField_ip.getText(), s - Integer.parseInt(ip[3])), 0, 5000);
         t_ping_running = true;
     }
-		
-	 class Thread_neg extends SetPassword implements Runnable{
-		@Override
-		public void run() {
-			if(!stop) {
-				SetPassword.set();
-			}						
-		}					
-	}
-	 
-	 class Ping extends TimerTask{
-	     
-	     private String ip = "";
-	     private boolean reverse = false;
-	     private boolean lost = true;
-	     public Ping(String ip){
-	         this.ip = ip;
-	     }
-	     public Ping(String ip, int i){
-	         String[] str = textField_ip.getText().split("[.]");
-	         this.ip = str[0]+"."+str[1]+"."+str[2]+"."+(Integer.parseInt(str[3]) + i);
-	     }
-		 public void run() {
-			 try {
-				InetAddress server = InetAddress.getByName(ip);
-				if(!server.isReachable(1000)) {
-				    //ÏÂÒ»¸öIP¶ÎÄÚËùÓĞ×°ÖÃµÄFWÊ±£¬Òª¶ÔÃ¿¸ö×°ÖÃ(server)·Ö±ğping,·Ö±ğÈ¡lostµÄ×´Ì¬£¬ËùÒÔ²»ÄÜÓÃ×ÜµÄserverLost¡£Ö®Ç°Åöµ½µÄÎÊÌâÊÇ£¬
-				    //Server lostºÍserver is onlineµÄlogÂÒ´ò£¬ÒòÎªÊÇÓÃserverLostÅĞ¶ÏµÄ£¬Ã¿¸öÏß³Ì¶¼ÄÜ¸ÄÕâ¸öÖµ£¬ÇÒÓ°Ïìµ½ÆäËüÏß³Ì¡£
-				    if (fwSegment) {
+        
+     class Thread_neg extends SetPassword implements Runnable{
+        @Override
+        public void run() {
+            if(!stop) {
+                SetPassword.set();
+            }                       
+        }                   
+    }
+     
+     class Ping extends TimerTask{
+         
+         private String ip = "";
+         private boolean reverse = false;
+         private boolean lost = true;
+         public Ping(String ip){
+             this.ip = ip;
+         }
+         public Ping(String ip, int i){
+             String[] str = textField_ip.getText().split("[.]");
+             this.ip = str[0]+"."+str[1]+"."+str[2]+"."+(Integer.parseInt(str[3]) + i);
+         }
+         public void run() {
+             try {
+                InetAddress server = InetAddress.getByName(ip);
+                if(!server.isReachable(1000)) {
+                    //ä¸‹ä¸€ä¸ªIPæ®µå†…æ‰€æœ‰è£…ç½®çš„FWæ—¶ï¼Œè¦å¯¹æ¯ä¸ªè£…ç½®(server)åˆ†åˆ«ping,åˆ†åˆ«å–lostçš„çŠ¶æ€ï¼Œæ‰€ä»¥ä¸èƒ½ç”¨æ€»çš„serverLostã€‚ä¹‹å‰ç¢°åˆ°çš„é—®é¢˜æ˜¯ï¼Œ
+                    //Server lostå’Œserver is onlineçš„logä¹±æ‰“ï¼Œå› ä¸ºæ˜¯ç”¨serverLoståˆ¤æ–­çš„ï¼Œæ¯ä¸ªçº¿ç¨‹éƒ½èƒ½æ”¹è¿™ä¸ªå€¼ï¼Œä¸”å½±å“åˆ°å…¶å®ƒçº¿ç¨‹ã€‚
+                    if (fwSegment) {
                         if (false == lost) {
-                            reverse = true; // Ö»ÓĞÔÚÔ­À´ÄÜpingÍ¨£¬ÏÖÔÚping²»ÄÜÊ±²ÅËã×´Ì¬·´×ª¡£
+                            reverse = true; // åªæœ‰åœ¨åŸæ¥èƒ½pingé€šï¼Œç°åœ¨pingä¸èƒ½æ—¶æ‰ç®—çŠ¶æ€åè½¬ã€‚
                         }
                         lost = true;
                         if (reverse) {
@@ -1027,10 +1026,10 @@ public class FrameSecurity {
                         serverLost = true;
                         updateTextArea("Server lost!!! " + ip + "\n");
                     }
-					//Ä£ÄâÕæÕıÏÂfirmware¹ı³Ì£¬×°ÖÃ»áÖØÆô£¬server lost²»Í£¡£
-					/*if(HttpPost.t_running) {
-						HttpPost.t.cancel();
-					}*/					
+                    //æ¨¡æ‹ŸçœŸæ­£ä¸‹firmwareè¿‡ç¨‹ï¼Œè£…ç½®ä¼šé‡å¯ï¼Œserver lostä¸åœã€‚
+                    /*if(HttpPost.t_running) {
+                        HttpPost.t.cancel();
+                    }*/                 
                 } else {                   
                     if (fwSegment) {
                         if (lost) {
@@ -1042,18 +1041,18 @@ public class FrameSecurity {
                             updateTextArea("Server is online! " + ip + "\n");
                         }
                     } else {
-                         if(serverLost) { //Ö»ÓĞÔÚ´Óping²»Í¨µ½pingÍ¨µÄ±ä»¯Ê±£¬²Å»á´òÓ¡server is online. 
+                         if(serverLost) { //åªæœ‰åœ¨ä»pingä¸é€šåˆ°pingé€šçš„å˜åŒ–æ—¶ï¼Œæ‰ä¼šæ‰“å°server is online. 
                              serverLost = false; 
                              updateTextArea("Server is online! " + ip + "\n"); }
                     }
 
                 }
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		 }		 
-	}
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+         }       
+    }
 }
 

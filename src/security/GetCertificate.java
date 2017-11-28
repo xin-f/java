@@ -27,14 +27,14 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class GetCertificate {
-	
-	static boolean frame;
-//	public static File file = null;
-	private static String[] ip_seg = null;
-	private static int seg3;
+    
+    static boolean frame;
+//  public static File file = null;
+    private static String[] ip_seg = null;
+    private static int seg3;
     static URL url = null;
-    private static int cnt; //IPÓëÖ¤ÊéÀïµÄIP²»Ò»ÑùµÄ¸öÊı£¬Ó¦¸ÃÎª0¡£
-    private static int cnt_total; //ÒÑ¶ÁÖ¤Êé¸öÊı¡£
+    private static int cnt; //IPä¸è¯ä¹¦é‡Œçš„IPä¸ä¸€æ ·çš„ä¸ªæ•°ï¼Œåº”è¯¥ä¸º0ã€‚
+    private static int cnt_total; //å·²è¯»è¯ä¹¦ä¸ªæ•°ã€‚
 
     public static void checkCert() {
         cnt_total = 0;
@@ -53,171 +53,171 @@ public class GetCertificate {
         }
     }
 
-	public static void check(int tmp){
-		frame = false;
-		if(FrameSecurity.ip != null)
-			frame = true;
-		try {
-			/*if(Frame.ForFun) {
-				url = new URL(Frame.ip);
-				SocketAddress sa = new InetSocketAddress("140.231.235.4",8080);		//Ê¹ÓÃ´úÀí
-				Proxy proxy = new Proxy(Proxy.Type.HTTP,sa);
-				connection = (HttpsURLConnection)url.openConnection(proxy);
-			}		
-			else {*/
-			url = new URL("https://" + ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp + "/home");
-			URLConnection connection = url.openConnection();
-			SSLContext sc =  SSLContext.getInstance("TLS");
-			sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
-			if(FrameSecurity.tls) {
-				((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
-				connection.setConnectTimeout(1000);
-				connection.connect();
-			}
-				
-//			BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
-//			String line;
-//			while((line = br.readLine())!=null) {
-//				System.out.println(line);
-//			}
-			//SSLContextµÄÊµÀı±íÊ¾°²È«Ì×½Ó×ÖĞ­ÒéµÄÊµÏÖ£¬ÓÃ×÷£¨°²È«Ì×½Ó×Ö¹¤³§»òSSLEngine)µÄ¹¤³§¡£ scÒÑ¾­ÓÃ×Ô¶¨µÄÃÜÔ¿£¬ĞÅÈÎ¹ÜÀíÆ÷ºÍËæ»úÊı³õÊ¼»¯£¬ËùÒÔ
-			//¿ÉÒÔ¶ÁËüµÄÒ»Ğ©ÊôĞÔ£¬±ÈÈç°²È«Ì×½Ó×ÖĞ­Òé¡¢°²È«Ì×½Ó×Ö¹¤³§¡¢SSLSessionContextµÈ¡£
-			//SSLSessionContext±íÊ¾Ò»×é(a set of)Óëµ¥¸öÊµÌå¹ØÁªµÄSSL »á»°¡£±ÈÈçÒ»¸öSSLSessionContextµÄÊµÀı¿ÉÒÔ¹ØÁªµ½Ò»¸ö¿Í»§¶Ë»ò·şÎñ¶Ë,´Ë¿Í»§¶Ë»ò·şÎñ¶Ë ÔÚ²¢ĞĞ¶à¸ö»á»°¡£
-			//ÓÃ	getIds()»ñµÃ´ËSSLSessionContextµÄ(Ã¶¾ÙÀà)ËùÓĞ²¢ĞĞ»á»°µÄID¡£
-			SSLSessionContext scc = sc.getClientSessionContext();
-			Enumeration<byte[]> id_c = scc.getIds();
-			byte[] b1 = id_c.nextElement();//È·¶¨ÓĞÇÒÖ»ÓĞÒ»¸öÖ¤ÊéID£¬ËùÒÔÖ±½Ó·ÃÎÊnextElement().ÆäËüÇé¿öÒªÓÃwhile(hasMoreElements)
-			SSLSession sslSession = scc.getSession(b1);
-			X509Certificate cert = null;
-			cert = (X509Certificate) sslSession.getPeerCertificates()[0];//È·¶¨ÓĞÇÒÖ»ÓĞÒ»¸öÖ¤ÊéID£¬ËùÒÔÖ±½Ó·ÃÎÊÖ¤ÊéÊı×é[0]
-			javax.security.cert.X509Certificate[] certChain = sslSession.getPeerCertificateChain();
-			
-			if(FrameSecurity.tls) ((HttpsURLConnection) connection).disconnect();
-			
-			if(cert == null) {
-			    FrameSecurity.updateTextArea("Get certificate error!");
-			}else {
-			    cnt_total++;
-//			    FrameSecurity.updateTextAreacnt(cnt_total);
-			}
-			
-			System.out.println(sslSession.getCipherSuite());
-			System.out.println(sslSession.getLocalCertificates());//¶Á²»µ½¶«Î÷.
-			System.out.println(sslSession.getPeerCertificates());
-			System.out.println(sslSession.getPeerCertificateChain());
-			if(FrameSecurity.save) {
-			    if(!FrameSecurity.certSegment) {
-			        File file = new File("cert.txt");
-	                FileOutputStream fos = new FileOutputStream(file);
-	                PrintWriter pw = new PrintWriter(fos);
-	                pw.write(cert.toString());
-	                pw.close();
-	                fos.close(); 
-			    }else {
-			        File file = new File("cert_" + tmp + ".txt");
-	                FileOutputStream fos = new FileOutputStream(file);
-	                PrintWriter pw = new PrintWriter(fos);
-	                pw.write(cert.toString());
-	                pw.close();
-	                fos.close();
-			    }			    
-			}			
-			
-			byte[] serial = cert.getSerialNumber().toByteArray();  
-			Formatter serialN = new Formatter();
-			for(byte b:serial) {
-				serialN.format("%02X:", b);
-			}
-			String serialNum = serialN.toString().substring(0,serialN.toString().length()-1);
-			System.out.println(serialNum);
-			if(frame) 
-				FrameSecurity.updateTextArea("Serial Number: "+serialNum+"\n");
-			serialN.close(); 
-//	        System.out.println("x509Certificate_getIssuerDN_·¢²¼·½±êÊ¶Ãû___:"+cert.getIssuerX500Principal());   
-//	        if(frame) 
-//	        	Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
-	        /*System.out.println("x509Certificate_getSubjectDN_Ö÷Ìå±êÊ¶___:"+cert.getSubjectX500Principal());  
-	        System.out.println("x509Certificate_getSigAlgOID_Ö¤ÊéËã·¨OID×Ö·û´®___:"+cert.getSigAlgOID()); 
-	        System.out.println("x509Certificate_getNotBefore_Ö¤ÊéÆğÊ¼ÆÚ___:"+cert.getNotBefore()); */
-	        if(frame) 
-	        	FrameSecurity.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
-	        System.out.println("x509Certificate_getNotBefore_Ö¤ÊéÓĞĞ§ÆÚ___:"+cert.getNotAfter()); 
-//	        if(frame) 
-//	        	Frame.updateTextArea("Sigurature validation before: "+cert.getNotAfter()+"\n");
-	        System.out.println("x509Certificate_getSigAlgName_Ç©ÃûËã·¨___:"+cert.getSigAlgName());  
-	        if(frame) 
-	        	FrameSecurity.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
-	        System.out.println("x509Certificate_getVersion_°æ±¾ºÅ___:"+cert.getVersion());  
-//	        System.out.println("x509Certificate_getPublicKey_¹«Ô¿___:"+cert.getPublicKey());  
-	        Collection<List<?>> subject = cert.getSubjectAlternativeNames();
-	        String ip = subject.toString().substring(5, subject.toString().length()-2);
-	        System.out.println(ip);
-	        if(frame) 
-	        	FrameSecurity.updateTextArea("Subject ip: "+ip+"\n");
-	        if(!FrameSecurity.ForFun) {	
-//	        	String str = "https://" + FrameSecurity.ip + "/home";
-//	        	str = str.substring(8, str.length());//È¥µôÇ°Ãæ°Ë¸ö×Ö·û(https://)
-//	        	int i = str.indexOf("/");
-//	        	str = str.substring(0, i);
-	            String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
-	        	if(!ip.equals(str))
-		        	{if(frame)
-		        		FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
-		        	cnt++;
-		        	FrameSecurity.updateTextAreacnt(cnt);
-		        	}
-	        }		        
-	        byte[] sig = cert.getSignature();
-	        Formatter sign = new Formatter();
-	        for(byte b:sig)
-	        	sign.format("%02X:",b);
-	        String signature = sign.toString().substring(0, sign.toString().length()-1);
-	        System.out.println(signature);
-	        sign.close();
-	        if(frame)
-        		{
-	            FrameSecurity.updateTextArea("Signature: "+signature+"\n");
-	            FrameSecurity.updateTextArea(cnt_total+" certificate(s) got.\n");
-	            FrameSecurity.updateTextArea("=============================\n");
-        		}
-			FrameSecurity.chkRunning = false;
-		} catch (MalformedURLException e) {
-			System.out.println("new URL");
-			FrameSecurity.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
-			e.printStackTrace();
-		} catch (IOException e) {
-			FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
-			System.out.println("url.openConnection");
-			FrameSecurity.updateTextArea("=============================\n");
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			System.out.println("SSLContext.getInstance");
-			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			e.printStackTrace();
-		} catch (CertificateParsingException e) {
-			System.out.println("getSubjectAlternativeNames)");
-			e.printStackTrace();
-		}		
-	}
+    public static void check(int tmp){
+        frame = false;
+        if(FrameSecurity.ip != null)
+            frame = true;
+        try {
+            /*if(Frame.ForFun) {
+                url = new URL(Frame.ip);
+                SocketAddress sa = new InetSocketAddress("140.231.235.4",8080);     //ä½¿ç”¨ä»£ç†
+                Proxy proxy = new Proxy(Proxy.Type.HTTP,sa);
+                connection = (HttpsURLConnection)url.openConnection(proxy);
+            }       
+            else {*/
+            url = new URL("https://" + ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp + "/home");
+            URLConnection connection = url.openConnection();
+            SSLContext sc =  SSLContext.getInstance("TLS");
+            sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
+            if(FrameSecurity.tls) {
+                ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+                connection.setConnectTimeout(1000);
+                connection.connect();
+            }
+                
+//          BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+//          String line;
+//          while((line = br.readLine())!=null) {
+//              System.out.println(line);
+//          }
+            //SSLContextçš„å®ä¾‹è¡¨ç¤ºå®‰å…¨å¥—æ¥å­—åè®®çš„å®ç°ï¼Œç”¨ä½œï¼ˆå®‰å…¨å¥—æ¥å­—å·¥å‚æˆ–SSLEngine)çš„å·¥å‚ã€‚ scå·²ç»ç”¨è‡ªå®šçš„å¯†é’¥ï¼Œä¿¡ä»»ç®¡ç†å™¨å’Œéšæœºæ•°åˆå§‹åŒ–ï¼Œæ‰€ä»¥
+            //å¯ä»¥è¯»å®ƒçš„ä¸€äº›å±æ€§ï¼Œæ¯”å¦‚å®‰å…¨å¥—æ¥å­—åè®®ã€å®‰å…¨å¥—æ¥å­—å·¥å‚ã€SSLSessionContextç­‰ã€‚
+            //SSLSessionContextè¡¨ç¤ºä¸€ç»„(a set of)ä¸å•ä¸ªå®ä½“å…³è”çš„SSL ä¼šè¯ã€‚æ¯”å¦‚ä¸€ä¸ªSSLSessionContextçš„å®ä¾‹å¯ä»¥å…³è”åˆ°ä¸€ä¸ªå®¢æˆ·ç«¯æˆ–æœåŠ¡ç«¯,æ­¤å®¢æˆ·ç«¯æˆ–æœåŠ¡ç«¯ åœ¨å¹¶è¡Œå¤šä¸ªä¼šè¯ã€‚
+            //ç”¨ getIds()è·å¾—æ­¤SSLSessionContextçš„(æšä¸¾ç±»)æ‰€æœ‰å¹¶è¡Œä¼šè¯çš„IDã€‚
+            SSLSessionContext scc = sc.getClientSessionContext();
+            Enumeration<byte[]> id_c = scc.getIds();
+            byte[] b1 = id_c.nextElement();//ç¡®å®šæœ‰ä¸”åªæœ‰ä¸€ä¸ªè¯ä¹¦IDï¼Œæ‰€ä»¥ç›´æ¥è®¿é—®nextElement().å…¶å®ƒæƒ…å†µè¦ç”¨while(hasMoreElements)
+            SSLSession sslSession = scc.getSession(b1);
+            X509Certificate cert = null;
+            cert = (X509Certificate) sslSession.getPeerCertificates()[0];//ç¡®å®šæœ‰ä¸”åªæœ‰ä¸€ä¸ªè¯ä¹¦IDï¼Œæ‰€ä»¥ç›´æ¥è®¿é—®è¯ä¹¦æ•°ç»„[0]
+            javax.security.cert.X509Certificate[] certChain = sslSession.getPeerCertificateChain();
+            
+            if(FrameSecurity.tls) ((HttpsURLConnection) connection).disconnect();
+            
+            if(cert == null) {
+                FrameSecurity.updateTextArea("Get certificate error!");
+            }else {
+                cnt_total++;
+//              FrameSecurity.updateTextAreacnt(cnt_total);
+            }
+            
+            System.out.println(sslSession.getCipherSuite());
+            System.out.println(sslSession.getLocalCertificates());//è¯»ä¸åˆ°ä¸œè¥¿.
+            System.out.println(sslSession.getPeerCertificates());
+            System.out.println(sslSession.getPeerCertificateChain());
+            if(FrameSecurity.save) {
+                if(!FrameSecurity.certSegment) {
+                    File file = new File("cert.txt");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    PrintWriter pw = new PrintWriter(fos);
+                    pw.write(cert.toString());
+                    pw.close();
+                    fos.close(); 
+                }else {
+                    File file = new File("cert_" + tmp + ".txt");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    PrintWriter pw = new PrintWriter(fos);
+                    pw.write(cert.toString());
+                    pw.close();
+                    fos.close();
+                }               
+            }           
+            
+            byte[] serial = cert.getSerialNumber().toByteArray();  
+            Formatter serialN = new Formatter();
+            for(byte b:serial) {
+                serialN.format("%02X:", b);
+            }
+            String serialNum = serialN.toString().substring(0,serialN.toString().length()-1);
+            System.out.println(serialNum);
+            if(frame) 
+                FrameSecurity.updateTextArea("Serial Number: "+serialNum+"\n");
+            serialN.close(); 
+//          System.out.println("x509Certificate_getIssuerDN_å‘å¸ƒæ–¹æ ‡è¯†å___:"+cert.getIssuerX500Principal());   
+//          if(frame) 
+//              Frame.updateTextArea("Issuer: "+cert.getIssuerX500Principal()+"\n");  
+            /*System.out.println("x509Certificate_getSubjectDN_ä¸»ä½“æ ‡è¯†___:"+cert.getSubjectX500Principal());  
+            System.out.println("x509Certificate_getSigAlgOID_è¯ä¹¦ç®—æ³•OIDå­—ç¬¦ä¸²___:"+cert.getSigAlgOID()); 
+            System.out.println("x509Certificate_getNotBefore_è¯ä¹¦èµ·å§‹æœŸ___:"+cert.getNotBefore()); */
+            if(frame) 
+                FrameSecurity.updateTextArea("Sigurature validation after: "+cert.getNotBefore()+"\n");
+            System.out.println("x509Certificate_getNotBefore_è¯ä¹¦æœ‰æ•ˆæœŸ___:"+cert.getNotAfter()); 
+//          if(frame) 
+//              Frame.updateTextArea("Sigurature validation before: "+cert.getNotAfter()+"\n");
+            System.out.println("x509Certificate_getSigAlgName_ç­¾åç®—æ³•___:"+cert.getSigAlgName());  
+            if(frame) 
+                FrameSecurity.updateTextArea("Sigurature algrithm: "+cert.getSigAlgName()+"\n");
+            System.out.println("x509Certificate_getVersion_ç‰ˆæœ¬å·___:"+cert.getVersion());  
+//          System.out.println("x509Certificate_getPublicKey_å…¬é’¥___:"+cert.getPublicKey());  
+            Collection<List<?>> subject = cert.getSubjectAlternativeNames();
+            String ip = subject.toString().substring(5, subject.toString().length()-2);
+            System.out.println(ip);
+            if(frame) 
+                FrameSecurity.updateTextArea("Subject ip: "+ip+"\n");
+            if(!FrameSecurity.ForFun) { 
+//              String str = "https://" + FrameSecurity.ip + "/home";
+//              str = str.substring(8, str.length());//å»æ‰å‰é¢å…«ä¸ªå­—ç¬¦(https://)
+//              int i = str.indexOf("/");
+//              str = str.substring(0, i);
+                String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
+                if(!ip.equals(str))
+                    {if(frame)
+                        FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
+                    cnt++;
+                    FrameSecurity.updateTextAreacnt(cnt);
+                    }
+            }               
+            byte[] sig = cert.getSignature();
+            Formatter sign = new Formatter();
+            for(byte b:sig)
+                sign.format("%02X:",b);
+            String signature = sign.toString().substring(0, sign.toString().length()-1);
+            System.out.println(signature);
+            sign.close();
+            if(frame)
+                {
+                FrameSecurity.updateTextArea("Signature: "+signature+"\n");
+                FrameSecurity.updateTextArea(cnt_total+" certificate(s) got.\n");
+                FrameSecurity.updateTextArea("=============================\n");
+                }
+            FrameSecurity.chkRunning = false;
+        } catch (MalformedURLException e) {
+            System.out.println("new URL");
+            FrameSecurity.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
+            e.printStackTrace();
+        } catch (IOException e) {
+            FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
+            System.out.println("url.openConnection");
+            FrameSecurity.updateTextArea("=============================\n");
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("SSLContext.getInstance");
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (CertificateParsingException e) {
+            System.out.println("getSubjectAlternativeNames)");
+            e.printStackTrace();
+        }       
+    }
 }
 
 
 //class SessionContext implements SSLSessionContext{
 //
-//	public Enumeration<byte[]> getIds() {return null;}
+//  public Enumeration<byte[]> getIds() {return null;}
 //
-//	public SSLSession getSession(byte[] arg0) {
-//		return null;
-//	}
-//	public int getSessionCacheSize() {return 0;	}
-//	public int getSessionTimeout() {return 0;	}
-//	public void setSessionCacheSize(int arg0) throws IllegalArgumentException {}
-//	public void setSessionTimeout(int arg0) throws IllegalArgumentException {}	
+//  public SSLSession getSession(byte[] arg0) {
+//      return null;
+//  }
+//  public int getSessionCacheSize() {return 0; }
+//  public int getSessionTimeout() {return 0;   }
+//  public void setSessionCacheSize(int arg0) throws IllegalArgumentException {}
+//  public void setSessionTimeout(int arg0) throws IllegalArgumentException {}  
 //}
 
 //class MyTrust implements X509TrustManager{
-//	public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-//	public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-//	public X509Certificate[] getAcceptedIssuers() {return null;	}	
+//  public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+//  public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+//  public X509Certificate[] getAcceptedIssuers() {return null; }   
 //}
