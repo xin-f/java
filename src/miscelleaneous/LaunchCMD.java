@@ -8,36 +8,36 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class LaunchCMD {
-	public static void main(String[] args) {
-		/*cmd.exe /c ºó¸úÎÄ¼ş,Ïàµ±ÓÚË«»÷,È»ºóÓÃÄ¬ÈÏ¹ØÁªµÄ³ÌĞò´ò¿ª; ºó¸ú³ÌĞò,Ïàµ±ÓÚË«»÷´ò¿ª³ÌĞò,
-		 * µ«,ºóÃæÖ»ÄÜ¸úÒ»¸ö²ÎÊı,ËùÒÔÓöµ½´ø¿Õ¸ñµÄÂ·¾¶Ê±,Òª°ÑÂ·¾¶ÓÃË«ÒıºÅ°üÆğÀ´.
-		 * ÓÃ±äÁ¿±íÊ¾Ê±: ("\""+t_path+"\"")
-		 * 
-		 * cmd ¼ÓÁË/c²ÎÊıºóËü½«ÔËĞĞ/cºóÃæµÄÃüÁî, ²»¼ÓÖ»ÔËĞĞcmd. ¿ÉÒÔÔÚÃüÁîĞĞÊÔÏÂCMD /C DIR C:ºÍCMD DIR C:
-		 * cmd /c dir ÊÇÖ´ĞĞÍêdirÃüÁîºó¹Ø±ÕÃüÁî´°¿Ú¡£
-		 * cmd /k dir ÊÇÖ´ĞĞÍêdirÃüÁîºó²»¹Ø±ÕÃüÁî´°¿Ú¡£
-		 * cmd /c start dir »á´ò¿ªÒ»¸öĞÂ´°¿ÚºóÖ´ĞĞdirÖ¸Áî£¬Ô­´°¿Ú»á¹Ø±Õ¡£
-		 * cmd /k start dir »á´ò¿ªÒ»¸öĞÂ´°¿ÚºóÖ´ĞĞdirÖ¸Áî£¬Ô­´°¿Ú²»»á¹Ø±Õ¡£
-		 */
-		String file = "cmd.exe /c  \"D:\\Program Files\\readme.txt\"";//Ö»ÄÜ´øÒ»¸ö²ÎÊı,ËùÒÔ¶à¼ÓÁËÒ»²ãÒıºÅ,ÒıºÅÓÖ¾­¹ı×ªÒå.
-		String program = "cmd.exe /c \"D:\\Program Files\\FirmwareUpdate.exe\"";
-		String program1 = "D:\\Program Files\\FirmwareUpdate.exe";
-		String file_prog = "D:\\tools\\Notepad++.7.3.bin.x64\\notepad++.exe D:\\Program Files\\readme.txt";//³ÌĞò¼ÓÒª´ò¿ªµÄÎÄ¼ş.
-		String ping = "ping 172.20.1.24 -t";
-		String str;
-		try {
-//			Process p = Runtime.getRuntime().exec(file);
-//			Process p1 = Runtime.getRuntime().exec(program);
-//			Process p11 = Runtime.getRuntime().exec(program);
-//			Process p2 = Runtime.getRuntime().exec(file_prog);
-			Process p3 = Runtime.getRuntime().exec(ping);
-			BufferedReader in = new BufferedReader(new InputStreamReader(p3.getInputStream()));
-			while((str = in.readLine())!=null) 
-				System.out.println(str);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public static void main(String[] args) {
+        /*cmd.exe /c åè·Ÿæ–‡ä»¶,ç›¸å½“äºåŒå‡»,ç„¶åç”¨é»˜è®¤å…³è”çš„ç¨‹åºæ‰“å¼€; åè·Ÿç¨‹åº,ç›¸å½“äºåŒå‡»æ‰“å¼€ç¨‹åº,
+         * ä½†,åé¢åªèƒ½è·Ÿä¸€ä¸ªå‚æ•°,æ‰€ä»¥é‡åˆ°å¸¦ç©ºæ ¼çš„è·¯å¾„æ—¶,è¦æŠŠè·¯å¾„ç”¨åŒå¼•å·åŒ…èµ·æ¥.
+         * ç”¨å˜é‡è¡¨ç¤ºæ—¶: ("\""+t_path+"\"")
+         * 
+         * cmd åŠ äº†/cå‚æ•°åå®ƒå°†è¿è¡Œ/cåé¢çš„å‘½ä»¤, ä¸åŠ åªè¿è¡Œcmd. å¯ä»¥åœ¨å‘½ä»¤è¡Œè¯•ä¸‹CMD /C DIR C:å’ŒCMD DIR C:
+         * cmd /c dir æ˜¯æ‰§è¡Œå®Œdirå‘½ä»¤åå…³é—­å‘½ä»¤çª—å£ã€‚
+         * cmd /k dir æ˜¯æ‰§è¡Œå®Œdirå‘½ä»¤åä¸å…³é—­å‘½ä»¤çª—å£ã€‚
+         * cmd /c start dir ä¼šæ‰“å¼€ä¸€ä¸ªæ–°çª—å£åæ‰§è¡ŒdiræŒ‡ä»¤ï¼ŒåŸçª—å£ä¼šå…³é—­ã€‚
+         * cmd /k start dir ä¼šæ‰“å¼€ä¸€ä¸ªæ–°çª—å£åæ‰§è¡ŒdiræŒ‡ä»¤ï¼ŒåŸçª—å£ä¸ä¼šå…³é—­ã€‚
+         */
+        String file = "cmd.exe /c  \"D:\\Program Files\\readme.txt\"";//åªèƒ½å¸¦ä¸€ä¸ªå‚æ•°,æ‰€ä»¥å¤šåŠ äº†ä¸€å±‚å¼•å·,å¼•å·åˆç»è¿‡è½¬ä¹‰.
+        String program = "cmd.exe /c \"D:\\Program Files\\FirmwareUpdate.exe\"";
+        String program1 = "D:\\Program Files\\FirmwareUpdate.exe";
+        String file_prog = "D:\\tools\\Notepad++.7.3.bin.x64\\notepad++.exe D:\\Program Files\\readme.txt";//ç¨‹åºåŠ è¦æ‰“å¼€çš„æ–‡ä»¶.
+        String ping = "ping 172.20.1.24 -t";
+        String str;
+        try {
+//          Process p = Runtime.getRuntime().exec(file);
+//          Process p1 = Runtime.getRuntime().exec(program);
+//          Process p11 = Runtime.getRuntime().exec(program);
+//          Process p2 = Runtime.getRuntime().exec(file_prog);
+            Process p3 = Runtime.getRuntime().exec(ping);
+            BufferedReader in = new BufferedReader(new InputStreamReader(p3.getInputStream()));
+            while((str = in.readLine())!=null) 
+                System.out.println(str);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
 

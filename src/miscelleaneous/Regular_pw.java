@@ -4,57 +4,57 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Regular_pw {
-	static String pw = "  ` ";
-	public static void main(String[] s){
-		
-		// Éú³ÉPattern¶ÔÏó²¢ÇÒ±àÒëÒ»¸ö¼òµ¥µÄÕıÔò±í´ïÊ½"Kelvin"
-		Pattern p = Pattern.compile("Kelvin");
-		// ÓÃPatternÀàµÄmatcher()·½·¨Éú³ÉÒ»¸öMatcher¶ÔÏó
-		String target = "Kelvin Li and Kelvin Chan are both working in Kelvin Chen's KelvinSoftShop company";
-		Matcher m = p.matcher(target);
-		StringBuffer sb = new StringBuffer();
-		StringBuffer sb2 = new StringBuffer();
-		int i = 0;
-		// Ê¹ÓÃfind()·½·¨²éÕÒµÚÒ»¸öÆ¥ÅäµÄ¶ÔÏó
-		boolean result = m.find();
-		System.out.println(m.start()+" "+m.end()); //ÕâÀïµÃµ½µÄÊÇ0 6, ¼´end()¼ÓÁË1,Ö¸ÏòºóÃæ ÄÚÈİ. ÒªÏÈÖ´ĞĞ.find()·½·¨²ÅÄÜÖ´ĞĞÆäËü.
-		// Ê¹ÓÃÑ­»·½«¾ä×ÓÀïËùÓĞµÄkelvinÕÒ³ö²¢Ìæ»»ÔÙ½«ÄÚÈİ¼Óµ½sbÀï
-		while (result) {
-			i++;
-			m.appendReplacement(sb, "Kevin");	//mÊÇ¸öÆ¥ÅäÆ÷,ËüµÄÆ¥Åä¹«Ê½(ÕıÔò±í´ïÊ½)ÊÇp. Æ¥ÅäÆ÷Ì×ÓÃ¹«Ê½ p ¶ÔÄ¿±ê×Ö·û´®½øĞĞÆ¥Åä. Æ¥Åä³É¹¦Ò»´Î,¾Í°ÑÕâ´ÎÆ¥Åäµ½µÄ×Ö·û´®»»³É·½·¨\
-			//appendReplacement()µÄµÚ¶ş¸ö²ÎÊı,È»ºó¸³¸øµÚÒ»¸ö²ÎÊı. Í¬Ê±Ô­Æ¥ÅäÆ÷ ×Ö·û´®µÄindexÅÜµ½±»Æ¥Åäµ½µÄ×Ö·û´®µÄºóÃæ,±ÈÈç´ËÀı,µÚ1 ´ÎÆ¥Åäºó,Ô­target×Ö·û´®µÄË÷Òı³ÉÁË6,¼´Ç°ÃæµÄm.end().
-			System.out.println("µÚ" + i + "´ÎÆ¥ÅäºósbµÄÄÚÈİÊÇ£º" + sb);
-			
-			result = m.find();
-		}
-		// ×îºóµ÷ÓÃappendTail()·½·¨½«×îºóÒ»´ÎÆ¥ÅäºóµÄÊ£Óà×Ö·û´®¼Óµ½sbÀï£»
-		//It is intended to be invoked after one or more invocations of the appendReplacement() in order to copy the remainder of the input sequence.
-		m.appendTail(sb);
-		System.out.println("µ÷ÓÃm.appendTail(sb)ºósbµÄ×îÖÕÄÚÈİÊÇ:" + sb.toString());
-		m.appendTail(sb2);
-		System.out.println("µ÷ÓÃm.appendTail(sb2)ºósb2µÄ×îÖÕÄÚÈİÊÇ:" + sb2.toString());
-		
-		
-		/**
-		 * basic 
-		 */
-		Pattern p_alphanumeric  = Pattern.compile("[a-zA-Z0-9_]"); //µÈĞ§ÓÚ\w
-		Pattern p_start = Pattern.compile("^[0-9]"); //ÒÔÊı×Ö¿ªÍ·
-		Pattern p_non_word = Pattern.compile("\\W"); //°üº¬»»ĞĞ,ÖÆ±í·ûµÈ.
-		Pattern p_word = Pattern.compile("\\w");
-		Pattern p_visible = Pattern.compile("\\S"); //ÈÎºÎ·Ç¿Õ°××Ö·û,¼´²»°üÀ¨¿Õ¸ñ,»»Ò³,ÖÆ±í·ûµÈ.
-		
-		Matcher m_alphanumeric = p_alphanumeric .matcher(pw);
-		Matcher m_start = p_start.matcher(pw);
-		Matcher m_char = p_non_word.matcher(pw);
-		Matcher m_word = p_word.matcher(pw);
-		Matcher m_visible = p_visible.matcher(pw);
-		
-		System.out.println(m_alphanumeric.find());
-		System.out.println(m_start.find());
-		System.out.println(m_char.find());
-		System.out.println(m_word.find());
-		System.out.println(m_visible.find());
-	}
+    static String pw = "  ` ";
+    public static void main(String[] s){
+        
+        // ç”ŸæˆPatternå¯¹è±¡å¹¶ä¸”ç¼–è¯‘ä¸€ä¸ªç®€å•çš„æ­£åˆ™è¡¨è¾¾å¼"Kelvin"
+        Pattern p = Pattern.compile("Kelvin");
+        // ç”¨Patternç±»çš„matcher()æ–¹æ³•ç”Ÿæˆä¸€ä¸ªMatcherå¯¹è±¡
+        String target = "Kelvin Li and Kelvin Chan are both working in Kelvin Chen's KelvinSoftShop company";
+        Matcher m = p.matcher(target);
+        StringBuffer sb = new StringBuffer();
+        StringBuffer sb2 = new StringBuffer();
+        int i = 0;
+        // ä½¿ç”¨find()æ–¹æ³•æŸ¥æ‰¾ç¬¬ä¸€ä¸ªåŒ¹é…çš„å¯¹è±¡
+        boolean result = m.find();
+        System.out.println(m.start()+" "+m.end()); //è¿™é‡Œå¾—åˆ°çš„æ˜¯0 6, å³end()åŠ äº†1,æŒ‡å‘åé¢ å†…å®¹. è¦å…ˆæ‰§è¡Œ.find()æ–¹æ³•æ‰èƒ½æ‰§è¡Œå…¶å®ƒ.
+        // ä½¿ç”¨å¾ªç¯å°†å¥å­é‡Œæ‰€æœ‰çš„kelvinæ‰¾å‡ºå¹¶æ›¿æ¢å†å°†å†…å®¹åŠ åˆ°sbé‡Œ
+        while (result) {
+            i++;
+            m.appendReplacement(sb, "Kevin");   //mæ˜¯ä¸ªåŒ¹é…å™¨,å®ƒçš„åŒ¹é…å…¬å¼(æ­£åˆ™è¡¨è¾¾å¼)æ˜¯p. åŒ¹é…å™¨å¥—ç”¨å…¬å¼ p å¯¹ç›®æ ‡å­—ç¬¦ä¸²è¿›è¡ŒåŒ¹é…. åŒ¹é…æˆåŠŸä¸€æ¬¡,å°±æŠŠè¿™æ¬¡åŒ¹é…åˆ°çš„å­—ç¬¦ä¸²æ¢æˆæ–¹æ³•\
+            //appendReplacement()çš„ç¬¬äºŒä¸ªå‚æ•°,ç„¶åèµ‹ç»™ç¬¬ä¸€ä¸ªå‚æ•°. åŒæ—¶åŸåŒ¹é…å™¨ å­—ç¬¦ä¸²çš„indexè·‘åˆ°è¢«åŒ¹é…åˆ°çš„å­—ç¬¦ä¸²çš„åé¢,æ¯”å¦‚æ­¤ä¾‹,ç¬¬1 æ¬¡åŒ¹é…å,åŸtargetå­—ç¬¦ä¸²çš„ç´¢å¼•æˆäº†6,å³å‰é¢çš„m.end().
+            System.out.println("ç¬¬" + i + "æ¬¡åŒ¹é…åsbçš„å†…å®¹æ˜¯ï¼š" + sb);
+            
+            result = m.find();
+        }
+        // æœ€åè°ƒç”¨appendTail()æ–¹æ³•å°†æœ€åä¸€æ¬¡åŒ¹é…åçš„å‰©ä½™å­—ç¬¦ä¸²åŠ åˆ°sbé‡Œï¼›
+        //It is intended to be invoked after one or more invocations of the appendReplacement() in order to copy the remainder of the input sequence.
+        m.appendTail(sb);
+        System.out.println("è°ƒç”¨m.appendTail(sb)åsbçš„æœ€ç»ˆå†…å®¹æ˜¯:" + sb.toString());
+        m.appendTail(sb2);
+        System.out.println("è°ƒç”¨m.appendTail(sb2)åsb2çš„æœ€ç»ˆå†…å®¹æ˜¯:" + sb2.toString());
+        
+        
+        /**
+         * basic 
+         */
+        Pattern p_alphanumeric  = Pattern.compile("[a-zA-Z0-9_]"); //ç­‰æ•ˆäº\w
+        Pattern p_start = Pattern.compile("^[0-9]"); //ä»¥æ•°å­—å¼€å¤´
+        Pattern p_non_word = Pattern.compile("\\W"); //åŒ…å«æ¢è¡Œ,åˆ¶è¡¨ç¬¦ç­‰.
+        Pattern p_word = Pattern.compile("\\w");
+        Pattern p_visible = Pattern.compile("\\S"); //ä»»ä½•éç©ºç™½å­—ç¬¦,å³ä¸åŒ…æ‹¬ç©ºæ ¼,æ¢é¡µ,åˆ¶è¡¨ç¬¦ç­‰.
+        
+        Matcher m_alphanumeric = p_alphanumeric .matcher(pw);
+        Matcher m_start = p_start.matcher(pw);
+        Matcher m_char = p_non_word.matcher(pw);
+        Matcher m_word = p_word.matcher(pw);
+        Matcher m_visible = p_visible.matcher(pw);
+        
+        System.out.println(m_alphanumeric.find());
+        System.out.println(m_start.find());
+        System.out.println(m_char.find());
+        System.out.println(m_word.find());
+        System.out.println(m_visible.find());
+    }
 
 }

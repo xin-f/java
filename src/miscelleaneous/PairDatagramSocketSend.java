@@ -8,42 +8,42 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class PairDatagramSocketSend {
-	/**
-	 * ´Ë³ÌĞòÔÚ172.20.1.1ÉÏ×÷Îª·¢ËÍ·½ÇÒ½ÓÊÕ·µ»ØÊı¾İ£¬²âÊÔÍ¨¹ı¡£½ÓÊÕ·½: 172.20.1.2:50000
-	 * @param args
-	 */
-	public static void main(String[] args){
-		try {
-			// ´´½¨·¢ËÍ·½µÄÌ×½Ó×Ö£¬IPÄ¬ÈÏÎª±¾µØ£¬¶Ë¿ÚºÅËæ»ú  
-			DatagramSocket sendSocket = new DatagramSocket();
-			String mes = "Hello receiver";
-			byte[] buf = mes.getBytes();
-			
-			//È·¶¨¶Ô·½µÄ¶Ë¿ÚºÍIP. ¼´Ê¹¶Ë¿Ú´íÁË,Ò²»á·¢ËÍ,µ«ÔÚwiresharkÀïÄÜ¿´µ½Destination unreachable (Port unreachable)
-			int port = 50000;
-			InetAddress local = InetAddress.getByName("172.20.1.2");
-			
-			//´´½¨·¢ËÍÀàĞÍµÄÊı¾İ±¨,²¢Í¨¹ıudp Ì×½Ó×Ö·¢ËÍ.
-			DatagramPacket sendPacket = new DatagramPacket(buf,buf.length,local,port);
-			sendSocket.send(sendPacket);
-			
-			//´´½¨½ÓÊÕĞÍµÄÊı¾İ±¨,²¢Í¨¹ıÌ×½Ó×Ö½ÓÊÕ
-			byte[] messReturn = new byte[1024];
-			DatagramPacket returnPacket = new DatagramPacket(messReturn,messReturn.length);
-			sendSocket.receive(returnPacket);
-			
-			//½âÎö
-			String returned = new String(messReturn,0,returnPacket.getLength());
-			System.out.println("Returned message: " + returned);
-			
-			sendSocket.close();
-			
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
-	}
+    /**
+     * æ­¤ç¨‹åºåœ¨172.20.1.1ä¸Šä½œä¸ºå‘é€æ–¹ä¸”æ¥æ”¶è¿”å›æ•°æ®ï¼Œæµ‹è¯•é€šè¿‡ã€‚æ¥æ”¶æ–¹: 172.20.1.2:50000
+     * @param args
+     */
+    public static void main(String[] args){
+        try {
+            // åˆ›å»ºå‘é€æ–¹çš„å¥—æ¥å­—ï¼ŒIPé»˜è®¤ä¸ºæœ¬åœ°ï¼Œç«¯å£å·éšæœº  
+            DatagramSocket sendSocket = new DatagramSocket();
+            String mes = "Hello receiver";
+            byte[] buf = mes.getBytes();
+            
+            //ç¡®å®šå¯¹æ–¹çš„ç«¯å£å’ŒIP. å³ä½¿ç«¯å£é”™äº†,ä¹Ÿä¼šå‘é€,ä½†åœ¨wiresharké‡Œèƒ½çœ‹åˆ°Destination unreachable (Port unreachable)
+            int port = 50000;
+            InetAddress local = InetAddress.getByName("172.20.1.2");
+            
+            //åˆ›å»ºå‘é€ç±»å‹çš„æ•°æ®æŠ¥,å¹¶é€šè¿‡udp å¥—æ¥å­—å‘é€.
+            DatagramPacket sendPacket = new DatagramPacket(buf,buf.length,local,port);
+            sendSocket.send(sendPacket);
+            
+            //åˆ›å»ºæ¥æ”¶å‹çš„æ•°æ®æŠ¥,å¹¶é€šè¿‡å¥—æ¥å­—æ¥æ”¶
+            byte[] messReturn = new byte[1024];
+            DatagramPacket returnPacket = new DatagramPacket(messReturn,messReturn.length);
+            sendSocket.receive(returnPacket);
+            
+            //è§£æ
+            String returned = new String(messReturn,0,returnPacket.getLength());
+            System.out.println("Returned message: " + returned);
+            
+            sendSocket.close();
+            
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }       
+    }
 }

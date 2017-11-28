@@ -1,62 +1,62 @@
 package miscelleaneous;
 
 /*
- * Ïß³Ì±»×èÈûÊ±µÄÖÕÖ¹·½·¨.±ÈÈçµ±Ò»¸öÏß³ÌÓÉÓÚĞèÒªµÈºò¼üÅÌÊäÈë¶ø±»×èÈû£¬»òÕßµ÷ÓÃThread.join()·½·¨£¬»òÕßThread.sleep()·½·¨£¬
- * DataInputStream.read(),Ïß³Ì´¦ÓÚ´¦ÓÚ²»¿ÉÔËĞĞ×´Ì¬Ê±£¬¼´Ê¹Ö÷³ÌĞòÖĞ½«¸ÃÏß³ÌµÄ¹²Ïí±äÁ¿ÉèÖÃÎªtrue£¬µ«¸ÃÏß³Ì´ËÊ±¸ù±¾ÎŞ·¨¼ì²éÑ­»·±êÖ¾£¬µ±È»Ò²¾ÍÎŞ·¨Á¢¼´ÖĞ¶Ï¡£
- * ÓÃThreadÌá¹©µÄinterrupt()·½·¨£¬ÒòÎª¸Ã·½·¨ËäÈ»²»»áÖĞ¶ÏÒ»¸öÕıÔÚÔËĞĞµÄÏß³Ì£¬µ«Ëü¿ÉÒÔÊ¹±»×èÈûµÄÏß³ÌÅ×³öÒ»¸öÖĞ¶ÏÒì³££¬´Ó¶øÊ¹Ïß³ÌÌáÇ°½áÊø×èÈû×´Ì¬£¬ÍË³ö¶ÂÈû´úÂë¡£
- * µ÷ÓÃinterrupt£¨£©·½·¨£¬Ïß³Ì²¢Ã»ÓĞÊµ¼Ê±»ÖĞ¶Ï£¬»á¼ÌĞøÍùÏÂÖ´ĞĞ¡£Ö»ÊÇ¸ºÔğ·¢³öÒªÇó£¬¾ßÌåÖ´ĞĞÓÉÆäËûÓï¾äÊµÏÖ¡£
- * Ê×ÏÈ¿´Ò»ÏÂ¸Ã·½·¨µÄÊµÏÖ£º
+ * çº¿ç¨‹è¢«é˜»å¡æ—¶çš„ç»ˆæ­¢æ–¹æ³•.æ¯”å¦‚å½“ä¸€ä¸ªçº¿ç¨‹ç”±äºéœ€è¦ç­‰å€™é”®ç›˜è¾“å…¥è€Œè¢«é˜»å¡ï¼Œæˆ–è€…è°ƒç”¨Thread.join()æ–¹æ³•ï¼Œæˆ–è€…Thread.sleep()æ–¹æ³•ï¼Œ
+ * DataInputStream.read(),çº¿ç¨‹å¤„äºå¤„äºä¸å¯è¿è¡ŒçŠ¶æ€æ—¶ï¼Œå³ä½¿ä¸»ç¨‹åºä¸­å°†è¯¥çº¿ç¨‹çš„å…±äº«å˜é‡è®¾ç½®ä¸ºtrueï¼Œä½†è¯¥çº¿ç¨‹æ­¤æ—¶æ ¹æœ¬æ— æ³•æ£€æŸ¥å¾ªç¯æ ‡å¿—ï¼Œå½“ç„¶ä¹Ÿå°±æ— æ³•ç«‹å³ä¸­æ–­ã€‚
+ * ç”¨Threadæä¾›çš„interrupt()æ–¹æ³•ï¼Œå› ä¸ºè¯¥æ–¹æ³•è™½ç„¶ä¸ä¼šä¸­æ–­ä¸€ä¸ªæ­£åœ¨è¿è¡Œçš„çº¿ç¨‹ï¼Œä½†å®ƒå¯ä»¥ä½¿è¢«é˜»å¡çš„çº¿ç¨‹æŠ›å‡ºä¸€ä¸ªä¸­æ–­å¼‚å¸¸ï¼Œä»è€Œä½¿çº¿ç¨‹æå‰ç»“æŸé˜»å¡çŠ¶æ€ï¼Œé€€å‡ºå µå¡ä»£ç ã€‚
+ * è°ƒç”¨interruptï¼ˆï¼‰æ–¹æ³•ï¼Œçº¿ç¨‹å¹¶æ²¡æœ‰å®é™…è¢«ä¸­æ–­ï¼Œä¼šç»§ç»­å¾€ä¸‹æ‰§è¡Œã€‚åªæ˜¯è´Ÿè´£å‘å‡ºè¦æ±‚ï¼Œå…·ä½“æ‰§è¡Œç”±å…¶ä»–è¯­å¥å®ç°ã€‚
+ * é¦–å…ˆçœ‹ä¸€ä¸‹è¯¥æ–¹æ³•çš„å®ç°ï¼š
 public static boolean interrupted () {
      return currentThread().isInterrupted(true);
 }
-¸Ã·½·¨¾ÍÊÇÖ±½Óµ÷ÓÃµ±Ç°Ïß³ÌµÄisInterrupted(true)·½·¨¡£
-È»ºóÔÙÀ´¿´Ò»ÏÂ isInterruptedµÄÊµÏÖ£º
+è¯¥æ–¹æ³•å°±æ˜¯ç›´æ¥è°ƒç”¨å½“å‰çº¿ç¨‹çš„isInterrupted(true)æ–¹æ³•ã€‚
+ç„¶åå†æ¥çœ‹ä¸€ä¸‹ isInterruptedçš„å®ç°ï¼š
 public boolean isInterrupted () {
      return isInterrupted( false);
 }
-interrupted ÊÇ×÷ÓÃÓÚµ±Ç°Ïß³Ì£¬isInterrupted ÊÇ×÷ÓÃÓÚµ÷ÓÃ¸Ã·½·¨µÄÏß³Ì¶ÔÏóËù¶ÔÓ¦µÄÏß³Ì¡££¨Ïß³Ì¶ÔÏó¶ÔÓ¦µÄÏß³Ì²»Ò»¶¨ÊÇµ±Ç°ÔËĞĞµÄÏß³Ì¡£
-ÀıÈçÎÒÃÇ¿ÉÒÔÔÚAÏß³ÌÖĞÈ¥µ÷ÓÃBÏß³Ì¶ÔÏóµÄisInterrupted·½·¨¡££©
-ºóÃæµÄ²ÎÊı( boolean ClearInterrupted),Çå×´Ì¬Î». ºÜºÃÇø·Ö£¬Ö»ÓĞµ±Ç°Ïß³Ì²ÅÄÜÇå³ı×Ô¼ºµÄÖĞ¶ÏÎ»£¨¶ÔÓ¦interrupted£¨£©·½·¨£©
+interrupted æ˜¯ä½œç”¨äºå½“å‰çº¿ç¨‹ï¼ŒisInterrupted æ˜¯ä½œç”¨äºè°ƒç”¨è¯¥æ–¹æ³•çš„çº¿ç¨‹å¯¹è±¡æ‰€å¯¹åº”çš„çº¿ç¨‹ã€‚ï¼ˆçº¿ç¨‹å¯¹è±¡å¯¹åº”çš„çº¿ç¨‹ä¸ä¸€å®šæ˜¯å½“å‰è¿è¡Œçš„çº¿ç¨‹ã€‚
+ä¾‹å¦‚æˆ‘ä»¬å¯ä»¥åœ¨Açº¿ç¨‹ä¸­å»è°ƒç”¨Bçº¿ç¨‹å¯¹è±¡çš„isInterruptedæ–¹æ³•ã€‚ï¼‰
+åé¢çš„å‚æ•°( boolean ClearInterrupted),æ¸…çŠ¶æ€ä½. å¾ˆå¥½åŒºåˆ†ï¼Œåªæœ‰å½“å‰çº¿ç¨‹æ‰èƒ½æ¸…é™¤è‡ªå·±çš„ä¸­æ–­ä½ï¼ˆå¯¹åº”interruptedï¼ˆï¼‰æ–¹æ³•ï¼‰
  */
 class A extends Thread {
-	volatile boolean stop = false;
+    volatile boolean stop = false;
 
-	public void run() {
-		while (!stop) {
-			System.out.println(getName() + " is running " + System.currentTimeMillis());
-			try {
-				sleep(30 * 1000);
-			} catch (InterruptedException e) {
-				System.out.println("week up from blcok...");
-				stop = true; // ÔÚÒì³£´¦Àí´úÂëÖĞĞŞ¸Ä¹²Ïí±äÁ¿µÄ×´Ì¬
-			}
-		}
-		System.out.println(getName() + " is exiting...");
-	}
+    public void run() {
+        while (!stop) {
+            System.out.println(getName() + " is running " + System.currentTimeMillis());
+            try {
+                sleep(30 * 1000);
+            } catch (InterruptedException e) {
+                System.out.println("week up from blcok...");
+                stop = true; // åœ¨å¼‚å¸¸å¤„ç†ä»£ç ä¸­ä¿®æ”¹å…±äº«å˜é‡çš„çŠ¶æ€
+            }
+        }
+        System.out.println(getName() + " is exiting...");
+    }
 }
 
 public class InterruptThreadDemo {
-	public static void main(String[] args) throws InterruptedException {
-		A m1 = new A();
-		System.out.println("Starting thread...");
-		m1.start(); // ´ÓÕâÀï½øÈërun()·½·¨ºó,²»»áÒ»Ö±Í£ÔÚwhileÀï,ÒòÎªm1ÊÇ³ÌĞòÆğµÄÒ»¸öÏß³Ì,»¹ÓĞÒ»¸ö½Ğ main
-					// µÄÖ÷Ïß³Ì,¼´ÏÂÃæµÄThread. ´ËÊ±Á½¸öÏß³ÌÔÚÅÜ.
-		// ¶àÏß³ÌÊ±,ÊµÏÖRunnableÃ»ÓĞstart()·½·¨,Ö»ÓĞ¼Ì³ĞThread²ÅÓĞ.Èç¹ûAÀàÊÇÊµÏÖRunnable,ÔòÔÚA
-		// m1 = new A()Ö®ºóÔÙ¼ÓÒ»¾ä
-		// Thread t1 = new Thread(m1);È»ºót1¾ÍÄÜÓÃstart(). ×îÖÕ»¹ÊÇÍ¨¹ıThread½¨ÁËÒ»¸öÏß³Ì.
+    public static void main(String[] args) throws InterruptedException {
+        A m1 = new A();
+        System.out.println("Starting thread...");
+        m1.start(); // ä»è¿™é‡Œè¿›å…¥run()æ–¹æ³•å,ä¸ä¼šä¸€ç›´åœåœ¨whileé‡Œ,å› ä¸ºm1æ˜¯ç¨‹åºèµ·çš„ä¸€ä¸ªçº¿ç¨‹,è¿˜æœ‰ä¸€ä¸ªå« main
+                    // çš„ä¸»çº¿ç¨‹,å³ä¸‹é¢çš„Thread. æ­¤æ—¶ä¸¤ä¸ªçº¿ç¨‹åœ¨è·‘.
+        // å¤šçº¿ç¨‹æ—¶,å®ç°Runnableæ²¡æœ‰start()æ–¹æ³•,åªæœ‰ç»§æ‰¿Threadæ‰æœ‰.å¦‚æœAç±»æ˜¯å®ç°Runnable,åˆ™åœ¨A
+        // m1 = new A()ä¹‹åå†åŠ ä¸€å¥
+        // Thread t1 = new Thread(m1);ç„¶åt1å°±èƒ½ç”¨start(). æœ€ç»ˆè¿˜æ˜¯é€šè¿‡Threadå»ºäº†ä¸€ä¸ªçº¿ç¨‹.
 
-		Thread.sleep(1000);
-		// System.out.println(Thread.currentThread().getName()+"
-		// "+System.currentTimeMillis());
-		System.out.println("Interrupt thread...: " + m1.getName());
-		// m1.stop = true; // ÉèÖÃ¹²Ïí±äÁ¿Îªtrue
-		m1.interrupt(); // ×èÈûÊ±ÍË³ö×èÈû×´Ì¬
-		System.out.println(m1.isInterrupted()); // ÊµÀı·½·¨,²éµ÷ÓÃ´Ë·½·¨µÄÏß³ÌµÄ×´Ì¬
-		System.out.println(m1.interrupted()); // ¾²Ì¬·½·¨,²é'µ±Ç°'Ïß³ÌµÄ×´Ì¬
-		// If you use interrupted(), what you're asking is "Have I been
-		// interrupted since the last time I asked?"
-		Thread.sleep(1000); // Ö÷Ïß³ÌĞİÃß3ÃëÒÔ±ã¹Û²ìÏß³Ìm1µÄÖĞ¶ÏÇé¿ö
-		System.out.println("Stopping application....................");
-		System.out.println(m1.isAlive() + " " + m1.isInterrupted() + " " + m1.isDaemon());
-	}
+        Thread.sleep(1000);
+        // System.out.println(Thread.currentThread().getName()+"
+        // "+System.currentTimeMillis());
+        System.out.println("Interrupt thread...: " + m1.getName());
+        // m1.stop = true; // è®¾ç½®å…±äº«å˜é‡ä¸ºtrue
+        m1.interrupt(); // é˜»å¡æ—¶é€€å‡ºé˜»å¡çŠ¶æ€
+        System.out.println(m1.isInterrupted()); // å®ä¾‹æ–¹æ³•,æŸ¥è°ƒç”¨æ­¤æ–¹æ³•çš„çº¿ç¨‹çš„çŠ¶æ€
+        System.out.println(m1.interrupted()); // é™æ€æ–¹æ³•,æŸ¥'å½“å‰'çº¿ç¨‹çš„çŠ¶æ€
+        // If you use interrupted(), what you're asking is "Have I been
+        // interrupted since the last time I asked?"
+        Thread.sleep(1000); // ä¸»çº¿ç¨‹ä¼‘çœ 3ç§’ä»¥ä¾¿è§‚å¯Ÿçº¿ç¨‹m1çš„ä¸­æ–­æƒ…å†µ
+        System.out.println("Stopping application....................");
+        System.out.println(m1.isAlive() + " " + m1.isInterrupted() + " " + m1.isDaemon());
+    }
 }

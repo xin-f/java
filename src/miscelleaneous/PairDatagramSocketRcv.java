@@ -9,58 +9,58 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class PairDatagramSocketRcv {
-	
-	/**
-	 * InetAddress µÄ¸ñÊ½£º/172.20.1.1
-	 * SocketAddress µÄ¸ñÊ½£º /172.20.1.1:56033
-	 * DatagramPacket±íÊ¾´æ·ÅÊı¾İµÄÊı¾İ±¨¡£DatagramSocket±íÊ¾½ÓÊÜ»ò·¢ËÍÊı¾İ±¨µÄÌ×½Ó×Ö£¬²»·Ö¿Í»§¶Ë»ò·şÎñÆ÷£¬²»ÏñTCP¡£
-	 * Ä¿µÄ¶Ë¿ÚºÍIPÔÚ·¢ËÍ·½µÄÊı¾İ±¨Àï¶ø²»ÊÇÌ×½Ó×ÖÀï¶¨Òå¡£¼´Êı¾İ±¨µÄ¹¹Ôìº¯ÊıÀï´øInetAddress»òSocketAddressµÄ£¬¶¼ÊÇÓÃÓÚ·¢ËÍµÄ£¬²»´ø¶¼ÊÇÓÃÓÚ½ÓÊÕµÄ£»Ì×½Ó×Ö
-	 * Ö»ÓÃÓÚ°ó¶¨±¾»úµÄ¶Ë¿Ú»ò¶àIPÊ±µÄÆäÖĞÄ³¸öIP¡£
-	 * ½âÎö¶Ô·½µØÖ·¶Ë¿ÚµÈĞÅÏ¢Ê±£¬Òª´ÓÊı¾İ±¨Àï½âÎö£¬¶ø²»ÊÇ´ÓÌ×½Ó×ÖÀï¡£±ÈÈç±¾ÀıÖĞ¶¼ÓÃ´ø2µÄ£¬peerAddress2£¬peerSocketAddress2£¬port2¡£²»´ø2µÄ£¬ÒªÏÈµ÷ÓÃconnect()
-	 * ·½·¨²ÅÄÜ¶Áµ½Öµ£¬·ñÔòÊÇnull»ò-1¡£ÎŞÁ¬½ÓµÄUDPÌ×½Ó×ÖÓĞÁ½¸öconnect()·½·¨£¬Èô±»µ÷ÓÃ£¬Ôò´ËÌ×½Ó×ÖÖ»ÄÜ·¢ËÍ¸øconnect()·½·¨Ö¸¶¨µÄµØÖ·£¬¶øÇÒ´ËÊ±£¬Êı¾İ±¨ÀïµÄµØÖ·±ØĞëÓëconnect()
-	 * ·½·¨ÀïµÄÒ»ÖÂ£¬»òÕß·¢ËÍĞÅÏ¢Ê±Êı¾İ±¨Àï²»ĞèÒªÖ¸Ã÷µØÖ·ÁË¡£-->¹ØÓÚconnect()·½·¨Õâ¾äÊÇ³­µÄ£¬Ã»²âÊÔ¡£µ«·µ»Ønull,-1ÊÇÕæµÄ¡£
-	 * @param args
-	 */
-	
-	public static void main(String[] args) {
-		try {
-			InetAddress local = InetAddress.getByName("172.20.1.2");
-			DatagramSocket rcvSocket = new DatagramSocket(50000,local);//µÚ¶ş¸ö²ÎÊı¿ÉÑ¡£¬±¾»ú¶àÍø¿¨¶àIPÊ±ÓÃ¡£
-			byte[] buf = new byte[1024];
-			DatagramPacket rcvPacket = new DatagramPacket(buf,buf.length); //´´½¨½ÓÊÕÀàĞÍµÄÊı¾İ±¨£¬·Åµ½bufÖĞ¡£
-			rcvSocket.receive(rcvPacket);	//Í¨¹ıudp Ì×½Ó×Ö½ÓÊÕ¡£
-			
-			// ½âÎö·¢ËÍ·½´«µİµÄÏûÏ¢£¬²¢´òÓ¡
-			String getMes = new String(buf,0,rcvPacket.getLength());
-			String getMes1 = new String(rcvPacket.getData(),0,rcvPacket.getLength());
-			System.out.println("Message from peer£º" + getMes);
-			
-			// Í¨¹ıÊı¾İ±¨ »ò udp Ì×½Ó×ÖµÃµ½·¢ËÍ·½µÄIP£¬Ì×½Ó×ÖºÍ¶Ë¿ÚºÅ£¬²¢´òÓ¡ 
-			InetAddress peerAddress = rcvSocket.getInetAddress();
-			InetAddress peerAddress2 = rcvPacket.getAddress();
-			SocketAddress peerSocketAddress = rcvSocket.getRemoteSocketAddress();
-			SocketAddress peerSocketAddress2 = rcvPacket.getSocketAddress();
-			int port = rcvSocket.getPort();
-			int port2 = rcvPacket.getPort();
-			System.out.println("peer IP£º" + peerAddress2.getHostAddress());   //ÕâÀïµÄgetHostAddress()ÊÇInetAddressµÄÒ»¸ö·½·¨£¬µÃµ½IPµØÖ·¡£²¢²»ÊÇ¶ÔÓ¦×ÅsocketÖĞµÄhost.
-            System.out.println("peer port£º" + port2);  
-			
-            // È·¶¨Òª·´À¡·¢ËÍ·½µÄÏûÏ¢ÄÚÈİ£¬²¢×ª»»Îª×Ö½ÚÊı×é  
+    
+    /**
+     * InetAddress çš„æ ¼å¼ï¼š/172.20.1.1
+     * SocketAddress çš„æ ¼å¼ï¼š /172.20.1.1:56033
+     * DatagramPacketè¡¨ç¤ºå­˜æ”¾æ•°æ®çš„æ•°æ®æŠ¥ã€‚DatagramSocketè¡¨ç¤ºæ¥å—æˆ–å‘é€æ•°æ®æŠ¥çš„å¥—æ¥å­—ï¼Œä¸åˆ†å®¢æˆ·ç«¯æˆ–æœåŠ¡å™¨ï¼Œä¸åƒTCPã€‚
+     * ç›®çš„ç«¯å£å’ŒIPåœ¨å‘é€æ–¹çš„æ•°æ®æŠ¥é‡Œè€Œä¸æ˜¯å¥—æ¥å­—é‡Œå®šä¹‰ã€‚å³æ•°æ®æŠ¥çš„æ„é€ å‡½æ•°é‡Œå¸¦InetAddressæˆ–SocketAddressçš„ï¼Œéƒ½æ˜¯ç”¨äºå‘é€çš„ï¼Œä¸å¸¦éƒ½æ˜¯ç”¨äºæ¥æ”¶çš„ï¼›å¥—æ¥å­—
+     * åªç”¨äºç»‘å®šæœ¬æœºçš„ç«¯å£æˆ–å¤šIPæ—¶çš„å…¶ä¸­æŸä¸ªIPã€‚
+     * è§£æå¯¹æ–¹åœ°å€ç«¯å£ç­‰ä¿¡æ¯æ—¶ï¼Œè¦ä»æ•°æ®æŠ¥é‡Œè§£æï¼Œè€Œä¸æ˜¯ä»å¥—æ¥å­—é‡Œã€‚æ¯”å¦‚æœ¬ä¾‹ä¸­éƒ½ç”¨å¸¦2çš„ï¼ŒpeerAddress2ï¼ŒpeerSocketAddress2ï¼Œport2ã€‚ä¸å¸¦2çš„ï¼Œè¦å…ˆè°ƒç”¨connect()
+     * æ–¹æ³•æ‰èƒ½è¯»åˆ°å€¼ï¼Œå¦åˆ™æ˜¯nullæˆ–-1ã€‚æ— è¿æ¥çš„UDPå¥—æ¥å­—æœ‰ä¸¤ä¸ªconnect()æ–¹æ³•ï¼Œè‹¥è¢«è°ƒç”¨ï¼Œåˆ™æ­¤å¥—æ¥å­—åªèƒ½å‘é€ç»™connect()æ–¹æ³•æŒ‡å®šçš„åœ°å€ï¼Œè€Œä¸”æ­¤æ—¶ï¼Œæ•°æ®æŠ¥é‡Œçš„åœ°å€å¿…é¡»ä¸connect()
+     * æ–¹æ³•é‡Œçš„ä¸€è‡´ï¼Œæˆ–è€…å‘é€ä¿¡æ¯æ—¶æ•°æ®æŠ¥é‡Œä¸éœ€è¦æŒ‡æ˜åœ°å€äº†ã€‚-->å…³äºconnect()æ–¹æ³•è¿™å¥æ˜¯æŠ„çš„ï¼Œæ²¡æµ‹è¯•ã€‚ä½†è¿”å›null,-1æ˜¯çœŸçš„ã€‚
+     * @param args
+     */
+    
+    public static void main(String[] args) {
+        try {
+            InetAddress local = InetAddress.getByName("172.20.1.2");
+            DatagramSocket rcvSocket = new DatagramSocket(50000,local);//ç¬¬äºŒä¸ªå‚æ•°å¯é€‰ï¼Œæœ¬æœºå¤šç½‘å¡å¤šIPæ—¶ç”¨ã€‚
+            byte[] buf = new byte[1024];
+            DatagramPacket rcvPacket = new DatagramPacket(buf,buf.length); //åˆ›å»ºæ¥æ”¶ç±»å‹çš„æ•°æ®æŠ¥ï¼Œæ”¾åˆ°bufä¸­ã€‚
+            rcvSocket.receive(rcvPacket);   //é€šè¿‡udp å¥—æ¥å­—æ¥æ”¶ã€‚
+            
+            // è§£æå‘é€æ–¹ä¼ é€’çš„æ¶ˆæ¯ï¼Œå¹¶æ‰“å°
+            String getMes = new String(buf,0,rcvPacket.getLength());
+            String getMes1 = new String(rcvPacket.getData(),0,rcvPacket.getLength());
+            System.out.println("Message from peerï¼š" + getMes);
+            
+            // é€šè¿‡æ•°æ®æŠ¥ æˆ– udp å¥—æ¥å­—å¾—åˆ°å‘é€æ–¹çš„IPï¼Œå¥—æ¥å­—å’Œç«¯å£å·ï¼Œå¹¶æ‰“å° 
+            InetAddress peerAddress = rcvSocket.getInetAddress();
+            InetAddress peerAddress2 = rcvPacket.getAddress();
+            SocketAddress peerSocketAddress = rcvSocket.getRemoteSocketAddress();
+            SocketAddress peerSocketAddress2 = rcvPacket.getSocketAddress();
+            int port = rcvSocket.getPort();
+            int port2 = rcvPacket.getPort();
+            System.out.println("peer IPï¼š" + peerAddress2.getHostAddress());   //è¿™é‡Œçš„getHostAddress()æ˜¯InetAddressçš„ä¸€ä¸ªæ–¹æ³•ï¼Œå¾—åˆ°IPåœ°å€ã€‚å¹¶ä¸æ˜¯å¯¹åº”ç€socketä¸­çš„host.
+            System.out.println("peer portï¼š" + port2);  
+            
+            // ç¡®å®šè¦åé¦ˆå‘é€æ–¹çš„æ¶ˆæ¯å†…å®¹ï¼Œå¹¶è½¬æ¢ä¸ºå­—èŠ‚æ•°ç»„  
             String feedback = "Received successfully";  
             byte[] backbuf = feedback.getBytes(); 
             
-            //»ØËÍ. ·¢ËÍµÄudp Êı¾İ°ü¹¹Ôì·½·¨±ØĞëÖ¸¶¨¶Ô·½µÄµØÖ·¡£
+            //å›é€. å‘é€çš„udp æ•°æ®åŒ…æ„é€ æ–¹æ³•å¿…é¡»æŒ‡å®šå¯¹æ–¹çš„åœ°å€ã€‚
             DatagramPacket sendPacket = new DatagramPacket(backbuf,0,backbuf.length,peerSocketAddress2);
             rcvSocket.send(sendPacket);
             
             rcvSocket.close();
-			
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+            
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

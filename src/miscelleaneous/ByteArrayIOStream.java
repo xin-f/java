@@ -5,26 +5,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ByteArrayIOStream {
-	public static void main(String args[]) throws IOException {
-	      ByteArrayOutputStream bOutput = new ByteArrayOutputStream(12);
-	      //Ğ´ÈëÁ÷,´Ó¼üÅÌÊäÈë×Ö·û,Ğ´µ½Á÷Àï. µ±Á÷ÀïµÄ×Ö·û´®³¤¶Èµ½5Ê±,²»ÔÙ½ÓÊÕĞÂµÄÊäÈë.
-	      while( bOutput.size()!= 5 ) {
-	         bOutput.write(System.in.read()); //°Ñ´Ó¼üÅÌÊäÈëµÄÊı¾İĞ´µ½bOutput.
-	      }
-	      byte b [] = bOutput.toByteArray();//°ÑÁ÷ÀïµÄÊı¾İ¸³¸ø×Ö½ÚÊı×é.
-	      for(int x= 0 ; x < b.length; x++) {
-	         System.out.print((char)b[x]  + " "); 
-	      }
-	      System.out.print("\n" );
-	      int c;
-	      //Ò»¸ö¶ÁÈëÁ÷,°Ñ´Ó×Ö½ÚÊı×ébÀïµÄÊı¾İ¶Áµ½Õâ¸öÁ÷Àï
-	      ByteArrayInputStream bInput = new ByteArrayInputStream(b);
-	      for(int y = 0 ; y < 1; y++ ) {
-	         while(( c= bInput.read())!= -1) {
-	            System.out.print(Character.toUpperCase((char)c));
-	         }
-	         bInput.reset(); 
-	      }
-	   }
+    public static void main(String args[]) throws IOException {
+          ByteArrayOutputStream bOutput = new ByteArrayOutputStream(12);
+          //å†™å…¥æµ,ä»é”®ç›˜è¾“å…¥å­—ç¬¦,å†™åˆ°æµé‡Œ. å½“æµé‡Œçš„å­—ç¬¦ä¸²é•¿åº¦åˆ°5æ—¶,ä¸å†æ¥æ”¶æ–°çš„è¾“å…¥.
+          while( bOutput.size()!= 5 ) {
+             bOutput.write(System.in.read()); //æŠŠä»é”®ç›˜è¾“å…¥çš„æ•°æ®å†™åˆ°bOutput.
+          }
+          byte b [] = bOutput.toByteArray();//æŠŠæµé‡Œçš„æ•°æ®èµ‹ç»™å­—èŠ‚æ•°ç»„.
+          for(int x= 0 ; x < b.length; x++) {
+             System.out.print((char)b[x]  + " "); 
+          }
+          System.out.print("\n" );
+          int c;
+          //ä¸€ä¸ªè¯»å…¥æµ,æŠŠä»å­—èŠ‚æ•°ç»„bé‡Œçš„æ•°æ®è¯»åˆ°è¿™ä¸ªæµé‡Œ
+          ByteArrayInputStream bInput = new ByteArrayInputStream(b);
+          for(int y = 0 ; y < 1; y++ ) {
+             while(( c= bInput.read())!= -1) {
+                System.out.print(Character.toUpperCase((char)c));
+             }
+             bInput.reset(); 
+          }
+       }
 
 }
