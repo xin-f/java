@@ -85,7 +85,7 @@ public class HttpPost {
 //                URL url_ = new URL(FrameSecurity.ip + "/upload");
                 URL url_upload = new URL(ip_seg[0] +"."+ ip_seg[1] +"."+ ip_seg[2]+"." + seg4 + "/upload");
                 SetPassword.url = new URL(ip_seg[0] +"."+ ip_seg[1] +"."+ ip_seg[2]+"." + seg4 + "/setmaintenancepassword");
-                SetPassword.check();
+                SetPassword.check(SetPassword.url);
                 if (FrameSecurity.tls) {
                     connection = (HttpsURLConnection) url_upload.openConnection();
                     sc = SSLContext.getInstance("TLS");

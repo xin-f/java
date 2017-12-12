@@ -32,7 +32,7 @@ public class FrameSecurity {
     public static JTextField textField_ip;
     private static JLabel PERIOD;
     private static JTextField textField_period;
-    private static JTextField textField_FwPw;
+    private static JTextField txtqq_1;
     private static JTextField textField_fw;
     private static JCheckBox chkbxsave; 
     private static JCheckBox chkbxTls;
@@ -58,9 +58,10 @@ public class FrameSecurity {
     public static boolean certSegment; //检查一个IP段的证书.
     public static boolean fwSegment; //下一个IP段的firmware.
     public static int ubound; //循环次数达到此值即停。
+    public static boolean ChangePw;//为真时，用另一个密码框的字符串作为目标密码修改当前密码。即互为目标密码。
     private static File file = null;
     private static PrintStream logStream = null;
-    private static JTextField textField_DigPw;
+    private static JTextField txtqq;
     private static JTextField textField_end;
     private static JRadioButton rdbtnD;
     private static JRadioButton rdbtnF;
@@ -193,9 +194,9 @@ public class FrameSecurity {
                     if (attack) {
                         SetPassword.set();
                     } else {
-                        if (period < 50) {
+                        if ((period != 0) && (period < 50)) {
                             updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-                        }else
+                        } else
                             SetPassword.set();
                     }
                 }else if(fwRunning){
@@ -215,12 +216,12 @@ public class FrameSecurity {
         lblDigpw.setBounds(10, 34, 40, 22);
         SecurityTest.getContentPane().add(lblDigpw);
         
-        textField_DigPw = new JTextField();
+        txtqq = new JTextField();
 //      textField_DigPw.setText("21!qQ/nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@=");
-        textField_DigPw.setText("1!qQ1234");
-        textField_DigPw.setColumns(10);
-        textField_DigPw.setBounds(54, 35, 155, 20);
-        SecurityTest.getContentPane().add(textField_DigPw);
+        txtqq.setText("1!qQ1111");
+        txtqq.setColumns(10);
+        txtqq.setBounds(54, 35, 155, 20);
+        SecurityTest.getContentPane().add(txtqq);
         
         JButton btnDigPW = new JButton("DigPW");
         btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
@@ -263,9 +264,9 @@ public class FrameSecurity {
                     if (attack) {
                         SetPassword.set();
                     } else {
-                        if (period < 50) {
+                        if ((period != 0) && (period < 50)) {
                             updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-                        }else
+                        } else
                             SetPassword.set();
                     }
                 }else if(fwRunning){
@@ -313,12 +314,12 @@ public class FrameSecurity {
         lblFwPw.setBounds(10, 61, 42, 22);
         SecurityTest.getContentPane().add(lblFwPw);
         
-        textField_FwPw = new JTextField();
-        textField_FwPw.setBounds(54, 62, 155, 20);
+        txtqq_1 = new JTextField();
+        txtqq_1.setBounds(54, 62, 155, 20);
 //      textField_FwPw.setText("ddfasdfsASDDFSDf4654+65.;''.ddfasdfsASDDFSDf4654+65.;''.'';,!*(#^#^#, ");
-        textField_FwPw.setText("12341!qQ");
-        textField_FwPw.setColumns(10);
-        SecurityTest.getContentPane().add(textField_FwPw);
+        txtqq_1.setText("1!qQ1111");
+        txtqq_1.setColumns(10);
+        SecurityTest.getContentPane().add(txtqq_1);
 
         JLabel lblFw = new JLabel("FW");
         lblFw.setBounds(10, 89, 40, 22);
@@ -372,7 +373,7 @@ public class FrameSecurity {
                         HttpPost.upldFW();
                     }
                 }
-                else  if(fwpwRunning){
+                else if(fwpwRunning){
                     updateTextArea("FW upload pw setting is in progress!! \n"
                             + "Click 'Reset', wait "+textField_period.getText() +" seconds and try again.\n");
                 }else  if(digpwRunning){
@@ -493,14 +494,15 @@ public class FrameSecurity {
                         + "cyclically with period value in 'Prid(0.1s)'. "
                         + "If the password is set already, input current "
                         + "password in the text field then the program will "
-                        + "change the password cyclically with period value "
-                        + "in 'Prid(0.1s)'. It will stop if "
-                        + "initializing/changing password fails. "
+                        + "change the password cyclically. It will stop if "
+                        + "initializing or changing password fails. "
+                        + "If Period is 0, the program will change the password "
+                        + "to the string in MntPW. "
                         + "If the value in the second text box(82, in this "
                         + "demo) after 'IP' ends with \".\" (for example, \"82.\"), "
                         + "password attacking will be initiated with 'Prid(0.1s)'.\n"
                         + "'MntPW': The same as 'DigPW', but effect on "
-                        + "maintenance password.\n"
+                        + "maintenance password(change password to string in DigPW).\n"
                         + "'UpldFW': If the value in the second text box after 'IP' "
                         + "starts with \".\"(\".82\"), the specified firmware will "
                         + "be uploaded to a cluster of servers(here, from 172.20."
@@ -523,7 +525,7 @@ public class FrameSecurity {
                         + "'C': clear the display.\n"
                         + "'a', 'A', '0', '!': traverse all characters. "
                         + "For example, is 'a' is checked, all lowercase characters "
-                        + "will be set as password one by one.");
+                        + "will be set as password one by one.\n");
             }
         });
         btnMemo.setBounds(310, 288, 65, 23);
@@ -701,7 +703,16 @@ public class FrameSecurity {
             SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
         }
         period = Integer.parseInt(tmp);
-        str = textField_FwPw.getText();
+        
+        /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
+        ChangePw = false;
+        if (period == 0) {
+            SetPassword.target_password = txtqq.getText();
+            ChangePw = true;
+        }
+        /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
+        
+        str = txtqq_1.getText();
         commonpw = str;
         len = str.length();
         if(str.endsWith("*****")){
@@ -735,7 +746,16 @@ public class FrameSecurity {
             SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
         }
         period = Integer.parseInt(tmp);
-        str = textField_DigPw.getText();
+        
+        /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
+        ChangePw = false;
+        if (period == 0) {
+            SetPassword.target_password = txtqq_1.getText();
+            ChangePw = true;
+        }
+        /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
+        
+        str = txtqq.getText();
         commonpw = str;
         len = str.length();
         if(str.endsWith("*****")){
@@ -767,7 +787,7 @@ public class FrameSecurity {
             else
                 ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
             period = Integer.parseInt(textField_period.getText());
-            str = textField_DigPw.getText();
+            str = txtqq.getText();
             commonpw = str;
             len = str.length();
             if(str.endsWith("*****")){
@@ -784,7 +804,7 @@ public class FrameSecurity {
             else
                 ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
             period = Integer.parseInt(textField_period.getText());
-            str = textField_FwPw.getText();
+            str = txtqq_1.getText();
             commonpw = str;
             len = str.length();
             if(str.endsWith("*****")){
@@ -822,7 +842,7 @@ public class FrameSecurity {
             debug = true;
         }else
             fw =str;
-        fwpw = textField_FwPw.getText();        
+        fwpw = txtqq_1.getText();        
     }
     /**
      * 识别输入的IP.

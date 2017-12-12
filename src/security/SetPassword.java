@@ -6,28 +6,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Formatter;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 public class SetPassword {
     private static BufferedReader in = null;
@@ -36,45 +29,43 @@ public class SetPassword {
     private static int timeout;
     private static String curpw;
     private static String newpw;
-    private static String pwNotExist = "Confirm password:";//Ö»ÓĞÃÜÂëÃ»Éè£¬ÍøÒ³Àï²ÅÓĞ´Ë×Ö·û´®
-    private static String pwExistAlready = "Confirm new password:"; //¾²Ì¬²éÑ¯ÊÇ·ñ´æÔÚÃÜÂë£¬Ö»ÓÃÒ»´Î¡£¶¯Ì¬·´À¡ÃÜÂëÊÇ·ñÉè³É¹¦ÓÃ pwSet
+//    private static String pwNotExist = "Confirm password:";//åªæœ‰å¯†ç æ²¡è®¾ï¼Œç½‘é¡µé‡Œæ‰æœ‰æ­¤å­—ç¬¦ä¸²
+    private static String pwExistAlready = "Confirm new password:"; //é™æ€æŸ¥è¯¢æ˜¯å¦å­˜åœ¨å¯†ç ï¼Œåªç”¨ä¸€æ¬¡ã€‚åŠ¨æ€åé¦ˆå¯†ç æ˜¯å¦è®¾æˆåŠŸç”¨ pwSet
     private static String pwSet = "The password has been set or changed";
     private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
-    private static int numFinished; //ÒÑÔËĞĞ´ÎÊı¡£
+    private static int numFinished; //å·²è¿è¡Œæ¬¡æ•°ã€‚
 
-    public static URL url = null; //change to public, to be used in HttpPost. ÓÃÀ´²éÒ»ÏÂÊÇ·ñÓĞÃÜÂë¡£
-//  private static URLConnection conn = null;
+    public static URL url = null; //change to public, to be used in HttpPost. ç”¨æ¥æŸ¥ä¸€ä¸‹æ˜¯å¦æœ‰å¯†ç ã€‚
     private static URLConnection connection = null;
     private static SSLContext sc = null;
+    public static String target_password;
     
     public static File file = null;
-//  private static FileOutputStream fos = null;
-    public static BufferedWriter bw = null; //±£´æ³¢ÊÔ¹ıµÄÃÜÂë¡£ÒªÔÚµãResetºóĞ´Èë£¬ËùÒÔÒªpublic.
+    public static BufferedWriter bw = null; //ä¿å­˜å°è¯•è¿‡çš„å¯†ç ã€‚è¦åœ¨ç‚¹Resetåå†™å…¥ï¼Œæ‰€ä»¥è¦public.
     private static Formatter fmt = null;
     public static boolean streamClosed;
     public static boolean end;
 
-//  private static PrintWriter out = null;
     private static BufferedOutputStream out = null;
-    private static boolean setPwSucc; //±¾´ÎÉèÃÜÂë³É¹¦
-    private static boolean setPwSucc_LastTime; //ÉÏ´ÎÉèÃÜÂë³É¹¦£¬ÓÃÓÚÅĞ¶Ï·ñ¶¨²âÊÔÊ±£¬±¾´ÎÒª²»ÒªÈ¡ÉÏ´ÎµÄÃÜÂë×÷Îªµ±Ç°ÃÜÂë¡£Èç¹ûÉÏ´ÎÉèÖÃÊ§°Ü£¬Ôò²»È¡£¬µ±Ç°ÃÜÂë±£³ÖÉÏÉÏ´ÎµÄ¡£
-    public static boolean pwExist;      //ÃÜÂëÒÑÉèÖÃ
-    private static boolean pwInitInternal;  //ÃÜÂëÊÇ·ñÓÉ±¾³ÌĞò³õÊ¼»¯
+    private static boolean setPwSucc; //æœ¬æ¬¡è®¾å¯†ç æˆåŠŸ
+    private static boolean setPwSucc_LastTime; //ä¸Šæ¬¡è®¾å¯†ç æˆåŠŸï¼Œç”¨äºåˆ¤æ–­å¦å®šæµ‹è¯•æ—¶ï¼Œæœ¬æ¬¡è¦ä¸è¦å–ä¸Šæ¬¡çš„å¯†ç ä½œä¸ºå½“å‰å¯†ç ã€‚å¦‚æœä¸Šæ¬¡è®¾ç½®å¤±è´¥ï¼Œåˆ™ä¸å–ï¼Œå½“å‰å¯†ç ä¿æŒä¸Šä¸Šæ¬¡çš„ã€‚
+    public static boolean pwExist;      //å¯†ç å·²è®¾ç½®
+    private static boolean pwInitInternal;  //å¯†ç æ˜¯å¦ç”±æœ¬ç¨‹åºåˆå§‹åŒ–
     private static boolean AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram;
     public static Timer t = null;//Make the timer be public so that the pw setting process can be terminated by 'Reset' in Frame.java by t.cancel()
     public static boolean t_running;
-    public static boolean self = true; //ÎªÕæÊ±£¬¸Ä×Ô¼º¶ÔÓ¦µÄÃÜÂë£¨±ÈÈçµãµÄÊÇDigPW£¬¾Í¸Ädigsi ÃÜÂë)£»Îª¼ÙÊ±£¬¸ÄÁíÒ»¸öÃÜÂë(µãµÄÊÇDigPW£¬¸Äfw ÃÜÂë)¡£
-            //ÎªÕæÊ±²ÅĞèÒª°ÑĞÂÃÜÂë¸³¸øµ±Ç°ÃÜÂë£¬È»ºóÔÙ»ñµÃÒ»¸öĞÂÃÜÂë¡£Îª¼ÙÊ±£¬ÓÃ²»±äµÄµ±Ç°ÃÜÂëºÍĞÂÃÜÂë¸ÄÁí¸öÍøÖ·ÏÂµÄÃÜÂë¡£¼´Ò»Ì×ÃÜÂëÓÃÁ½´Î¡£
-//  public static boolean lock;//±éÀú¶àÀà×Ö·ûÊ±£¬È·±£µ±Ç°Àà±éÀàÍêÔÙÏÂÒ»Àà¡£
+    public static boolean self = true; //ä¸ºçœŸæ—¶ï¼Œæ”¹è‡ªå·±å¯¹åº”çš„å¯†ç ï¼ˆæ¯”å¦‚ç‚¹çš„æ˜¯DigPWï¼Œå°±æ”¹digsi å¯†ç )ï¼›ä¸ºå‡æ—¶ï¼Œæ”¹å¦ä¸€ä¸ªå¯†ç (ç‚¹çš„æ˜¯DigPWï¼Œæ”¹fw å¯†ç )ã€‚
+            //ä¸ºçœŸæ—¶æ‰éœ€è¦æŠŠæ–°å¯†ç èµ‹ç»™å½“å‰å¯†ç ï¼Œç„¶åå†è·å¾—ä¸€ä¸ªæ–°å¯†ç ã€‚ä¸ºå‡æ—¶ï¼Œç”¨ä¸å˜çš„å½“å‰å¯†ç å’Œæ–°å¯†ç æ”¹å¦ä¸ªç½‘å€ä¸‹çš„å¯†ç ã€‚å³ä¸€å¥—å¯†ç ç”¨ä¸¤æ¬¡ã€‚
+//  public static boolean lock;//éå†å¤šç±»å­—ç¬¦æ—¶ï¼Œç¡®ä¿å½“å‰ç±»éç±»å®Œå†ä¸‹ä¸€ç±»ã€‚
 
 //  public static void main(String[] s) {
     public static void set() {
         numFinished = 0;
-        pwInitInternal = false; // Ä¬ÈÏ¼ÙÉèÃÜÂë²»ÊÇÓÉ±¾³ÌĞò³õÊ¼»¯µÄ.->ÓÃÓÚÅĞ¶ÏÔÚ¸ÄÃÜÂëÊ±,¾ÉÃÜÂëµÄÀ´Ô´.
-                                // ×îÍâ²ãif-else-Óï¾ä,else²¿·ÖÒªÏÎ½ÓÒ»¸öÀ´×ÔifÓï¾äµÄ±äÁ¿ newpw
-//      pwExist = false; //Ê¹ÄÜattackÊ±£¬ÔÚprepareº¯ÊıÀïÈÏÎªpwExistÎªtrue,µ«µ½ÁËÕâÀïÓÖ±»¸ÄÁË£¬Âß¼­²»¶Ô¡£°ÑÕâ¾äÒÆµ½reset()Àï¡£
-        attempt = 0;    //¹¥»÷³¢ÊÔ´ÎÊı¡£
-        AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = false; //ÓÃÀ´Çø±ğÊÇ·ñÊÇÒ»Ì¨ÓĞÃÜÂëµÄÏÖ³ÉµÄ×°ÖÃ(¼´Ã»×ßinitializeµÄÊı¾İÁ÷)¡£       
+        pwInitInternal = false; // é»˜è®¤å‡è®¾å¯†ç ä¸æ˜¯ç”±æœ¬ç¨‹åºåˆå§‹åŒ–çš„.->ç”¨äºåˆ¤æ–­åœ¨æ”¹å¯†ç æ—¶,æ—§å¯†ç çš„æ¥æº.
+                                // æœ€å¤–å±‚if-else-è¯­å¥,elseéƒ¨åˆ†è¦è¡”æ¥ä¸€ä¸ªæ¥è‡ªifè¯­å¥çš„å˜é‡ newpw
+//      pwExist = false; //ä½¿èƒ½attackæ—¶ï¼Œåœ¨prepareå‡½æ•°é‡Œè®¤ä¸ºpwExistä¸ºtrue,ä½†åˆ°äº†è¿™é‡Œåˆè¢«æ”¹äº†ï¼Œé€»è¾‘ä¸å¯¹ã€‚æŠŠè¿™å¥ç§»åˆ°reset()é‡Œã€‚
+        attempt = 0;    //æ”»å‡»å°è¯•æ¬¡æ•°ã€‚
+        AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = false; //ç”¨æ¥åŒºåˆ«æ˜¯å¦æ˜¯ä¸€å°æœ‰å¯†ç çš„ç°æˆçš„è£…ç½®(å³æ²¡èµ°initializeçš„æ•°æ®æµ)ã€‚       
         if(FrameSecurity.save) {
             streamClosed = false;
             try {
@@ -83,17 +74,18 @@ public class SetPassword {
                 e.printStackTrace();
             }
         }
-        timeout = FrameSecurity.period*100;
+        timeout = (FrameSecurity.period == 0) ? Integer.MAX_VALUE : FrameSecurity.period*100; //schedule()ç¬¬ä¸‰ä¸ªå‚æ•°è¦ä¸ºæ­£ã€‚
         t = new Timer();
         SetPasswordCycically setPasswordCycically = new SetPasswordCycically();
         t.schedule(setPasswordCycically, 0, timeout);
         
     }
 
-    public static void check() {
+    public static void check(URL url) {
+        String[] seg;
         try {
             String str = null;
-            // connÀ´¼ì²éÃÜÂëÊÇ·ñÒÑ¾­ÉèÖÃ¡£
+            // connæ¥æ£€æŸ¥å¯†ç æ˜¯å¦å·²ç»è®¾ç½®ã€‚
             URLConnection conn;
             if (FrameSecurity.tls) {
                 conn = setHttpsConnect((HttpsURLConnection) url.openConnection());
@@ -103,20 +95,20 @@ public class SetPassword {
             } else {
                 conn = setHttpConnect((HttpURLConnection) url.openConnection());
             }
-            // boundary = "----thisisfromEn100securityteam-sunxinfeng";
             conn.setDoInput(true);
             conn.setDoOutput(true);
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((str = in.readLine()) != null) {
-                if (str.indexOf(pwExistAlready) > -1) { // Ò»¼ì²âµ½Ïà¹Ø×Ö·û´®,¾ÍÈÏÎªÃÜÂëÒÑ¾­´æÔÚ.
+                if (str.indexOf(pwExistAlready) > -1) { // ä¸€æ£€æµ‹åˆ°ç›¸å…³å­—ç¬¦ä¸²,å°±è®¤ä¸ºå¯†ç å·²ç»å­˜åœ¨.
                     pwExist = true;
-                    FrameSecurity.updateTextArea("Password being set already. Try to change:\n");
+                    seg = url.toString().split("[/]");
+                    FrameSecurity.updateTextArea("Password exists in EN100."+seg[2]+"\n");
                     break;
                 }
             }
             if (FrameSecurity.tls) {
-                ((HttpsURLConnection) conn).disconnect(); // HttpURLConnectionÖ»ÄÜÏÈĞ´ºó¶Á,ÇÒ¶Ï¿ªºó²»ÄÜ¸´ÓÃ.
-                                                          // ´Ë´¦È¡µ½±êÖ¾Î»,¶Ï¿ªconn, ºóÃæÁíÆğÒ»¸öconnection.
+                ((HttpsURLConnection) conn).disconnect(); // HttpURLConnectionåªèƒ½å…ˆå†™åè¯»,ä¸”æ–­å¼€åä¸èƒ½å¤ç”¨.
+                                                          // æ­¤å¤„å–åˆ°æ ‡å¿—ä½,æ–­å¼€conn, åé¢å¦èµ·ä¸€ä¸ªconnection.
             } else {
                 ((HttpURLConnection) conn).disconnect();
             }
@@ -135,7 +127,7 @@ public class SetPassword {
     }
 
     /**
-     * ÓÉÓÚEN100ÊÇHTTP¶ÌÁ¬½Ó,ÉèÃÜÂë³É¹¦ºóÈô²»ÔÙ´ÎÇëÇósetpassword,EN100²»ÄÜÕıÈ·ÉÏËÍÃÜÂëÒÑÉèÖÃµÄ×´Ì¬.
+     * ç”±äºEN100æ˜¯HTTPçŸ­è¿æ¥,è®¾å¯†ç æˆåŠŸåè‹¥ä¸å†æ¬¡è¯·æ±‚setpassword,EN100ä¸èƒ½æ­£ç¡®ä¸Šé€å¯†ç å·²è®¾ç½®çš„çŠ¶æ€.
      */
     static class SetPasswordCycically extends TimerTask {
         
@@ -155,7 +147,7 @@ public class SetPassword {
 //                  pwExist = true; 
 
                     if (!pwExist) {/*
-                        // connÀ´¼ì²éÃÜÂëÊÇ·ñÒÑ¾­ÉèÖÃ¡£
+                        // connæ¥æ£€æŸ¥å¯†ç æ˜¯å¦å·²ç»è®¾ç½®ã€‚
                         URLConnection conn;
                         if (FrameSecurity.tls) {
                             conn = setHttpsConnect((HttpsURLConnection) url.openConnection());
@@ -170,20 +162,20 @@ public class SetPassword {
                         conn.setDoOutput(true);
                         in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                         while ((str = in.readLine()) != null) {
-                            if (str.indexOf(pwExistAlready) > -1) { // Ò»¼ì²âµ½Ïà¹Ø×Ö·û´®,¾ÍÈÏÎªÃÜÂëÒÑ¾­´æÔÚ.
+                            if (str.indexOf(pwExistAlready) > -1) { // ä¸€æ£€æµ‹åˆ°ç›¸å…³å­—ç¬¦ä¸²,å°±è®¤ä¸ºå¯†ç å·²ç»å­˜åœ¨.
                                 pwExist = true;
                                 FrameSecurity.updateTextArea("Password being set already. Try to change:\n");
                                 break;
                             }
                         }
                         if (FrameSecurity.tls) {
-                            ((HttpsURLConnection) conn).disconnect(); // HttpURLConnectionÖ»ÄÜÏÈĞ´ºó¶Á,ÇÒ¶Ï¿ªºó²»ÄÜ¸´ÓÃ.
-                                                                        // ´Ë´¦È¡µ½±êÖ¾Î»,¶Ï¿ªconn, ºóÃæÁíÆğÒ»¸öconnection.
+                            ((HttpsURLConnection) conn).disconnect(); // HttpURLConnectionåªèƒ½å…ˆå†™åè¯»,ä¸”æ–­å¼€åä¸èƒ½å¤ç”¨.
+                                                                        // æ­¤å¤„å–åˆ°æ ‡å¿—ä½,æ–­å¼€conn, åé¢å¦èµ·ä¸€ä¸ªconnection.
                         } else {
                             ((HttpURLConnection) conn).disconnect();
                         }
-                    */check();}
-                    //connection ÓÃÀ´Éè»ò¸ÄÃÜÂë¡£
+                    */check(url);}
+                    //connection ç”¨æ¥è®¾æˆ–æ”¹å¯†ç ã€‚
                     if(FrameSecurity.tls) {
                         connection = setHttpsConnect((HttpsURLConnection) url.openConnection());
                         sc = SSLContext.getInstance("TLS");
@@ -197,7 +189,7 @@ public class SetPassword {
                     connection.setDoOutput(true);
                     if (!pwExist) {
                             StringBuffer set = new StringBuffer();
-                            newpw = FrameSecurity.commonpw; // µÚÒ»´ÎÉèÃÜÂë£¬ÓÃÊäÈë¿òÀïµÄ¡£
+                            newpw = FrameSecurity.commonpw; // ç¬¬ä¸€æ¬¡è®¾å¯†ç ï¼Œç”¨è¾“å…¥æ¡†é‡Œçš„ã€‚
                             set.append("--" + boundary + "\r\n")
                                     .append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n")
                                     .append(newpw).append("\r\n--" + boundary + "\r\n")
@@ -228,26 +220,26 @@ public class SetPassword {
 
                     else {
                         if (pwInitInternal) {
-                            if (setPwSucc_LastTime) { // ÉÏ´Î¼´³õÊ¼»¯ÄÇ´Î£¬µ±È»ÊÇ³É¹¦µÄ¡£ÅĞ¶ÏÌõ¼ş²»¼ÓÒ²ĞĞ¡£
+                            if (setPwSucc_LastTime) { // ä¸Šæ¬¡å³åˆå§‹åŒ–é‚£æ¬¡ï¼Œå½“ç„¶æ˜¯æˆåŠŸçš„ã€‚åˆ¤æ–­æ¡ä»¶ä¸åŠ ä¹Ÿè¡Œã€‚
                                 if (self) {
                                     curpw = newpw;
                                     setPwSucc_LastTime = false;
                                 }
                             }
-                            pwInitInternal = false; // pwInitInternalÖ»ÄÜÓĞÒ»´Î£¬½øÀ´Ò»´Îºó¾ÍÒª±ä³Éfalse 8/25
+                            pwInitInternal = false; // pwInitInternalåªèƒ½æœ‰ä¸€æ¬¡ï¼Œè¿›æ¥ä¸€æ¬¡åå°±è¦å˜æˆfalse 8/25
                         } else {
                             if (setPwSucc_LastTime) {
                                 if (self) {
-                                    curpw = newpw; // ÒÑ¾­ÓÉ±¾³ÌĞò¸Ä¹ıÒ»´ÎÃÜÂë£¬ËùÒÔ²»´ÓÍâ²¿È¡µ±Ç°ÃÜÂë,¶øÊÇÔÚÉÏ´ÎĞŞ¸Ä³É¹¦µÄÇ°ÌáÏÂÈ¡ÉÏ´ÎµÄÃÜÂë¡£
+                                    curpw = newpw; // å·²ç»ç”±æœ¬ç¨‹åºæ”¹è¿‡ä¸€æ¬¡å¯†ç ï¼Œæ‰€ä»¥ä¸ä»å¤–éƒ¨å–å½“å‰å¯†ç ,è€Œæ˜¯åœ¨ä¸Šæ¬¡ä¿®æ”¹æˆåŠŸçš„å‰æä¸‹å–ä¸Šæ¬¡çš„å¯†ç ã€‚
                                     setPwSucc_LastTime = false;
                                 }
                             } else {
                                 if (!AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram) {
                                     curpw = FrameSecurity.commonpw;
-                                    if (FrameSecurity.attack) {//9.4.2017 °Ñattack¼Ó½øÀ´Ê±£¬ĞÂ¼ÓµÄÂß¼­¡£¼´Ê¹²»¼ÓÅĞ¶ÏÌõ¼ş£¬newpwÕâÀï±»¸³Öµºó£¬ÔÚif(self)»¹»á¸Ä³ÉËùĞèÒªµÄÖµ¡£
+                                    if (FrameSecurity.attack) {//9.4.2017 æŠŠattackåŠ è¿›æ¥æ—¶ï¼Œæ–°åŠ çš„é€»è¾‘ã€‚å³ä½¿ä¸åŠ åˆ¤æ–­æ¡ä»¶ï¼Œnewpwè¿™é‡Œè¢«èµ‹å€¼åï¼Œåœ¨if(self)è¿˜ä¼šæ”¹æˆæ‰€éœ€è¦çš„å€¼ã€‚
                                         newpw = Random.getValidRandomString();
                                     }
-                                } else { // 9.4.2017 °Ñattack¼Ó½øÀ´Ê±£¬ĞÂ¼ÓµÄÂß¼­¡£
+                                } else { // 9.4.2017 æŠŠattackåŠ è¿›æ¥æ—¶ï¼Œæ–°åŠ çš„é€»è¾‘ã€‚
                                     if (FrameSecurity.attack) {
                                         curpw = newpw;
                                         newpw = Random.getValidRandomString();
@@ -257,16 +249,20 @@ public class SetPassword {
                         }
                         StringBuffer change = new StringBuffer();
                         if (self) {
-                            if (!FrameSecurity.attack) {// 9.4.2017 ¼ÓÈëattackÊ±£¬ĞÂ¼ÓµÄÂß¼­¡£
+                            if (!FrameSecurity.attack) {
                                 if (FrameSecurity.negative) {
                                     newpw = Random.getRandomString();
                                 } else {
                                     if (!FrameSecurity.traverse) {
-                                        // ²»½øĞĞ±éÀú£¬¼´Õı³£µÄcase
-                                        newpw = Random.getValidRandomString();
+                                        if (FrameSecurity.ChangePw) {
+                                            newpw = target_password; //å¦ä¸€ä¸ªå¯†ç æ¡†çš„å­—ç¬¦ä¸²ä½œä¸ºæ–°å¯†ç æ¥ä¿®æ”¹ä¸€æ¬¡ã€‚
+                                            t.cancel(); //æ”¹ä¸€æ¬¡å°±åœ
+                                        } else {
+                                            newpw = Random.getValidRandomString();
+                                        }
                                     } else {
-                                        // Èç¹û×Ö·ûÀàĞÍÈ«Ñ¡£¬¸ù¾İprepare_traverse()º¯Êı¸ø±äÁ¿CharsetµÄ¸³ÖµË³Ğò£¬traverse_×îºó¸³µÄ£¬ËùÒÔ´ËÊ±traversea,traverseA,traverse0
-                                        // ¶¼Îªfalse¡£µÈtraverse_ÀàµÄ¼´·ûºÅÀàµÄ±éÀúÍê£¬Í¨¹ısetSelected(false)°ÑÕâÒ»Àà¸´Ñ¡¿òÈ¡ÏûÑ¡Ôñ¡£ÔÚ±¾³ÌĞòºóÃæÔÙ½øĞĞprepare_traverse()ÅĞ¶Ï¡£
+                                        // å¦‚æœå­—ç¬¦ç±»å‹å…¨é€‰ï¼Œæ ¹æ®prepare_traverse()å‡½æ•°ç»™å˜é‡Charsetçš„èµ‹å€¼é¡ºåºï¼Œtraverse_æœ€åèµ‹çš„ï¼Œæ‰€ä»¥æ­¤æ—¶traversea,traverseA,traverse0
+                                        // éƒ½ä¸ºfalseã€‚ç­‰traverse_ç±»çš„å³ç¬¦å·ç±»çš„éå†å®Œï¼Œé€šè¿‡setSelected(false)æŠŠè¿™ä¸€ç±»å¤é€‰æ¡†å–æ¶ˆé€‰æ‹©ã€‚åœ¨æœ¬ç¨‹åºåé¢å†è¿›è¡Œprepare_traverse()åˆ¤æ–­ã€‚
                                         if (FrameSecurity.charset == FrameSecurity.Charset.dig) {
                                             FrameSecurity
                                                     .updateTextArea(Random.dig.substring(numFinished, numFinished + 1));
@@ -325,13 +321,16 @@ public class SetPassword {
 
                         in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
                         while ((str = in.readLine()) != null) {
-                            // result += (str + "\n"); //³¤ÆÚÔËĞĞ»áµ¼ÖÂ'OutOfMemoryError: Java heap space',
-                            // ÒòÎª'result'Ã»±»ÉèÎª ""£¬Ã¿´ÎÑ­»·¶¼»áÀÛ¼Ó¡£
+                            // result += (str + "\n"); //é•¿æœŸè¿è¡Œä¼šå¯¼è‡´'OutOfMemoryError: Java heap space',
+                            // å› ä¸º'result'æ²¡è¢«è®¾ä¸º ""ï¼Œæ¯æ¬¡å¾ªç¯éƒ½ä¼šç´¯åŠ ã€‚
                             if (str.indexOf(pwSet) != -1) {
                                 // System.out.println(str);
                                 succ += 1;
                                 setPwSucc = true;
                                 setPwSucc_LastTime = true;
+                                if (FrameSecurity.ChangePw) {
+                                    FrameSecurity.updateTextArea("Password changed to: "+ target_password);
+                                }
                             }
                         }
                     }//end of pwExist
@@ -348,14 +347,14 @@ public class SetPassword {
 //                      bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("logs.txt"))));
                         fmt = new Formatter();
                         fmt.format("%-32s", newpw);
-                        bw.write(fmt.toString()); //ÊÖ¶¯Í£Ö¹Ê±£¬µãÁËReset£¬Êä³öÁ÷¼´¹Ø±Õ£¬È»¶øÒÑ¾­ÓÉ¶¨Ê±Æ÷Æğµ½µÄµ±Ç°ÕâÒ»´Î²Ù×÷£¨¼´×îºóÒ»´Î£©£¬ÒªÓÃµ½Õâ¸öÊä³öÁ÷£¬
-                                //¹Ê¿ÉÄÜ»á³öÏÖNPE¡£ 
+                        bw.write(fmt.toString()); //æ‰‹åŠ¨åœæ­¢æ—¶ï¼Œç‚¹äº†Resetï¼Œè¾“å‡ºæµå³å…³é—­ï¼Œç„¶è€Œå·²ç»ç”±å®šæ—¶å™¨èµ·åˆ°çš„å½“å‰è¿™ä¸€æ¬¡æ“ä½œï¼ˆå³æœ€åä¸€æ¬¡ï¼‰ï¼Œè¦ç”¨åˆ°è¿™ä¸ªè¾“å‡ºæµï¼Œ
+                                //æ•…å¯èƒ½ä¼šå‡ºç°NPEã€‚ 
                     }
 
                     if (!setPwSucc) {
                         if (!FrameSecurity.attack) {
                             if (!FrameSecurity.negative) {
-                                // ÃÜÂë²Ù×÷Ê§°Ü£¬ÇÒÃÜÂë¶¼ÊÇºÏ¹æµÄ¡£
+                                // å¯†ç æ“ä½œå¤±è´¥ï¼Œä¸”å¯†ç éƒ½æ˜¯åˆè§„çš„ã€‚
                                 System.out
                                         .println("Set password failed. Process terminated. Is the current pw correct?");
                                 FrameSecurity.updateTextArea(
@@ -365,7 +364,7 @@ public class SetPassword {
                                     bw.write("Valid    " + "FAIL");
                                     bw.newLine();
                                     bw.flush();
-                                    bw.close(); // ÓĞt.cancel()µÄµØ·½ĞèÒªclose()
+                                    bw.close(); // æœ‰t.cancel()çš„åœ°æ–¹éœ€è¦close()
                                     streamClosed = true;
                                 }
                                 if (FrameSecurity.fwpwRunning)
@@ -373,16 +372,16 @@ public class SetPassword {
                                 if (FrameSecurity.digpwRunning)
                                     FrameSecurity.digpwRunning = false;
                             } else {
-                                // ÃÜÂë²Ù×÷Ê§°Ü£¬´ËÊ±µÄÃÜÂë×Ö·û´®Î´±ØÊÇºÏ¹æµÄ£¬Òª×÷ÅĞ¶Ï¡£
+                                // å¯†ç æ“ä½œå¤±è´¥ï¼Œæ­¤æ—¶çš„å¯†ç å­—ç¬¦ä¸²æœªå¿…æ˜¯åˆè§„çš„ï¼Œè¦ä½œåˆ¤æ–­ã€‚
                                 if (Random.judge(newpw)) {
                                     System.out.println("Set password failed. Is the current pw correct?");
                                     FrameSecurity.updateTextArea("Set password failed. \nIs the current pw correct?\n");
-                                    t.cancel(); // ·´Ïò²âÊÔÔÚÃÜÂëÓĞĞ§È´ĞŞ¸ÄÊ§°ÜÊ±Í£loop¡£
+                                    t.cancel(); // åå‘æµ‹è¯•åœ¨å¯†ç æœ‰æ•ˆå´ä¿®æ”¹å¤±è´¥æ—¶åœloopã€‚
                                     if (FrameSecurity.save) {
                                         bw.write("Valid    " + "FAIL");
                                         bw.newLine();
                                         bw.flush();
-                                        bw.close(); // ÓĞt.cancel()µÄµØ·½ĞèÒªclose()
+                                        bw.close(); // æœ‰t.cancel()çš„åœ°æ–¹éœ€è¦close()
                                         streamClosed = true;
                                     }
                                     // if(Frame.fwpwRunning) Frame.fwpwRunning = false;
@@ -402,11 +401,11 @@ public class SetPassword {
                             bw.flush();
                         }
 
-                    }else {//ÃÜÂë²Ù×÷³É¹¦                     
+                    }else {//å¯†ç æ“ä½œæˆåŠŸ                     
                         if(FrameSecurity.negative) {
-                            //ÃÜÂë²Ù×÷³É¹¦£¬ÃÜÂë×Ö´®¿ÉÄÜÊÇÓĞĞ§Ò²¿ÉÄÜÊÇÎŞĞ§µÄ¡£
+                            //å¯†ç æ“ä½œæˆåŠŸï¼Œå¯†ç å­—ä¸²å¯èƒ½æ˜¯æœ‰æ•ˆä¹Ÿå¯èƒ½æ˜¯æ— æ•ˆçš„ã€‚
                             if(!Random.judge(newpw)) {
-                                //ÃÜÂë²Ù×÷³É¹¦µ«ÃÜÂë²»ºÏ¹æ
+                                //å¯†ç æ“ä½œæˆåŠŸä½†å¯†ç ä¸åˆè§„
                                 System.out.println("Invalid password is accepted by EN100!!!!");
                                 FrameSecurity.updateTextArea("Invalid password is accepted by EN100!!!!\n");    
 //                              t.cancel();
@@ -414,20 +413,20 @@ public class SetPassword {
                                     bw.write("Invld    "+"FAIL");
                                     bw.newLine();
                                     bw.flush();
-//                                  bw.close(); //ÓĞt.cancel()µÄµØ·½ĞèÒªclose()
+//                                  bw.close(); //æœ‰t.cancel()çš„åœ°æ–¹éœ€è¦close()
 //                                  streamClosed = true;
                                 }
 //                              if(Frame.fwpwRunning) Frame.fwpwRunning = false;
 //                              if(Frame.digpwRunning) Frame.digpwRunning = false;
                             }else {
-                                //ÃÜÂë²Ù×÷³É¹¦,ÃÜÂëºÏ¹æ
+                                //å¯†ç æ“ä½œæˆåŠŸ,å¯†ç åˆè§„
                                 if(FrameSecurity.save) {
                                     bw.newLine();
                                     bw.flush();
                                 }
                             }
                         }else {
-                            //ÃÜÂë²Ù×÷³É¹¦£¬ÃÜÂë´®¶¼ÊÇÓĞĞ§µÄ¡£
+                            //å¯†ç æ“ä½œæˆåŠŸï¼Œå¯†ç ä¸²éƒ½æ˜¯æœ‰æ•ˆçš„ã€‚
                             if(FrameSecurity.save) {
                                 bw.newLine();
                                 bw.flush();
@@ -436,12 +435,12 @@ public class SetPassword {
                     }
                     if (FrameSecurity.traverse) {
                         if (!pwInitInternal)
-                            numFinished++; // ±éÀúÊ±³õÊ¼»¯Õâ´Î²»Ëã¡£Èô³õÊ¼»¯Ò²Ëã½øÈ¥£¬»áÊ¹index´Ó1²úÉú×Ö·û´®£¬ÔòÃ¿Àà×Ö·û´®µÚÒ»¸ö×Ö·û(¿Õ¸ñ/A/a/0)È¡²»µ½ÁË¡£
+                            numFinished++; // éå†æ—¶åˆå§‹åŒ–è¿™æ¬¡ä¸ç®—ã€‚è‹¥åˆå§‹åŒ–ä¹Ÿç®—è¿›å»ï¼Œä¼šä½¿indexä»1äº§ç”Ÿå­—ç¬¦ä¸²ï¼Œåˆ™æ¯ç±»å­—ç¬¦ä¸²ç¬¬ä¸€ä¸ªå­—ç¬¦(ç©ºæ ¼/A/a/0)å–ä¸åˆ°äº†ã€‚
                     } else
                         numFinished++;
                     if (!FrameSecurity.traverse) {
                         if ((FrameSecurity.ubound != 0) && (numFinished == FrameSecurity.ubound)) {
-                            if ((FrameSecurity.negative && FrameSecurity.checkUbound()) // ·´Ïò²âÊÔ£¬ÇÒcheckUbound()±êÖ¾ÖÃÎªtrue
+                            if ((FrameSecurity.negative && FrameSecurity.checkUbound()) // åå‘æµ‹è¯•ï¼Œä¸”checkUbound()æ ‡å¿—ç½®ä¸ºtrue
                                     || !FrameSecurity.negative) {
                                 FrameSecurity.updateTextArea("The preset operation number reaches.\n");
                                 if (t != null)
@@ -453,8 +452,8 @@ public class SetPassword {
                             FrameSecurity.updateTextArea("The preset operation number reaches.\n");
                             FrameSecurity.prepare_traverse();
                             if(FrameSecurity.traverse) {
-                                //Ã¿±éÀúÍêÒ»Àà×Ö·û£¬°Ñ¸ÃÀàtraverse¸´Ñ¡¿òµÄ¹´È¥µô£¬È»ºó¼ì²éÊÇ²»ÊÇ»¹ÓĞÆäËüÒª±éÀúµÄÀà¡£Èç¹ûÓĞ£¬Ôò
-                                //ÖØÖÃnumFinished£¬²»È»»»µ½ÏÂÒ»Àà×Ö·û´®Ê±²»ÊÇ´ÓÍ·¿ªÊ¼¶Á£¬¶øÊÇ½Ó×ÅÉÏÒ»Àà×Ö·û´®×îºóÒ»¸öµÄĞòºÅ¡£
+                                //æ¯éå†å®Œä¸€ç±»å­—ç¬¦ï¼ŒæŠŠè¯¥ç±»traverseå¤é€‰æ¡†çš„å‹¾å»æ‰ï¼Œç„¶åæ£€æŸ¥æ˜¯ä¸æ˜¯è¿˜æœ‰å…¶å®ƒè¦éå†çš„ç±»ã€‚å¦‚æœæœ‰ï¼Œåˆ™
+                                //é‡ç½®numFinishedï¼Œä¸ç„¶æ¢åˆ°ä¸‹ä¸€ç±»å­—ç¬¦ä¸²æ—¶ä¸æ˜¯ä»å¤´å¼€å§‹è¯»ï¼Œè€Œæ˜¯æ¥ç€ä¸Šä¸€ç±»å­—ç¬¦ä¸²æœ€åä¸€ä¸ªçš„åºå·ã€‚
                                 numFinished = 0; 
                             }
                             if ((t != null) && (!FrameSecurity.traverse))
@@ -518,8 +517,8 @@ public class SetPassword {
         c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         c.setConnectTimeout(5000); // timeout
         c.setReadTimeout(5000);
-//      c.setChunkedStreamingMode(2048);//ÉèÖÃÁËChunkedStreamingModeºó£¬²»ÔÙµÈ´ıOutputStream¹Ø±ÕºóÉú³ÉÍêÕûµÄhttprequestÒ»´Î¹ı·¢ËÍ£¬¶øÊÇÏÈ·¢ËÍhttprequestÍ·.
-//      c.setFixedLengthStreamingMode(2048); //²»ÄÜÓÃ¶¨³¤µÄ¡£ Èô¶¨³¤£¬¶øÊµ¼ÊµÄÊı¾İÃ»ÕâÃ´³¤£¬»á±¨insufficient data written
+//      c.setChunkedStreamingMode(2048);//è®¾ç½®äº†ChunkedStreamingModeåï¼Œä¸å†ç­‰å¾…OutputStreamå…³é—­åç”Ÿæˆå®Œæ•´çš„httprequestä¸€æ¬¡è¿‡å‘é€ï¼Œè€Œæ˜¯å…ˆå‘é€httprequestå¤´.
+//      c.setFixedLengthStreamingMode(2048); //ä¸èƒ½ç”¨å®šé•¿çš„ã€‚ è‹¥å®šé•¿ï¼Œè€Œå®é™…çš„æ•°æ®æ²¡è¿™ä¹ˆé•¿ï¼Œä¼šæŠ¥insufficient data written
         return c;
     }
     public static HttpURLConnection setHttpConnect(HttpURLConnection c) {
