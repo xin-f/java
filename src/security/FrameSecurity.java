@@ -23,27 +23,37 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
+import javax.swing.JFileChooser;
 
 public class FrameSecurity {
 
     private static JFrame SecurityTest;
     private static JTextArea textArea;
     private static JTextArea textArea_cnt;
-    public static JTextField textField_ip;
     private static JLabel PERIOD;
     private static JTextField textField_period;
-    private static JTextField txtqq_1;
+    private static JTextField textField_MntPw;
     private static JTextField textField_fw;
     private static JCheckBox chkbxsave; 
     private static JCheckBox chkbxTls;
     private static JCheckBox chkbxAlt;
+    private static File file = null;
+    private static PrintStream logStream = null;
+    private static JTextField textField_DigPW;
+    private static JTextField textField_end;
+    private static JRadioButton rdbtnD, rdbtnF;
+    private static JTextArea textArea_ubound;
+    private static Timer t_ping = null; //新建一线程检查server是否在线。默认启动，Reset复归，每个操作都会再启动。
+    private static boolean t_ping_running = false;
+    private static Thread thread_neg = null;
     
+    public static JTextField textField_ip;
     public static String ip;
     public static String ip_another;
     public static int period;
     public static int certEnd;
     public static int fwEnd; //给一个IP段下firmware时最后一个，从界面读入的。
-    public static String fwpw;
+    public static String mntpw;
     public static String digpw;
     public static String commonpw;//fwpw 和digpw 由同一个函数管理，这个公共密码用来在fwpw和digpw都没设时，点不同按钮，能把界面上相应两个字符串送到不同密码。用在SetPassword里
     public static String fw;
@@ -55,27 +65,17 @@ public class FrameSecurity {
     public static boolean debug;
     public static boolean ForFun;   //get the certificate such as baidu.com
     public static boolean negative;
+    private static int ctlVal;
+//    public static int ctlVal_TCP;
     public static boolean certSegment; //检查一个IP段的证书.
     public static boolean fwSegment; //下一个IP段的firmware.
     public static int ubound; //循环次数达到此值即停。
     public static boolean ChangePw;//为真时，用另一个密码框的字符串作为目标密码修改当前密码。即互为目标密码。
-    private static File file = null;
-    private static PrintStream logStream = null;
-    private static JTextField txtqq;
-    private static JTextField textField_end;
-    private static JRadioButton rdbtnD;
-    private static JRadioButton rdbtnF;
-    private static JTextArea textArea_ubound;
     public static JCheckBox chkbxA;
     public static JCheckBox chkbxa;
     public static JCheckBox chkbx0;
     public static JCheckBox chkbx_;
-    
-    private static Timer t_ping = null; //新建一线程检查server是否在线。默认启动，Reset复归，每个操作都会再启动。
-    private static boolean t_ping_running = false;
     public static boolean serverLost = false;
-    
-    private static Thread thread_neg = null;
     public static boolean stop;
     public static boolean save;
     public static boolean tls;
@@ -87,12 +87,16 @@ public class FrameSecurity {
     public static boolean traverse0;
     public static boolean traverse_;
     public static boolean turn;
-    
     public static boolean attack;
+    public static JRadioButton rdbtnTCPOff, rdbtnTCPOn;
+    public static JRadioButton rdbtnDTLSOff, rdbtnDTLSOn;
     
     public enum Optype{digsi,fw}
     public enum Charset{upp,low,dig,cha}
     public static Charset charset;
+    private static JButton btnPath;
+    private static JTextField txtD;
+    private static JButton btnResetPW;
     
 
     /**
@@ -105,10 +109,16 @@ public class FrameSecurity {
                     window = new FrameSecurity();                   
                     buildTextArea();
                     SecurityTest.setVisible(true);
+                    
+                    /*String str = textField_MntPw.getText();
+                    tls = chkbxTls.isSelected();
+                    if (tls)
+                        ip = "https://" + textField_ip.getText() + "/setupsecureengineeringaccess";
+                    else
+                        ip = "http://" + textField_ip.getText() + "/setupsecureengineeringaccess";
+                    Common.checkCurrent("/setupsecureengineeringaccess");
+                    Common.checkCurrent("/setupwebmonitoraccess");*/
 
-//                  t_ping = new Timer(); 
-//                  t_ping.schedule(window.new Ping(), 0, 10000);
-//                  t_ping_running = true;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -129,7 +139,7 @@ public class FrameSecurity {
     private void initialize() {
         SecurityTest = new JFrame();
         SecurityTest.setTitle("Security Test");
-        SecurityTest.setBounds(100, 100, 399, 360);
+        SecurityTest.setBounds(100, 100, 399, 450);
         SecurityTest.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SecurityTest.getContentPane().setLayout(null);
         
@@ -196,8 +206,11 @@ public class FrameSecurity {
                     } else {
                         if ((period != 0) && (period < 50)) {
                             updateTextArea("To avoid timeout, set the period no less than 5s.\n");
-                        } else
-                            SetPassword.set();
+                        } else {
+                            if (period == 0) {
+                                updateTextArea("You want to change pw to specified one. Make sure the passwrods in two fields are different.\n");
+                            }
+                            SetPassword.set();}
                     }
                 }else if(fwRunning){
                     updateTextArea("FW uploading is in progress!! \n"
@@ -216,12 +229,12 @@ public class FrameSecurity {
         lblDigpw.setBounds(10, 34, 40, 22);
         SecurityTest.getContentPane().add(lblDigpw);
         
-        txtqq = new JTextField();
+        textField_DigPW = new JTextField();
 //      textField_DigPw.setText("21!qQ/nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@= /nm`hMi),52(x@=");
-        txtqq.setText("1!qQ1111");
-        txtqq.setColumns(10);
-        txtqq.setBounds(54, 35, 155, 20);
-        SecurityTest.getContentPane().add(txtqq);
+        textField_DigPW.setText("1!qQ1111");
+        textField_DigPW.setColumns(10);
+        textField_DigPW.setBounds(54, 35, 155, 20);
+        SecurityTest.getContentPane().add(textField_DigPW);
         
         JButton btnDigPW = new JButton("DigPW");
         btnDigPW.setToolTipText("Set Digsi connection password cyclically with specified PERIOD.");
@@ -285,7 +298,7 @@ public class FrameSecurity {
         
         JButton btnReset = new JButton("R");
         btnReset.setToolTipText("Reset");
-        btnReset.setBounds(210, 115, 42, 23);
+        btnReset.setBounds(210, 182, 42, 23);
         btnReset.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 reset();
@@ -301,25 +314,25 @@ public class FrameSecurity {
             }
         });
         btnClear.setToolTipText("Clear");
-        btnClear.setBounds(254, 115, 42, 23);
+        btnClear.setBounds(254, 182, 42, 23);
         SecurityTest.getContentPane().add(btnClear);
         
         
         
         JLabel lblNumberOfTimes = new JLabel("Cnt of succ oper:");
-        lblNumberOfTimes.setBounds(10, 117, 100, 22);
+        lblNumberOfTimes.setBounds(10, 184, 100, 22);
         SecurityTest.getContentPane().add(lblNumberOfTimes);
         
         JLabel lblFwPw = new JLabel("MntPW");
         lblFwPw.setBounds(10, 61, 42, 22);
         SecurityTest.getContentPane().add(lblFwPw);
         
-        txtqq_1 = new JTextField();
-        txtqq_1.setBounds(54, 62, 155, 20);
+        textField_MntPw = new JTextField();
+        textField_MntPw.setBounds(54, 62, 155, 20);
 //      textField_FwPw.setText("ddfasdfsASDDFSDf4654+65.;''.ddfasdfsASDDFSDf4654+65.;''.'';,!*(#^#^#, ");
-        txtqq_1.setText("1!qQ1111");
-        txtqq_1.setColumns(10);
-        SecurityTest.getContentPane().add(txtqq_1);
+        textField_MntPw.setText("1!qQ1111");
+        textField_MntPw.setColumns(10);
+        SecurityTest.getContentPane().add(textField_MntPw);
 
         JLabel lblFw = new JLabel("FW");
         lblFw.setBounds(10, 89, 40, 22);
@@ -454,18 +467,95 @@ public class FrameSecurity {
 
         rdbtnD = new JRadioButton("D");
         rdbtnD.setToolTipText("set digsi connection pw");
-        rdbtnD.setBounds(302, 61, 33, 23);
+        rdbtnD.setBounds(302, 55, 33, 23);
         SecurityTest.getContentPane().add(rdbtnD);
         
         rdbtnF = new JRadioButton("M");
         rdbtnF.setToolTipText("set maintenance pw");
         rdbtnF.setSelected(true);
-        rdbtnF.setBounds(337, 61, 35, 23);
+        rdbtnF.setBounds(337, 55, 35, 23);
         SecurityTest.getContentPane().add(rdbtnF);
         
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(rdbtnD);
-        bg.add(rdbtnF);
+        ButtonGroup bg_neg = new ButtonGroup();
+        bg_neg.add(rdbtnD);
+        bg_neg.add(rdbtnF);
+
+        JButton btnTcp = new JButton("TCP");
+        btnTcp.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ctlVal = 2;//非0非1，用于在刚打开两个单选钮都没选中时把值初始化。放在这里不放在外面是因为两个button共用一个ctlVal，即使被干扰了也能回到初始值。
+                enablePing();
+                debug = false;
+                prepare_TCP_DTLS(rdbtnTCPOn, rdbtnTCPOff, "/setupwebmonitoraccess");
+                if ((ctlVal != 0) && (ctlVal != 1)) {
+                    updateTextArea("Select one radio button below.\n");
+                } else {
+                    if (ctlVal == 1) {
+                        updateTextArea("Switching on TCP protocol(Enable WebMon).\n");
+                    }
+                    if (ctlVal == 0) {
+                        updateTextArea("Switching off TCP protocol(Disable WebMon).\n");
+                    }
+                    ManipulateTCPDTLS.act("TCP", "/setupwebmonitoraccess", ctlVal);
+                }
+            }
+        });
+        btnTcp.setToolTipText("Enable/disable TCP.");
+        btnTcp.setBounds(300, 115, 75, 23);
+        SecurityTest.getContentPane().add(btnTcp);
+        
+        rdbtnTCPOff = new JRadioButton("N");
+        rdbtnTCPOff.setToolTipText("Disable TCP");
+        rdbtnTCPOff.setBounds(302, 135, 33, 23);
+        SecurityTest.getContentPane().add(rdbtnTCPOff);
+        
+        rdbtnTCPOn = new JRadioButton("Y");
+        rdbtnTCPOn.setToolTipText("Enable TCP");
+//        rdbtnTcpOn.setSelected(true);
+        rdbtnTCPOn.setBounds(337, 135, 35, 23);
+        SecurityTest.getContentPane().add(rdbtnTCPOn);
+        
+        ButtonGroup bg_TCP = new ButtonGroup();
+        bg_TCP.add(rdbtnTCPOn);
+        bg_TCP.add(rdbtnTCPOff);
+        
+        JButton btnDtls = new JButton("DTLS");
+        btnDtls.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enablePing();
+                debug = false;
+                ctlVal = 2;//非0非1，用于在刚打开两个单选钮都没选中时把值初始化。放在这里不放在外面是因为两个button共用一个ctlVal，即使被干扰了也能回到初始值。
+                prepare_TCP_DTLS(rdbtnDTLSOn, rdbtnDTLSOff, "/setupsecureengineeringaccess");
+                if ((ctlVal != 0) && (ctlVal != 1)) {
+                    updateTextArea("Select one radio button below.\n");
+                } else {
+                    if (ctlVal == 1) {
+                        updateTextArea("Switching on DTLS protocol.\n");
+                    }
+                    if (ctlVal == 0) {
+                        updateTextArea("Switching off DTLS protocol.\n");
+                    }
+                    ManipulateTCPDTLS.act("DTLS", "/setupsecureengineeringaccess", ctlVal);
+                }}
+        });
+        btnDtls.setToolTipText("Enable/disable DTLS.");
+        btnDtls.setBounds(300, 162, 75, 23);
+        SecurityTest.getContentPane().add(btnDtls);
+        
+        rdbtnDTLSOff = new JRadioButton("N");
+        rdbtnDTLSOff.setToolTipText("Disable DTLS");
+        rdbtnDTLSOff.setBounds(302, 183, 33, 23);
+        SecurityTest.getContentPane().add(rdbtnDTLSOff);
+        
+        rdbtnDTLSOn = new JRadioButton("Y");
+        rdbtnDTLSOn.setToolTipText("Enable DTLS");
+//        rdbtnDTLSOn.setSelected(true);
+        rdbtnDTLSOn.setBounds(337, 183, 35, 23);
+        SecurityTest.getContentPane().add(rdbtnDTLSOn);
+        
+        ButtonGroup bg_DTLS = new ButtonGroup();
+        bg_DTLS.add(rdbtnDTLSOn);
+        bg_DTLS.add(rdbtnDTLSOff);
         
         JButton btnExit = new JButton("Exit");
         btnExit.setBounds(300, 11, 75, 23);
@@ -528,7 +618,7 @@ public class FrameSecurity {
                         + "will be set as password one by one.\n");
             }
         });
-        btnMemo.setBounds(310, 288, 65, 23);
+        btnMemo.setBounds(310, 378, 65, 23);
         SecurityTest.getContentPane().add(btnMemo);
         
         textField_end = new JTextField();
@@ -541,53 +631,100 @@ public class FrameSecurity {
 
         chkbxsave = new JCheckBox("save");
         chkbxsave.setToolTipText("Save the log");
-        chkbxsave.setBounds(312, 161, 60, 23);
+        chkbxsave.setBounds(312, 296, 60, 23);
         SecurityTest.getContentPane().add(chkbxsave);       
 
         chkbxTls = new JCheckBox("tls");
         chkbxTls.setSelected(true);
 //      chkbxTls.setSelected(true);
         chkbxTls.setToolTipText("Enable https function");
-        chkbxTls.setBounds(312, 187, 50, 23);
+        chkbxTls.setBounds(312, 322, 50, 23);
         SecurityTest.getContentPane().add(chkbxTls);
         
         chkbxAlt = new JCheckBox("alter");
         chkbxAlt.setToolTipText("Set password alternately");
-        chkbxAlt.setBounds(312, 213, 60, 23);
+        chkbxAlt.setBounds(312, 348, 60, 23);
         SecurityTest.getContentPane().add(chkbxAlt);
         
 //      JTextArea
         textArea_cnt = new JTextArea();
-        textArea_cnt.setBounds(115, 119, 30, 18);
+        textArea_cnt.setBounds(115, 186, 30, 18);
         textArea_cnt.setText("0");
         SecurityTest.getContentPane().add(textArea_cnt);
 
         textArea_ubound = new JTextArea();
         textArea_ubound.setToolTipText("Number of times the loop will run.");
         textArea_ubound.setText("0");
-        textArea_ubound.setBounds(167, 119, 30, 18);
+        textArea_ubound.setBounds(167, 186, 30, 18);
         SecurityTest.getContentPane().add(textArea_ubound);
         
 
         chkbxA = new JCheckBox("A");
         chkbxA.setToolTipText("");
-        chkbxA.setBounds(312, 115, 33, 23);
+        chkbxA.setBounds(312, 250, 33, 23);
         SecurityTest.getContentPane().add(chkbxA);
         
         chkbxa = new JCheckBox("a");
         chkbxa.setToolTipText("");
-        chkbxa.setBounds(342, 115, 33, 23);
+        chkbxa.setBounds(342, 250, 33, 23);
         SecurityTest.getContentPane().add(chkbxa);
         
         chkbx0 = new JCheckBox("0");
         chkbx0.setToolTipText("");
-        chkbx0.setBounds(312, 141, 33, 23);
+        chkbx0.setBounds(312, 276, 33, 23);
         SecurityTest.getContentPane().add(chkbx0);
         
         chkbx_ = new JCheckBox("!");
         chkbx_.setToolTipText("");
-        chkbx_.setBounds(342, 141, 33, 23);
+        chkbx_.setBounds(342, 276, 33, 23);
         SecurityTest.getContentPane().add(chkbx_);
+        
+        
+        btnPath = new JButton("...");
+        btnPath.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser j = new JFileChooser();
+                j.setCurrentDirectory(new File("d:/")); 
+                j.setVisible(true);
+                j.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES );  
+                j.showDialog(new JLabel(), "选择");  
+                File file=j.getSelectedFile();  
+                if(file.isDirectory()){  
+                    System.out.println("文件夹:"+file.getAbsolutePath());  
+                }else if(file.isFile()){  
+                    System.out.println("文件:"+file.getAbsolutePath());  
+                }  
+                System.out.println(j.getSelectedFile().getName());  
+            }
+        });
+        btnPath.setToolTipText("Reset");
+        btnPath.setBounds(10, 115, 42, 23);
+        SecurityTest.getContentPane().add(btnPath);
+
+        txtD = new JTextField();
+        txtD.setText("D:\\");
+        txtD.setColumns(10);
+        txtD.setBounds(54, 116, 155, 20);
+        SecurityTest.getContentPane().add(txtD);
+        
+        JButton btnGetPRF = new JButton("GetPRF");
+        btnGetPRF.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        btnGetPRF.setToolTipText("Get PRF file");
+        btnGetPRF.setBounds(210, 115, 86, 23);
+        SecurityTest.getContentPane().add(btnGetPRF);
+        
+        btnResetPW = new JButton("Reset");
+        btnResetPW.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        btnResetPW.setToolTipText("Reset Passwrods with PRF file");
+        btnResetPW.setBounds(210, 141, 86, 23);
+        SecurityTest.getContentPane().add(btnResetPW);
+             
         
     }
     
@@ -596,14 +733,13 @@ public class FrameSecurity {
 //      textArea.setBounds(10, 90, 275, 161);
 //      frame.getContentPane().add(textArea);
         JScrollPane js=new JScrollPane(textArea);
-        js.setBounds(10, 140, 300, 170);
+        js.setBounds(10, 230, 300, 170);
         SecurityTest.getContentPane().add(js);  
                 
         DefaultCaret caret = (DefaultCaret) textArea.getCaret(); // 这两行让文本框的滚动条自动在最下面.
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         textArea.setLineWrap(true);             //自动换行
-        textArea.setWrapStyleWord(true);        //自动换行不断字
-        
+        textArea.setWrapStyleWord(true);
         
         js.setVisible(true);
     }
@@ -700,26 +836,26 @@ public class FrameSecurity {
             tmp = tmp.substring(0, tmp.length()-1);
             attack = true;
             updateTextArea("Password attempting:\n");
-            SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
+            Common.pwExist = true; //既然要攻击，就认为密码存在。
         }
         period = Integer.parseInt(tmp);
         
         /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
         ChangePw = false;
         if (period == 0) {
-            SetPassword.target_password = txtqq.getText();
+            SetPassword.target_password = textField_DigPW.getText();
             ChangePw = true;
         }
         /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
         
-        str = txtqq_1.getText();
+        str = textField_MntPw.getText();
         commonpw = str;
         len = str.length();
         if(str.endsWith("*****")){
             debug = true;
-            fwpw = str.substring(0, len - 5);
+            mntpw = str.substring(0, len - 5);
         }
-        else fwpw = str;
+        else mntpw = str;
     }
     
     /**
@@ -743,19 +879,19 @@ public class FrameSecurity {
             tmp = tmp.substring(0, tmp.length()-1);
             attack = true;
             updateTextArea("Password attempting:\n");
-            SetPassword.pwExist = true; //既然要攻击，就认为密码存在。
+            Common.pwExist = true; //既然要攻击，就认为密码存在。
         }
         period = Integer.parseInt(tmp);
         
         /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
         ChangePw = false;
         if (period == 0) {
-            SetPassword.target_password = txtqq_1.getText();
+            SetPassword.target_password = textField_MntPw.getText();
             ChangePw = true;
         }
         /*周期为0时，两个密码框的字符串互为改密码时对方的目的密码*/
         
-        str = txtqq.getText();
+        str = textField_DigPW.getText();
         commonpw = str;
         len = str.length();
         if(str.endsWith("*****")){
@@ -766,10 +902,6 @@ public class FrameSecurity {
     }   
     
     
-    public static void prepare_chkcert() {
-        
-    }
-
     /**
      * 识别输入的IP, PERIOD, 老密码.
      * 密码后加五个星(*****)输出Log.
@@ -787,7 +919,7 @@ public class FrameSecurity {
             else
                 ip = "http://"+textField_ip.getText()+"/setconnectionpassword";
             period = Integer.parseInt(textField_period.getText());
-            str = txtqq.getText();
+            str = textField_DigPW.getText();
             commonpw = str;
             len = str.length();
             if(str.endsWith("*****")){
@@ -804,14 +936,14 @@ public class FrameSecurity {
             else
                 ip = "http://"+textField_ip.getText()+"/setmaintenancepassword";
             period = Integer.parseInt(textField_period.getText());
-            str = txtqq_1.getText();
+            str = textField_MntPw.getText();
             commonpw = str;
             len = str.length();
             if(str.endsWith("*****")){
                 debug = true;
-                fwpw = str.substring(0, len - 5);
+                mntpw = str.substring(0, len - 5);
             }
-            else fwpw = str;
+            else mntpw = str;
         }
     }
     
@@ -842,8 +974,9 @@ public class FrameSecurity {
             debug = true;
         }else
             fw =str;
-        fwpw = txtqq_1.getText();        
+        mntpw = textField_MntPw.getText();        
     }
+    
     /**
      * 识别输入的IP.
      * period为99时,输出Log.
@@ -876,10 +1009,33 @@ public class FrameSecurity {
                 }                           
             }
         }       
-//      if(str.indexOf("https") > -1) {
         else {          
             ForFun = true;
             ip = str;
+        }
+    }
+    
+    /**
+     * 识别输入的IP，ctlVal. 密码后面跟五个星号，打开调试模式。
+     */
+    public static void prepare_TCP_DTLS(JRadioButton btnon, JRadioButton btnoff, String link) {
+        String str = textField_MntPw.getText();
+        int len = str.length();
+        tls = chkbxTls.isSelected();
+        if (tls)
+            ip = "https://" + textField_ip.getText() + link/*"/setupsecureengineeringaccess"*/;
+        else
+            ip = "http://" + textField_ip.getText() + link/*"/setupsecureengineeringaccess"*/;
+        if (str.endsWith("*****")) {
+            debug = true;
+            mntpw = str.substring(0, len - 5);
+        } else
+            mntpw = str;
+        if (btnon.isSelected()) {
+            ctlVal = 1;
+        }
+        if (btnoff.isSelected()) {
+            ctlVal = 0;
         }
     }
     
@@ -904,7 +1060,7 @@ public class FrameSecurity {
     public static void reset() {
         serverLost = false;
         traverse = false;
-        SetPassword.pwExist = false;
+        Common.pwExist = false;
         if(t_ping_running) {
             t_ping.cancel();
             t_ping_running = false;

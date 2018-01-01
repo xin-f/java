@@ -23,21 +23,16 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 public class SetPassword {
-    private static BufferedReader in = null;
+    
     public static int succ = 0;
     private static int attempt;
     private static int timeout;
     private static String curpw;
     private static String newpw;
-//    private static String pwNotExist = "Confirm password:";//只有密码没设，网页里才有此字符串
-    private static String pwExistAlready = "Confirm new password:"; //静态查询是否存在密码，只用一次。动态反馈密码是否设成功用 pwSet
     private static String pwSet = "The password has been set or changed";
-    private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
     private static int numFinished; //已运行次数。
 
     public static URL url = null; //change to public, to be used in HttpPost. 用来查一下是否有密码。
-    private static URLConnection connection = null;
-    private static SSLContext sc = null;
     public static String target_password;
     
     public static File file = null;
@@ -46,17 +41,15 @@ public class SetPassword {
     public static boolean streamClosed;
     public static boolean end;
 
-    private static BufferedOutputStream out = null;
     private static boolean setPwSucc; //本次设密码成功
     private static boolean setPwSucc_LastTime; //上次设密码成功，用于判断否定测试时，本次要不要取上次的密码作为当前密码。如果上次设置失败，则不取，当前密码保持上上次的。
-    public static boolean pwExist;      //密码已设置
+  
     private static boolean pwInitInternal;  //密码是否由本程序初始化
     private static boolean AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram;
     public static Timer t = null;//Make the timer be public so that the pw setting process can be terminated by 'Reset' in Frame.java by t.cancel()
     public static boolean t_running;
     public static boolean self = true; //为真时，改自己对应的密码（比如点的是DigPW，就改digsi 密码)；为假时，改另一个密码(点的是DigPW，改fw 密码)。
             //为真时才需要把新密码赋给当前密码，然后再获得一个新密码。为假时，用不变的当前密码和新密码改另个网址下的密码。即一套密码用两次。
-//  public static boolean lock;//遍历多类字符时，确保当前类遍类完再下一类。
 
 //  public static void main(String[] s) {
     public static void set() {
@@ -81,58 +74,12 @@ public class SetPassword {
         
     }
 
-    public static void check(URL url) {
-        String[] seg;
-        try {
-            String str = null;
-            // conn来检查密码是否已经设置。
-            URLConnection conn;
-            if (FrameSecurity.tls) {
-                conn = setHttpsConnect((HttpsURLConnection) url.openConnection());
-                sc = SSLContext.getInstance("TLS");
-                sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
-                ((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
-            } else {
-                conn = setHttpConnect((HttpURLConnection) url.openConnection());
-            }
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((str = in.readLine()) != null) {
-                if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
-                    pwExist = true;
-                    seg = url.toString().split("[/]");
-                    FrameSecurity.updateTextArea("Password exists in EN100."+seg[2]+"\n");
-                    break;
-                }
-            }
-            if (FrameSecurity.tls) {
-                ((HttpsURLConnection) conn).disconnect(); // HttpURLConnection只能先写后读,且断开后不能复用.
-                                                          // 此处取到标志位,断开conn, 后面另起一个connection.
-            } else {
-                ((HttpURLConnection) conn).disconnect();
-            }
-        } catch (MalformedURLException e) {
-            // new URL()
-            e.printStackTrace();
-        } catch (IOException e) {
-            FrameSecurity.updateTextArea("IOException captured.\n ");
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            // SSLContext.getInstance()
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * 由于EN100是HTTP短连接,设密码成功后若不再次请求setpassword,EN100不能正确上送密码已设置的状态.
      */
     static class SetPasswordCycically extends TimerTask {
         
         String str = null;
-
         
         public void run() {
             t_running = true;
@@ -146,68 +93,43 @@ public class SetPassword {
                     setPwSucc = false;
 //                  pwExist = true; 
 
-                    if (!pwExist) {/*
-                        // conn来检查密码是否已经设置。
-                        URLConnection conn;
-                        if (FrameSecurity.tls) {
-                            conn = setHttpsConnect((HttpsURLConnection) url.openConnection());
-                            sc = SSLContext.getInstance("TLS");
-                            sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
-                            ((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
-                        } else {
-                            conn = setHttpConnect((HttpURLConnection) url.openConnection());
-                        }
-//                      boundary = "----thisisfromEn100securityteam-sunxinfeng";
-                        conn.setDoInput(true);
-                        conn.setDoOutput(true);
-                        in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                        while ((str = in.readLine()) != null) {
-                            if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
-                                pwExist = true;
-                                FrameSecurity.updateTextArea("Password being set already. Try to change:\n");
-                                break;
-                            }
-                        }
-                        if (FrameSecurity.tls) {
-                            ((HttpsURLConnection) conn).disconnect(); // HttpURLConnection只能先写后读,且断开后不能复用.
-                                                                        // 此处取到标志位,断开conn, 后面另起一个connection.
-                        } else {
-                            ((HttpURLConnection) conn).disconnect();
-                        }
-                    */check(url);}
-                    //connection 用来设或改密码。
-                    if(FrameSecurity.tls) {
-                        connection = setHttpsConnect((HttpsURLConnection) url.openConnection());
-                        sc = SSLContext.getInstance("TLS");
-                        sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
-                        ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
-                    }else {
-                        connection = setHttpConnect((HttpURLConnection) url.openConnection());
+                    if (!Common.pwExist) {
+                        Common.checkPasswordExistOrNot(url);
                     }
+                    //connection 用来设或改密码。
+                    /*if(FrameSecurity.tls) {
+                        Common.connection = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
+                        Common.sc = SSLContext.getInstance("TLS");
+                        Common.sc.init(null, new TrustManager[] {new MyTrust()}, new java.security.SecureRandom());
+                        ((HttpsURLConnection) Common.connection).setSSLSocketFactory(Common.sc.getSocketFactory());
+                    }else {
+                        Common.connection = Common.setHttpConnect((HttpURLConnection) url.openConnection());
+                    }*/
+                    Common.setConnection(url);
                     
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-                    if (!pwExist) {
+                    Common.connection.setDoInput(true);
+                    Common.connection.setDoOutput(true);
+                    if (!Common.pwExist) {
                             StringBuffer set = new StringBuffer();
                             newpw = FrameSecurity.commonpw; // 第一次设密码，用输入框里的。
-                            set.append("--" + boundary + "\r\n")
+                            set.append("--" + Common.boundary + "\r\n")
                                     .append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n")
-                                    .append(newpw).append("\r\n--" + boundary + "\r\n")
+                                    .append(newpw).append("\r\n--" + Common.boundary + "\r\n")
                                     .append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n")
-                                    .append(newpw).append("\r\n--" + boundary + "--\r\n");
+                                    .append(newpw).append("\r\n--" + Common.boundary + "--\r\n");
                             // out = new PrintWriter(connection.getOutputStream());
-                            out = new BufferedOutputStream(connection.getOutputStream());
-                            out.write(set.toString().getBytes("UTF-8"));
-                            out.flush();
+                            Common.out = new BufferedOutputStream(Common.connection.getOutputStream());
+                            Common.out.write(set.toString().getBytes("UTF-8"));
+                            Common.out.flush();
 
-                            in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
-                            while ((str = in.readLine()) != null) {
+                            Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream(), "UTF-8"));
+                            while ((str = Common.in.readLine()) != null) {
                                 if (str.indexOf(pwSet) != -1) {
                                     succ += 1;
                                     setPwSucc = true;
                                     setPwSucc_LastTime = true;
                                     pwInitInternal = true;
-                                    pwExist = true;
+                                    Common.pwExist = true;
                                     FrameSecurity.updateTextArea("Password has been initialized.\n");
                                 }
                             }
@@ -304,23 +226,23 @@ public class SetPassword {
                                 }
                             }
                         }
-                        change.append("--" + boundary + "\r\n")
+                        change.append("--" + Common.boundary + "\r\n")
                                 .append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n").append(curpw)
-                                .append("\r\n--" + boundary + "\r\n")
+                                .append("\r\n--" + Common.boundary + "\r\n")
                                 .append("Content-Disposition: form-data; name=\"init_password\"\r\n\r\n").append(newpw)
-                                .append("\r\n--" + boundary + "\r\n")
+                                .append("\r\n--" + Common.boundary + "\r\n")
                                 .append("Content-Disposition: form-data; name=\"con_password\"\r\n\r\n").append(newpw)
-                                .append("\r\n--" + boundary + "--\r\n");
+                                .append("\r\n--" + Common.boundary + "--\r\n");
 
                         // out = new PrintWriter(connection.getOutputStream());
-                        out = new BufferedOutputStream(connection.getOutputStream());
-                        out.write(change.toString().getBytes("UTF-8"));
-                        out.flush();
+                        Common.out = new BufferedOutputStream(Common.connection.getOutputStream());
+                        Common.out.write(change.toString().getBytes("UTF-8"));
+                        Common.out.flush();
 
                         AttemptToCHANGE_NotInitializePwAtLeastOnceByThisProgram = true;
 
-                        in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
-                        while ((str = in.readLine()) != null) {
+                        Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream(), "UTF-8"));
+                        while ((str = Common.in.readLine()) != null) {
                             // result += (str + "\n"); //长期运行会导致'OutOfMemoryError: Java heap space',
                             // 因为'result'没被设为 ""，每次循环都会累加。
                             if (str.indexOf(pwSet) != -1) {
@@ -460,13 +382,13 @@ public class SetPassword {
                                 t.cancel();
                         }
                     }
-                    in.close();
-                    out.close();
+                    Common.in.close();
+                    Common.out.close();
 
                     if(FrameSecurity.tls) { //9.2.2017
-                        ((HttpsURLConnection) connection).disconnect();                 
+                        ((HttpsURLConnection) Common.connection).disconnect();                 
                     }else {
-                        ((HttpURLConnection) connection).disconnect();
+                        ((HttpURLConnection) Common.connection).disconnect();
                     }
                     if (FrameSecurity.alter) {
                         self = !self;
@@ -478,57 +400,16 @@ public class SetPassword {
                     FrameSecurity.updateTextArea(
                             "IOException captured.\n ");
                     e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
+                } /*catch (NoSuchAlgorithmException e) {
                     // SSLContext.getInstance()
                     e.printStackTrace();
                 } catch (KeyManagementException e) {
                     e.printStackTrace();
-                }
+                }*/
             } else
                 t.cancel();
             end = true; 
         }
-        
-/*      private String getTime(long million) {
-            int time = (int) (million - 17396*24*3600*1000);
-            StringBuilder sb = new StringBuilder();
-            int hour = time / 3600000;
-            int min = (time - hour * 3600000)/60000;
-            int sec = (time - hour * 3600000 - min * 60000)/1000;
-            String mill = Long.toString(million);
-            String ms = mill.substring(10,mill.length());
-            sb.append(hour)
-            .append(":")
-            .append(min)
-            .append(":")
-            .append(sec)
-            .append(":")
-            .append(ms);
-            return sb.toString();
-        }*/
-
+    }
     
-    }
-    public static HttpsURLConnection setHttpsConnect(HttpsURLConnection c) {
-        c.setRequestProperty("User-Agent", "sunxinfeng");
-        c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
-        c.setRequestProperty("Accept-Encoding", "gzip, deflate");
-        c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        c.setConnectTimeout(5000); // timeout
-        c.setReadTimeout(5000);
-//      c.setChunkedStreamingMode(2048);//设置了ChunkedStreamingMode后，不再等待OutputStream关闭后生成完整的httprequest一次过发送，而是先发送httprequest头.
-//      c.setFixedLengthStreamingMode(2048); //不能用定长的。 若定长，而实际的数据没这么长，会报insufficient data written
-        return c;
-    }
-    public static HttpURLConnection setHttpConnect(HttpURLConnection c) {
-        c.setRequestProperty("User-Agent", "sunxinfeng");
-        c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
-        c.setRequestProperty("Accept-Encoding", "gzip, deflate");
-        c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        c.setConnectTimeout(2000); // timeout
-        c.setReadTimeout(2000);
-        return c;
-    }   
 }
