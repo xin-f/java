@@ -617,7 +617,11 @@ public class FrameSecurity {
                         + "'C': clear the display.\n"
                         + "'a', 'A', '0', '!': traverse all characters. "
                         + "For example, is 'a' is checked, all lowercase characters "
-                        + "will be set as password one by one.\n");
+                        + "will be set as password one by one.\n"
+                        + "'GetPRF': Download sprf file to specified folder. Only via TCP now :(\n"
+                        + "'RsPW': Upload the specified sprf file to reset passwords. "
+                        + "If no file is specified, Digsi connection password will be "
+                        + "reset(if exists).\n");
             }
         });
         btnMemo.setBounds(310, 378, 65, 23);
