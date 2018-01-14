@@ -51,8 +51,8 @@ public class GetCertificate {
 
     public static void check(int tmp){
         frame = false;
-        if(FrameSecurity.ip != null)
-            frame = true;
+        if (FrameSecurity.ip != null) {
+            frame = true;}
         try {
             /*if(Frame.ForFun) {
                 url = new URL(Frame.ip);
@@ -182,7 +182,7 @@ public class GetCertificate {
             FrameSecurity.updateTextArea("Connection not established.\nIf it's a webserver, input complete URL\n");
             e.printStackTrace();
         } catch (IOException e) {
-            FrameSecurity.updateTextArea("Connection not established.\nIf the IP is correct, try again or check it via browser.\n");
+            FrameSecurity.updateTextArea("Connection not established. (Last segment of IP addr: " + tmp +" )\nIf the IP is correct, try again or check it via browser.\n");
             System.out.println("url.openConnection");
             FrameSecurity.updateTextArea("=============================\n");
             e.printStackTrace();
