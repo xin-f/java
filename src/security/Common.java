@@ -44,8 +44,8 @@ public class Common {
             Common.url = new URL(Common.ip_seg[0]+"/"+Common.ip_seg[1]+"/"+Common.ip_seg[2]+link/*+"/setupsecureengineeringaccess"*/);
             Common.setConnection(Common.url);
             String str;
-            Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
-            while ((str = Common.in.readLine()) != null) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
+            while ((str = in.readLine()) != null) {
                 if (str.indexOf(isOn) > -1) {
                     if(link.equals("/setupsecureengineeringaccess")) {
                         System.out.println("ison_dtls");
@@ -106,6 +106,7 @@ public class Common {
         String[] seg;
         try {
             String str = null;
+            SSLContext sc;
             // conn来检查密码是否已经设置。
             URLConnection conn;
             if (FrameSecurity.tls) {
@@ -116,18 +117,21 @@ public class Common {
             } else {
                 conn = Common.setHttpConnect((HttpURLConnection) url.openConnection());
             }
+            System.out.println("Checking whether password exists in: " + url.toString());
             conn.setDoInput(true);
             conn.setDoOutput(true);
-            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            
+            //必须要自定义一个inputstream的reader，不然在多线程时，所有连接的输入流都混到一个连接。
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((str = in.readLine()) != null) {
                 if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
                     pwExist = true;
                     seg = url.toString().split("[/]");
                     if (seg[3].indexOf("connection") > -1) {
-                        FrameSecurity.updateTextArea("DIGSI connection password exists in EN100." + seg[2] + "\n");
+                        FrameSecurity.updateTextArea("DIGSI conn pw exists in EN100." + seg[2] + "\n");
                     }
                     if (seg[3].indexOf("maintenance") > -1) {
-                        FrameSecurity.updateTextArea("Maintenance password exists in EN100." + seg[2] + "\n");
+                        FrameSecurity.updateTextArea("Maintenance pw exists in EN100." + seg[2] + "\n");
                     }
                     break;
                 }

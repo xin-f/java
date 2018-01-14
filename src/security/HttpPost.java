@@ -66,9 +66,11 @@ public class HttpPost {
     
     class UpldFWTask extends TimerTask {
         private int seg4;
-        BufferedReader in = null;
-        URLConnection connection = null; //多线程upload时，必须在自己的类里定义连接而不能用Common里的。
+//        BufferedReader in = null; //不能放在这里，要放在run()里
         
+     // 多线程upload时，必须在自己的类里定义连接而不能用Common里的。但放在这里也是错的！！在多线程时，这里放共享变量。显然每个线程都要有一个连接，所以要把这个变量放到run()方法里面。
+        URLConnection connection = null; 
+
         UpldFWTask(int i) {
             seg4 = i;
         }
@@ -77,8 +79,11 @@ public class HttpPost {
         public void run() {
             t_running = true;
             try {
-                //https://172.20.1.181/upload
+                BufferedReader in ;
+                URLConnection connection = null;
+                SSLContext sc;
                 URL url_upload = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4 + "/upload");
+                System.out.println("Server: " + url_upload.toString());
                 SetPassword.url = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4 + "/setmaintenancepassword");
                 Common.checkPasswordExistOrNot(SetPassword.url);
                 if (FrameSecurity.tls) {
@@ -220,9 +225,9 @@ public class HttpPost {
                                     + "/modstatus"); // http://IP/modstatus
                             connection = url_status.openConnection();
                         }
-                        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        BufferedReader in_after_upload = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                         String str1 = "";
-                        while ((str1 = in.readLine()) != null) {
+                        while ((str1 = in_after_upload.readLine()) != null) {
                             if (str1.indexOf("Now restart EN100 and wait 60 seconds") > -1) {
                                 FrameSecurity.updateTextArea("Write flash finished, restart..."+seg4+"\n");
                                 System.out.println("Writing flash finished. Restart now. Please wait..."+ seg4);
