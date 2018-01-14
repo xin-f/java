@@ -169,46 +169,52 @@ public class ResetPassword {
         boolean result = false;
         try {
             Common.ip_seg = FrameSecurity.ip.split("[/]");
-            Common.url = new URL(
-                    Common.ip_seg[0] + "/" + Common.ip_seg[1] + "/" + Common.ip_seg[2] + "/setmaintenancepassword");
-            Common.checkPasswordExistOrNot(Common.url);
+            
+            Common.checkPasswordExistOrNot(new URL(
+                    Common.ip_seg[0] + "/" + Common.ip_seg[1] + "/" + Common.ip_seg[2] + "/setconnectionpassword"));
             if (!Common.pwExist) {
-                FrameSecurity.updateTextArea("Maintenance password is not set.\n");
-            } // 不写else，来反向检查EN100的反应：在没设Mnt PW 时是否能进行其它操作。
-            Common.url = new URL(
-                    Common.ip_seg[0] + "/" + Common.ip_seg[1] + "/" + Common.ip_seg[2] + "/resetconnectionpassword");
-            Common.setConnection(Common.url);
+                System.out.println("Digsi connection pw does not exist.");
+                FrameSecurity.updateTextArea("Digsi conn pw does not exist.\n");
+            } else {
+                Common.url = new URL(
+                        Common.ip_seg[0] + "/" + Common.ip_seg[1] + "/" + Common.ip_seg[2] + "/setmaintenancepassword");
+                Common.checkPasswordExistOrNot(Common.url);
+                if (!Common.pwExist) {
+                    FrameSecurity.updateTextArea("Maintenance password is not set.\n");
+                } // 不写else，来反向检查EN100的反应：在没设Mnt PW 时是否能进行其它操作。
+                Common.url = new URL(Common.ip_seg[0] + "/" + Common.ip_seg[1] + "/" + Common.ip_seg[2]
+                        + "/resetconnectionpassword");
+                Common.setConnection(Common.url);
 
-            Common.connection.setDoInput(true);
-            Common.connection.setDoOutput(true);
-            Common.out = new BufferedOutputStream(Common.connection.getOutputStream());
+                Common.connection.setDoInput(true);
+                Common.connection.setDoOutput(true);
+                Common.out = new BufferedOutputStream(Common.connection.getOutputStream());
 
-            StringBuffer get = new StringBuffer();
-            get.append("--" + Common.boundary + "\r\n")
-                    .append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n")
-                    .append(FrameSecurity.mntpw).append("\r\n--" + Common.boundary + "--\r\n");
+                StringBuffer get = new StringBuffer();
+                get.append("--" + Common.boundary + "\r\n")
+                        .append("Content-Disposition: form-data; name=\"curr_password\"\r\n\r\n")
+                        .append(FrameSecurity.mntpw).append("\r\n--" + Common.boundary + "--\r\n");
 
-            Common.out.write(get.toString().getBytes());
-            Common.out.flush();
-            Common.out.close();
+                Common.out.write(get.toString().getBytes());
+                Common.out.flush();
+                Common.out.close();
 
-            // DataInputStream dis = new DataInputStream(Common.connection.getInputStream());
-            String str;
-            Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
-            while ((str = Common.in.readLine()) != null) {
-                if (str.indexOf("password successfully") > -1) {
-                    result = true;
-                    FrameSecurity.updateTextArea("Reset DIGSI password successfully.\n");
-                    break;
+                String str;
+                Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
+                while ((str = Common.in.readLine()) != null) {
+                    if (str.indexOf("password successfully") > -1) {
+                        result = true;
+                        FrameSecurity.updateTextArea("Reset DIGSI password successfully.\n");
+                        break;
+                    }
+                    if (str.indexOf("Maintenance password") > -1) {
+                        result = false;
+                        FrameSecurity.updateTextArea("Incorrect Maintenance password is input.\n");
+                        break;
+                    }
                 }
-                if (str.indexOf("Maintenance password") > -1) {
-                    result = false;
-                    FrameSecurity.updateTextArea("Incorrect Maintenance password is input.\n");
-                    break;
-                }
-            }
 
-            Common.in.close();
+                Common.in.close();}
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -216,6 +222,7 @@ public class ResetPassword {
             e.printStackTrace();
         } finally {
             if (!result) {
+                if(Common.pwExist)
                 FrameSecurity.updateTextArea("Operation fails.\n");
             }
         }
