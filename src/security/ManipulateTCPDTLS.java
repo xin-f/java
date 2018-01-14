@@ -78,16 +78,22 @@ public class ManipulateTCPDTLS {
             Common.out.close();
 
             String str;
+            boolean result = false;
             Common.in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
             while ((str = Common.in.readLine()) != null) {
                 if (str.indexOf(setOn) > -1) {
+                    result = true;
                     FrameSecurity.updateTextArea(setOn + "\n");
                     break;
                 }
                 if (str.indexOf(setOff) > -1) {
+                    result = true;
                     FrameSecurity.updateTextArea(setOff + "\n");
                     break;
                 }
+            }
+            if(!result) {
+                FrameSecurity.updateTextArea("Operation fails.\n");
             }
 
         } catch (MalformedURLException e) {

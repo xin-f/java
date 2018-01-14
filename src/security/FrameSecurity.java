@@ -66,7 +66,6 @@ public class FrameSecurity {
     public static boolean ForFun;   //get the certificate such as baidu.com
     public static boolean negative;
     private static int ctlVal;
-//    public static int ctlVal_TCP;
     public static boolean certSegment; //检查一个IP段的证书.
     public static boolean fwSegment; //下一个IP段的firmware.
     public static int ubound; //循环次数达到此值即停。
@@ -90,12 +89,15 @@ public class FrameSecurity {
     public static boolean attack;
     public static JRadioButton rdbtnTCPOff, rdbtnTCPOn;
     public static JRadioButton rdbtnDTLSOff, rdbtnDTLSOn;
+    public static String prfDirectory = "";
+    public static String prfFile = "";
     
     public enum Optype{digsi,fw}
     public enum Charset{upp,low,dig,cha}
     public static Charset charset;
-    private static JButton btnPath;
-    private static JTextField txtD;
+    private static JButton btnFile;
+//    private static JTextArea textArea_prf_save;
+//    private static JTextArea textArea_prfUp;
     private static JButton btnResetPW;
     
 
@@ -678,47 +680,97 @@ public class FrameSecurity {
         chkbx_.setToolTipText("");
         chkbx_.setBounds(342, 276, 33, 23);
         SecurityTest.getContentPane().add(chkbx_);
+       
+        JTextArea textArea_prfSave = new JTextArea();
+        textArea_prfSave.setColumns(10);
+        textArea_prfSave.setBounds(54, 118, 155, 20);
+        SecurityTest.getContentPane().add(textArea_prfSave);
         
-        
-        btnPath = new JButton("...");
-        btnPath.addActionListener(new ActionListener() {
+        JButton btnDirectory = new JButton("...");
+        btnDirectory.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                prfDirectory = "";
+                updateTextAreaPrf(prfDirectory,textArea_prfSave);
                 JFileChooser j = new JFileChooser();
                 j.setCurrentDirectory(new File("d:/")); 
                 j.setVisible(true);
-                j.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES );  
-                j.showDialog(new JLabel(), "选择");  
-                File file=j.getSelectedFile();  
-                if(file.isDirectory()){  
-                    System.out.println("文件夹:"+file.getAbsolutePath());  
-                }else if(file.isFile()){  
-                    System.out.println("文件:"+file.getAbsolutePath());  
-                }  
-                System.out.println(j.getSelectedFile().getName());  
+                j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY );  
+                j.showDialog(new JLabel(), "Select");  
+                File file=j.getSelectedFile(); 
+                if (file == null) {
+                    prfDirectory = "";
+                } else if(file.isDirectory()){
+                    prfDirectory = file.getAbsolutePath();
+                    updateTextAreaPrf(prfDirectory,textArea_prfSave);
+                }
             }
         });
-        btnPath.setToolTipText("Reset");
-        btnPath.setBounds(10, 115, 42, 23);
-        SecurityTest.getContentPane().add(btnPath);
-
-        txtD = new JTextField();
-        txtD.setText("D:\\");
-        txtD.setColumns(10);
-        txtD.setBounds(54, 116, 155, 20);
-        SecurityTest.getContentPane().add(txtD);
-        
+        btnDirectory.setToolTipText("Directory to save PRF");
+        btnDirectory.setBounds(10, 115, 42, 23);
+        SecurityTest.getContentPane().add(btnDirectory);
+                
         JButton btnGetPRF = new JButton("GetPRF");
         btnGetPRF.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                prfDirectory = textArea_prfSave.getText();
+//                System.out.println(prfDirectory);
+                if (prfDirectory.equals("")) {
+                    updateTextArea("Select a directory to store the file.\n");
+                } else {
+                    enablePing();
+                    debug = false;
+                    prepare_prf("/downloadpasswordresetfile");
+                    ResetPassword.download();
+                }
             }
         });
         btnGetPRF.setToolTipText("Get PRF file");
         btnGetPRF.setBounds(210, 115, 86, 23);
         SecurityTest.getContentPane().add(btnGetPRF);
         
-        btnResetPW = new JButton("Reset");
+        JTextArea textArea_prfUp = new JTextArea();
+        textArea_prfUp.setColumns(10);
+        textArea_prfUp.setBounds(54, 144, 155, 20);
+        SecurityTest.getContentPane().add(textArea_prfUp);
+        
+        btnFile = new JButton("...");
+        btnFile.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // textArea_prfUp.setText("");
+                updateTextAreaPrf("", textArea_prfUp);
+                JFileChooser j = new JFileChooser();
+                j.setCurrentDirectory(new File("d:/"));
+                j.setVisible(true);
+                j.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                j.showDialog(new JLabel(), "Select");
+                File file = j.getSelectedFile();
+                if (file == null) {
+                    prfFile = "";
+                } else if (file.isFile()) {
+//                    System.out.println(file);
+                    prfFile = file.getAbsolutePath();
+                    updateTextAreaPrf(prfFile, textArea_prfUp);
+                }
+
+            }
+        });
+        btnFile.setToolTipText("PRF file to upload");
+        btnFile.setBounds(10, 141, 42, 23);
+        SecurityTest.getContentPane().add(btnFile);
+        
+        btnResetPW = new JButton("RsPW");
         btnResetPW.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                prepare_prf("/resetpasswords");
+                enablePing();
+                debug = false;
+                if (prfFile.equals("")) {
+                    updateTextArea("Reset DIGSI connection password...\n");
+                    ResetPassword.resetDigPw();
+                } else {
+                    updateTextArea("Reset DIGSI connection and maintenance password...\n");
+                    ResetPassword.upload();
+                }
             }
         });
         btnResetPW.setToolTipText("Reset Passwrods with PRF file");
@@ -730,8 +782,6 @@ public class FrameSecurity {
     
     private static void buildTextArea(){
         textArea = new JTextArea();
-//      textArea.setBounds(10, 90, 275, 161);
-//      frame.getContentPane().add(textArea);
         JScrollPane js=new JScrollPane(textArea);
         js.setBounds(10, 230, 300, 170);
         SecurityTest.getContentPane().add(js);  
@@ -748,27 +798,12 @@ public class FrameSecurity {
     public static void updateTextArea(String str) { 
         textArea.append(str);
         textArea.paintImmediately(textArea.getBounds()); //让更新立刻显示在界面上而不是等swing的主线程返回后刷新. 
-        /*不难看出是在等待线程结束导致输出滞后，点击按钮后整个界面都卡住，按钮的事件阻塞了Frame整个线程（不知道这么说是否确切），才导致JTextArea没法实时显示信息。
-        在按钮监听到append事件时，另起一个线程来执行append行为，就好了：
-        private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {            
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "output");
-            }
-    });
-     
-    public void append() {
-            button1.addActionListener(new ActionListener() {       
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    service.submit(new Runnable() {                
-                        @Override
-                        public void run() {                      
-                        }
-                    });
-                }
-            });
-        }*/
+    } 
+    
+    public static void updateTextAreaPrf(String str,JTextArea area) { 
+//        area.append(str);
+        area.setText(str);
+        area.paintImmediately(area.getBounds()); 
     } 
     
     public static void updateTextAreacnt(int i) {
@@ -1037,6 +1072,21 @@ public class FrameSecurity {
         if (btnoff.isSelected()) {
             ctlVal = 0;
         }
+    }
+    
+    public static void prepare_prf(String link) {
+        String str = textField_MntPw.getText();
+        int len = str.length();
+        tls = chkbxTls.isSelected();
+        if (tls)
+            ip = "https://" + textField_ip.getText() + link/*"/downloadpasswordresetfile"*/;
+        else
+            ip = "http://" + textField_ip.getText() + link/*"/downloadpasswordresetfile"*/;
+        if (str.endsWith("*****")) {
+            debug = true;
+            mntpw = str.substring(0, len - 5);
+        } else
+            mntpw = str;
     }
     
     /**

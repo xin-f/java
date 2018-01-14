@@ -123,7 +123,12 @@ public class Common {
                 if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
                     pwExist = true;
                     seg = url.toString().split("[/]");
-                    FrameSecurity.updateTextArea("Password exists in EN100."+seg[2]+"\n");
+                    if (seg[3].indexOf("connection") > -1) {
+                        FrameSecurity.updateTextArea("DIGSI connection password exists in EN100." + seg[2] + "\n");
+                    }
+                    if (seg[3].indexOf("maintenance") > -1) {
+                        FrameSecurity.updateTextArea("Maintenance password exists in EN100." + seg[2] + "\n");
+                    }
                     break;
                 }
             }
@@ -159,6 +164,7 @@ public class Common {
         c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
         c.setRequestProperty("Accept-Encoding", "gzip, deflate");
+        c.setRequestProperty("Connection", "Keep-Alive");
         c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         c.setConnectTimeout(5000); // timeout
         c.setReadTimeout(5000);
@@ -171,6 +177,7 @@ public class Common {
         c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         c.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
         c.setRequestProperty("Accept-Encoding", "gzip, deflate");
+        c.setRequestProperty("Connection", "Keep-Alive");
         c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         c.setConnectTimeout(2000); // timeout
         c.setReadTimeout(2000);

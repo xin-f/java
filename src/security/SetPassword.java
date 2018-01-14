@@ -251,7 +251,7 @@ public class SetPassword {
                                 setPwSucc = true;
                                 setPwSucc_LastTime = true;
                                 if (FrameSecurity.ChangePw) {
-                                    FrameSecurity.updateTextArea("Password changed to: "+ target_password);
+                                    FrameSecurity.updateTextArea("Password changed to: "+ target_password + "\n");
                                 }
                             }
                         }
