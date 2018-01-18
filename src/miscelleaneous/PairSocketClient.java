@@ -25,6 +25,12 @@ public class PairSocketClient {
         
         try {
             Socket socket = new Socket(InetAddress.getByName(host),50000);
+            /*如果指定timeout的socket，用以简单扫描某个TCP口是否打开，在构造socket时，要构造一个未连接到远程服务器的，
+             * 以便能调用connect(SocketAddress endpoint, int timeout)方法。那就只能是Socket socket = new Socket(),无参数。
+             * 然后在使用时再传进对端的SocketAddress,或其子类实例InetSocketAddress:
+             * socket.connect(new InetSocketAddress(InetAddress.getByName(host),80), 1000);
+             * InetAddress加port号组成InetSocketAddress.
+             * */
             out = socket.getOutputStream();
             out.write(0x1);     //write 1 or 2 here.
             out.flush();
