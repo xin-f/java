@@ -26,14 +26,13 @@ public class HttpPost {
     private static File file = null;
     private static String fileName = null;
     private static String password = null;
-    private static SSLContext sc = null;
     private static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
     public static volatile int suc;
     public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
     public static  boolean t_running;
-//    private static String[] ip_seg = {"","","",""};
+//    private boolean pwExist;
+    private static String[] host_seg;
     
-//  public  static void main(String[] s) {
     public  static void upldFW() {  
         HttpPost httpPost = new HttpPost();
         String str = FrameSecurity.fw;
@@ -45,31 +44,36 @@ public class HttpPost {
         }
         fileName = str;
         password = FrameSecurity.mntpw;
-        Common.ip_seg = FrameSecurity.ip.substring(0, FrameSecurity.ip.length() - 7).split("[.]"); //https://172.20.1.100 或http://172.20.1.100
+//        String[] host_seg = FrameSecurity.host.split("[/]");
+        Common.host_seg = FrameSecurity.host.substring(0, FrameSecurity.host.length() - 7).split("[.]"); //https://172.20.1.100 或http://172.20.1.100
         if (!FrameSecurity.fwSegment) {
             t = new Timer();
-            UpldFWTask task_upldFw = httpPost.new UpldFWTask(Integer.parseInt(Common.ip_seg[3]));
+            UpldFWTask task_upldFw = httpPost.new UpldFWTask(Integer.parseInt(Common.host_seg[3]));
             t.schedule(task_upldFw, 0, 5000);
         } else {
             FrameSecurity.updateTextArea("Upload FW to a cluster of servers.\n");
-            if (Integer.parseInt(Common.ip_seg[3]) > FrameSecurity.fwEnd)
+            if (Integer.parseInt(Common.host_seg[3]) > FrameSecurity.fwEnd)
                 FrameSecurity.updateTextArea("The END ip value should be larger than the START one.\n");
             else {
-                ExecutorService pool = Executors.newFixedThreadPool(8);
-                for (int j = Integer.parseInt(Common.ip_seg[3]); j <= FrameSecurity.fwEnd; j++) {
+            	int num = FrameSecurity.fwEnd - Integer.parseInt(Common.host_seg[3])+1;
+            	//newFixedThreadPool用的Queue是LinkedBlockingQueue, 容量为：Integer.MAX_VALUE
+                ExecutorService pool = Executors.newFixedThreadPool(num);
+                for (int j = Integer.parseInt(Common.host_seg[3]); j <= FrameSecurity.fwEnd; j++) {
                     // UpldFWTask task_upldFw = httpPost.new UpldFWTask(j);
                     pool.execute(httpPost.new UpldFWTask(j));
                 }
+                pool.shutdown();
             }
         }
    }  
     
     class UpldFWTask extends TimerTask {
         private int seg4;
+        
 //        BufferedReader in = null; //不能放在这里，要放在run()里
         
      // 多线程upload时，必须在自己的类里定义连接而不能用Common里的。但放在这里也是错的！！在多线程时，这里放共享变量。显然每个线程都要有一个连接，所以要把这个变量放到run()方法里面。
-        URLConnection connection = null; 
+//        URLConnection connection = null; 
 
         UpldFWTask(int i) {
             seg4 = i;
@@ -77,15 +81,17 @@ public class HttpPost {
 
         @Override
         public void run() {
+        	boolean pwExist = false;
             t_running = true;
             try {
                 BufferedReader in ;
                 URLConnection connection = null;
                 SSLContext sc;
-                URL url_upload = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4 + "/upload");
+                URL url_upload = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4 + "/upload");
                 System.out.println("Server: " + url_upload.toString());
-                SetPassword.url = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4 + "/setmaintenancepassword");
-                Common.checkPasswordExistOrNot(SetPassword.url);
+                URL url = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4 + "/setmaintenancepassword");
+                CheckPwExistOrNot checkPw = new CheckPwExistOrNot(url);
+                pwExist = checkPw.checkPasswordExistOrNot();
                 if (FrameSecurity.tls) {
                     connection = (HttpsURLConnection) url_upload.openConnection();
                     sc = SSLContext.getInstance("TLS");
@@ -94,6 +100,7 @@ public class HttpPost {
                 } else {
                     connection = url_upload.openConnection();
                 }
+                System.out.println(Thread.currentThread().getName() + pwExist);
 
                 String newLine = "\r\n";
                 // 头部的\r\n都是系统自己加的.
@@ -144,7 +151,7 @@ public class HttpPost {
                     // System.out.println(new String(bytes));
                 }
                 
-                if (Common.pwExist) {
+                if (pwExist) {
                     StringBuffer sb_middle = new StringBuffer();
                     sb_middle.append(newLine).append("--").append(boundary).append(newLine);
                     out.write(sb_middle.toString().getBytes());
@@ -190,13 +197,13 @@ public class HttpPost {
                 while ((str = in.readLine()) != null) {
                     if (str.indexOf("Update in progress") > -1) {
                         suc += 1;
-                        System.out.println("FW transmitting finished " + suc + " times.");
+                        System.out.println("FW transmitting finished " + suc + " times. Wait for writing to flash.");
                         FrameSecurity.updateTextAreacnt(suc);
                         // String str1 = "FW upload successful "+suc+" time.\n";
                         // String str2 = "FW upload successful "+suc+" times.\n";
                         // str = (suc == 1)?"":"";
-                        FrameSecurity.updateTextArea((suc == 1) ? "FW transmitting finished " + suc + " time."+ seg4 +"\n"
-                                :"FW transmitting finished " + suc + " times."+seg4+"\n");
+                        FrameSecurity.updateTextArea((suc == 1) ? "FW transmission finished " + suc + " time."+"("+ seg4 +"). Wait for writing flash...\n"
+                                :"FW transmission finished " + suc + " times."+"("+ seg4 +"). Wait for writing flash...\n");
                     }
                     if (str.indexOf("The password is incorrect!") > -1) {
                         System.out.println("FW upload failed. Pw is not correct.");
@@ -214,14 +221,14 @@ public class HttpPost {
                     URL url_restart = null;
                     try {
                         if (FrameSecurity.tls) {
-                            url_status = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4
+                            url_status = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4
                                     + "/modstatus"); // https://IP/modstatus
                             connection = (HttpsURLConnection) url_status.openConnection();
                             sc = SSLContext.getInstance("TLS");
                             sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
                             ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
                         } else {
-                            url_status = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4
+                            url_status = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4
                                     + "/modstatus"); // http://IP/modstatus
                             connection = url_status.openConnection();
                         }
@@ -233,7 +240,7 @@ public class HttpPost {
                                 System.out.println("Writing flash finished. Restart now. Please wait..."+ seg4);
                                 write_finish = true;
                                 if (FrameSecurity.tls) {
-                                    url_restart = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4
+                                    url_restart = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4
                                             + "/En100Restart2"); // https://IP/En100Restart2
                                     connection = (HttpsURLConnection) url_restart.openConnection();
                                     sc = SSLContext.getInstance("TLS");
@@ -241,7 +248,7 @@ public class HttpPost {
                                             new java.security.SecureRandom());
                                     ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
                                 } else {
-                                    url_restart = new URL(Common.ip_seg[0] +"."+ Common.ip_seg[1] +"."+ Common.ip_seg[2]+"." + seg4
+                                    url_restart = new URL(Common.host_seg[0] +"."+ Common.host_seg[1] +"."+ Common.host_seg[2]+"." + seg4
                                             + "/En100Restart2"); // http://IP/En100Restart2
                                     connection = url_restart.openConnection();
                                 }
@@ -279,7 +286,7 @@ public class HttpPost {
                 e.printStackTrace();
             } catch (IOException e) {
                 FrameSecurity.updateTextArea(
-                        "Connection not established."+seg4+"\nIf the IP is correct, try again or check it via browser.\n ");
+                        "Connection not established."+seg4+"\nIf the IP is correct, try again or check it via browser.\n");
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();

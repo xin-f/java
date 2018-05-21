@@ -4,9 +4,7 @@ package security;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -18,30 +16,24 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.swing.JRadioButton;
 
 public class Common {
     
     public static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
     public static SSLContext sc = null;
-    public static String pwExistAlready = "Confirm new password:"; //静态查询是否存在密码，只用一次。动态反馈密码是否设成功用 pwSet
-    public static boolean pwExist;      //密码已设置
+    public String pwExistAlready = "Confirm new password:"; //静态查询是否存在密码，只用一次。动态反馈密码是否设成功用 pwSet
+    public boolean pwExist;      //密码已设置
     public static BufferedReader in = null;
     public static URLConnection connection = null;
     public static BufferedOutputStream out;
-    public static URL url;
-    public static String[] ip_seg/* = {"","","",""}*/;
+    public static String[] host_seg;
     public static String isOn = "value=\"1\""; //TCP, DTLS的状态
     public static String isOff = "value=\"0\"";
 
-//    public static JRadioButton rdbtnTcpOff, rdbtnTcpOn;
-//    public static JRadioButton rdbtnDTLSOff, rdbtnDTLSOn;
-    
-    public static void checkCurrent(String link) {
-        
-        Common.ip_seg = FrameSecurity.ip.split("[/]");
+    /*public static void checkCurrent(String link) {
+        Common.host_seg = FrameSecurity.host.split("[/]");
         try {
-            Common.url = new URL(Common.ip_seg[0]+"/"+Common.ip_seg[1]+"/"+Common.ip_seg[2]+link/*+"/setupsecureengineeringaccess"*/);
+            Common.url = new URL(Common.host_seg[0]+"/"+Common.host_seg[1]+"/"+Common.host_seg[2]+link+"/setupsecureengineeringaccess");
             Common.setConnection(Common.url);
             String str;
             BufferedReader in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
@@ -64,13 +56,11 @@ public class Common {
                     if(link.equals("/setupsecureengineeringaccess")) {
                         System.out.println("isoff_dtls");
                         FrameSecurity.rdbtnDTLSOn.setSelected(false);
-//                        FrameSecurity.rdbtnDTLSOff.setSelected(true);
                         FrameSecurity.rdbtnDTLSOn.paintImmediately(FrameSecurity.rdbtnDTLSOn.getBounds());
                     }
                     if(link.equals("/setupwebmonitoraccess")) {
                         System.out.println("isoff_webmon");
                         FrameSecurity.rdbtnTCPOn.setSelected(false);
-//                        FrameSecurity.rdbtnTcpOff.setSelected(true);
                         FrameSecurity.rdbtnTCPOn.paintImmediately(FrameSecurity.rdbtnTCPOn.getBounds());
                     }
                 }
@@ -80,18 +70,18 @@ public class Common {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-    }
+    }*/
     
-    public static void setConnection(URL url) {
+    public static URLConnection setConnection(URL url) {
+        URLConnection connection = null;
         try {
             if (FrameSecurity.tls) {
-                Common.connection = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
+                connection = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
                 Common.sc = SSLContext.getInstance("TLS");
                 Common.sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
-                ((HttpsURLConnection) Common.connection).setSSLSocketFactory(Common.sc.getSocketFactory());
+                ((HttpsURLConnection) connection).setSSLSocketFactory(Common.sc.getSocketFactory());
             } else {
-                Common.connection = Common.setHttpConnect((HttpURLConnection) url.openConnection());
+                connection = Common.setHttpConnect((HttpURLConnection) url.openConnection());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,15 +90,17 @@ public class Common {
         } catch (KeyManagementException e) {
             e.printStackTrace();
         }
+        return connection;
     }
     
-    public static void checkPasswordExistOrNot(URL url) {
+/*
+    public static boolean checkPasswordExistOrNot(URL url) {
+        boolean exist = false;
         String[] seg;
+        URLConnection conn = null;
         try {
             String str = null;
             SSLContext sc;
-            // conn来检查密码是否已经设置。
-            URLConnection conn;
             if (FrameSecurity.tls) {
                 conn = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
                 sc = SSLContext.getInstance("TLS");
@@ -117,15 +109,15 @@ public class Common {
             } else {
                 conn = Common.setHttpConnect((HttpURLConnection) url.openConnection());
             }
-            System.out.println("Checking whether password exists in: " + url.toString());
+            System.out.println("Checking whether password exists in: " + url.toString() + " "+Thread.currentThread().getName());
             conn.setDoInput(true);
             conn.setDoOutput(true);
             
             //必须要自定义一个inputstream的reader，不然在多线程时，所有连接的输入流都混到一个连接。
+            System.out.println("The connection in use: "+conn.toString()+" "+Thread.currentThread().getName());
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((str = in.readLine()) != null) {
                 if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
-                    pwExist = true;
                     seg = url.toString().split("[/]");
                     if (seg[3].indexOf("connection") > -1) {
                         FrameSecurity.updateTextArea("DIGSI conn pw exists in EN100." + seg[2] + "\n");
@@ -133,6 +125,7 @@ public class Common {
                     if (seg[3].indexOf("maintenance") > -1) {
                         FrameSecurity.updateTextArea("Maintenance pw exists in EN100." + seg[2] + "\n");
                     }
+                    exist = true;
                     break;
                 }
             }
@@ -143,18 +136,18 @@ public class Common {
                 ((HttpURLConnection) conn).disconnect();
             }
         } catch (MalformedURLException e) {
-            // new URL()
             e.printStackTrace();
         } catch (IOException e) {
             FrameSecurity.updateTextArea("IOException captured.\n ");
             e.printStackTrace();
+            System.out.println("The conn in use: "+conn);
         } catch (NoSuchAlgorithmException e) {
-            // SSLContext.getInstance()
             e.printStackTrace();
         } catch (KeyManagementException e) {
             e.printStackTrace();
         }
-    }
+        return exist;
+    }*/
 
     // 头部的\r\n都是系统自己加的.
     // Content-Type 里指明了数据是以 multipart/form-data 来编码，本次请求的 boundary
@@ -183,15 +176,16 @@ public class Common {
         c.setRequestProperty("Accept-Encoding", "gzip, deflate");
         c.setRequestProperty("Connection", "Keep-Alive");
         c.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        c.setConnectTimeout(2000); // timeout
-        c.setReadTimeout(2000);
+        c.setConnectTimeout(3000); // timeout
+        c.setReadTimeout(3000);
         return c;
-    }   
+    }
+  
 }
 
-class MyTrust implements X509TrustManager{
-    public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-    public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
-    public X509Certificate[] getAcceptedIssuers() {return null; }   
-}
+		class MyTrust implements X509TrustManager{
+		    public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+		    public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+		    public X509Certificate[] getAcceptedIssuers() {return null; }   
+		}
 

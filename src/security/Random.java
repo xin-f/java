@@ -62,7 +62,7 @@ public class Random {
         fmt.format("%-26s %d", result, result.length());
         // System.out.printf("%-30s %d",result,result.length());
         System.out.println(fmt);
-        if (FrameSecurity.ip != null)
+        if (FrameSecurity.host != null)
             FrameSecurity.updateTextArea(fmt.toString() + "\n");
 //      if (result.length() != sb.length())
 //          System.exit(0);
@@ -130,7 +130,7 @@ public class Random {
         Formatter fmt = new Formatter();
         fmt.format("%-26s %d", result, result.length() + 1);
         System.out.println(fmt);
-        if (FrameSecurity.ip != null)
+        if (FrameSecurity.host != null)
             FrameSecurity.updateTextArea(fmt.toString() + "\n");
         if (result.length() != sb.length())
             System.exit(0);
@@ -160,7 +160,7 @@ public class Random {
         fmt.format("%-32s %d", target, target.length());
         // System.out.printf("%-30s %d",result,result.length());
         System.out.println(fmt);
-        if (FrameSecurity.ip != null)
+        if (FrameSecurity.host != null)
             FrameSecurity.updateTextArea(fmt.toString() + "\n");
         return target.toString();
     }

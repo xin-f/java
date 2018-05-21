@@ -40,7 +40,7 @@ public class SetPassword {
     private static Formatter fmt = null;
     public static boolean streamClosed;
     public static boolean end;
-
+    public static boolean pwExist;
     private static boolean setPwSucc; //本次设密码成功
     private static boolean setPwSucc_LastTime; //上次设密码成功，用于判断否定测试时，本次要不要取上次的密码作为当前密码。如果上次设置失败，则不取，当前密码保持上上次的。
   
@@ -67,6 +67,9 @@ public class SetPassword {
                 e.printStackTrace();
             }
         }
+		if (FrameSecurity.attack) {
+			pwExist = true;
+		}
         timeout = (FrameSecurity.period == 0) ? Integer.MAX_VALUE : FrameSecurity.period*100; //schedule()第三个参数要为正。
         t = new Timer();
         SetPasswordCycically setPasswordCycically = new SetPasswordCycically();
@@ -80,22 +83,21 @@ public class SetPassword {
     static class SetPasswordCycically extends TimerTask {
         
         String str = null;
-        
+
         public void run() {
             t_running = true;
             end = false;
-            if (!FrameSecurity.stop) {
+            CheckPwExistOrNot checkPw;
+            if (!FrameSecurity.stopped) {
                 try {
                     if(self)
-                        {url = new URL(FrameSecurity.ip);}
+                        {url = new URL(FrameSecurity.host);}
                     else
                         {url = new URL(FrameSecurity.ip_another);}
-                    setPwSucc = false;
-//                  pwExist = true; 
+					setPwSucc = false;
+					checkPw = new CheckPwExistOrNot(url);
 
-                    if (!Common.pwExist) {
-                        Common.checkPasswordExistOrNot(url);
-                    }
+					pwExist = checkPw.checkPasswordExistOrNot();
                     //connection 用来设或改密码。
                     /*if(FrameSecurity.tls) {
                         Common.connection = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
@@ -105,11 +107,11 @@ public class SetPassword {
                     }else {
                         Common.connection = Common.setHttpConnect((HttpURLConnection) url.openConnection());
                     }*/
-                    Common.setConnection(url);
+                    Common.connection = Common.setConnection(url);
                     
                     Common.connection.setDoInput(true);
                     Common.connection.setDoOutput(true);
-                    if (!Common.pwExist) {
+                    if (!pwExist) {
                             StringBuffer set = new StringBuffer();
                             newpw = FrameSecurity.commonpw; // 第一次设密码，用输入框里的。
                             set.append("--" + Common.boundary + "\r\n")
@@ -129,7 +131,7 @@ public class SetPassword {
                                     setPwSucc = true;
                                     setPwSucc_LastTime = true;
                                     pwInitInternal = true;
-                                    Common.pwExist = true;
+                                    pwExist = true;
                                     FrameSecurity.updateTextArea("Password has been initialized.\n");
                                 }
                             }
@@ -246,7 +248,6 @@ public class SetPassword {
                             // result += (str + "\n"); //长期运行会导致'OutOfMemoryError: Java heap space',
                             // 因为'result'没被设为 ""，每次循环都会累加。
                             if (str.indexOf(pwSet) != -1) {
-                                // System.out.println(str);
                                 succ += 1;
                                 setPwSucc = true;
                                 setPwSucc_LastTime = true;
@@ -406,9 +407,10 @@ public class SetPassword {
                 } catch (KeyManagementException e) {
                     e.printStackTrace();
                 }*/
-            } else
-                t.cancel();
-            end = true; 
+			} else {
+				t.cancel();
+			}
+			end = true;
         }
     }
     

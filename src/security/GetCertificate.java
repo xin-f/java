@@ -3,6 +3,7 @@ package security;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,7 +35,7 @@ public class GetCertificate {
 
     public static void checkCert() {
         cnt_total = 0;
-        ip_seg = FrameSecurity.ip.split("[.]");
+        ip_seg = FrameSecurity.host.split("[.]");
         seg3 = Integer.parseInt(ip_seg[3]);
         if (!FrameSecurity.certSegment) {
             check(seg3);
@@ -51,7 +52,7 @@ public class GetCertificate {
 
     public static void check(int tmp){
         frame = false;
-        if (FrameSecurity.ip != null) {
+        if (FrameSecurity.host != null) {
             frame = true;}
         try {
             /*if(Frame.ForFun) {
@@ -97,10 +98,10 @@ public class GetCertificate {
 //              FrameSecurity.updateTextAreacnt(cnt_total);
             }
             
-            System.out.println(sslSession.getCipherSuite());
-            System.out.println(sslSession.getLocalCertificates());//读不到东西.
-            System.out.println(sslSession.getPeerCertificates());
-            System.out.println(sslSession.getPeerCertificateChain());
+            System.out.println("CipherSuite: "+sslSession.getCipherSuite());
+            System.out.println("LocalCertificates: "+sslSession.getLocalCertificates());//读不到东西.
+            System.out.println("PeerCertificates: "+sslSession.getPeerCertificates());
+            System.out.println("PeerCertificateChain: "+sslSession.getPeerCertificateChain());
             if(FrameSecurity.save) {
                 if(!FrameSecurity.certSegment) {
                     File file = new File("cert.txt");
@@ -108,6 +109,10 @@ public class GetCertificate {
                     PrintWriter pw = new PrintWriter(fos);
                     pw.write(cert.toString());
                     pw.close();
+//                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+//                    oos.writeObject(cert);
+//                    oos.flush();
+//                    oos.close();
                     fos.close(); 
                 }else {
                     File file = new File("cert_" + tmp + ".txt");
@@ -150,19 +155,19 @@ public class GetCertificate {
             System.out.println(ip);
             if(frame) 
                 FrameSecurity.updateTextArea("Subject ip: "+ip+"\n");
-            if(!FrameSecurity.ForFun) { 
-//              String str = "https://" + FrameSecurity.ip + "/home";
-//              str = str.substring(8, str.length());//去掉前面八个字符(https://)
-//              int i = str.indexOf("/");
-//              str = str.substring(0, i);
-                String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
-                if(!ip.equals(str))
-                    {if(frame)
-                        FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
-                    cnt++;
-                    FrameSecurity.updateTextAreacnt(cnt);
-                    }
-            }               
+			if (!FrameSecurity.ForFun) {
+				// String str = "https://" + FrameSecurity.ip + "/home";
+				// str = str.substring(8, str.length());//去掉前面八个字符(https://)
+				// int i = str.indexOf("/");
+				// str = str.substring(0, i);
+				String str = ip_seg[0] + "." + ip_seg[1] + "." + ip_seg[2] + "." + tmp;
+				if (!ip.equals(str)) {
+					if (frame)
+						FrameSecurity.updateTextArea("Wrong!! Certificate not updated!\n");
+					cnt++;
+					FrameSecurity.updateTextAreacnt(cnt);
+				}
+			}               
             byte[] sig = cert.getSignature();
             Formatter sign = new Formatter();
             for(byte b:sig)
