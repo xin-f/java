@@ -16,16 +16,16 @@ public class Serversocketchannel {
     public static SocketChannel socketChannel;
     public static InetAddress server;
     /**
-    ´´½¨Ò»¸öServerSocketChannel£¬ºÍÒ»¸öSelector£¬²¢ÇÒ°ÑÕâ¸öserver channel ×¢²áµ½ selectorÉÏ£¬×¢²áµÄÊ±¼äÖ¸¶¨£¬Õâ¸öchannel Ëù¸Ğ¾õĞËÈ¤µÄÊÂ¼şÊÇ SelectionKey.OP_ACCEPT£¬Õâ¸öÊÂ¼ş´ú±íµÄÊÇÓĞ¿Í»§¶Ë·¢ÆğTCPÁ¬½ÓÇëÇó¡£
-    Ê¹ÓÃ select ·½·¨×èÈû×¡Ïß³Ì£¬µ±select ·µ»ØµÄÊ±ºò£¬Ïß³Ì±»»½ĞÑ¡£ÔÙÍ¨¹ıselectedKeys·½·¨µÃµ½ËùÓĞ¿ÉÓÃchannelµÄ¼¯ºÏ¡£
-    ±éÀúÕâ¸ö¼¯ºÏ£¬Èç¹ûÆäÖĞchannel ÉÏÓĞÁ¬½Óµ½´ï£¬¾Í½ÓÊÜĞÂµÄÁ¬½Ó£¬È»ºó°ÑÕâ¸öĞÂµÄÁ¬½ÓÒ²×¢²áµ½selectorÖĞÈ¥¡£
+    åˆ›å»ºä¸€ä¸ªServerSocketChannelï¼Œå’Œä¸€ä¸ªSelectorï¼Œå¹¶ä¸”æŠŠè¿™ä¸ªserver channel æ³¨å†Œåˆ° selectorä¸Šï¼Œæ³¨å†Œçš„æ—¶é—´æŒ‡å®šï¼Œè¿™ä¸ªchannel æ‰€æ„Ÿè§‰å…´è¶£çš„äº‹ä»¶æ˜¯ SelectionKey.OP_ACCEPTï¼Œè¿™ä¸ªäº‹ä»¶ä»£è¡¨çš„æ˜¯æœ‰å®¢æˆ·ç«¯å‘èµ·TCPè¿æ¥è¯·æ±‚ã€‚
+    ä½¿ç”¨ select æ–¹æ³•é˜»å¡ä½çº¿ç¨‹ï¼Œå½“select è¿”å›çš„æ—¶å€™ï¼Œçº¿ç¨‹è¢«å”¤é†’ã€‚å†é€šè¿‡selectedKeysæ–¹æ³•å¾—åˆ°æ‰€æœ‰å¯ç”¨channelçš„é›†åˆã€‚
+    éå†è¿™ä¸ªé›†åˆï¼Œå¦‚æœå…¶ä¸­channel ä¸Šæœ‰è¿æ¥åˆ°è¾¾ï¼Œå°±æ¥å—æ–°çš„è¿æ¥ï¼Œç„¶åæŠŠè¿™ä¸ªæ–°çš„è¿æ¥ä¹Ÿæ³¨å†Œåˆ°selectorä¸­å»ã€‚
     *******************
-    Èç¹ûÓĞchannelÊÇ¶Á£¬ÄÇ¾Í°ÑÊı¾İ¶Á³öÀ´£¬²¢ÇÒ°ÑËü¸ĞĞËÈ¤µÄÊÂ¼ş¸Ä³ÉĞ´¡£Èç¹ûÊÇĞ´£¬¾Í°ÑÊı¾İĞ´³öÈ¥£¬²¢ÇÒ°Ñ¸ĞĞËÈ¤µÄÊÂ¼ş¸Ä³É¶Á¡£
+    å¦‚æœæœ‰channelæ˜¯è¯»ï¼Œé‚£å°±æŠŠæ•°æ®è¯»å‡ºæ¥ï¼Œå¹¶ä¸”æŠŠå®ƒæ„Ÿå…´è¶£çš„äº‹ä»¶æ”¹æˆå†™ã€‚å¦‚æœæ˜¯å†™ï¼Œå°±æŠŠæ•°æ®å†™å‡ºå»ï¼Œå¹¶ä¸”æŠŠæ„Ÿå…´è¶£çš„äº‹ä»¶æ”¹æˆè¯»ã€‚
     *******************
     *A channel that has connected SUCCESSFULLY to another server is "connect ready". 
     *A server socket channel which accepts an incoming connection is "accept" ready.
     *
-    *Õâ¸ö³ÌĞòÔËĞĞ½á¹û(ÁíÓÉÒ»¸öÆÕÍ¨µÄ,¼´×èÈûµÄclient(±ÈÈçPairSocketClient.java)·¢ÁË0x61 ¹ıÀ´. ×îºóÕâ¸öclientÊÕµ½114, ¼´receiveÖĞ'r'µÄascii):
+    *è¿™ä¸ªç¨‹åºè¿è¡Œç»“æœ(å¦ç”±ä¸€ä¸ªæ™®é€šçš„,å³é˜»å¡çš„client(æ¯”å¦‚PairSocketClient.java)å‘äº†0x61 è¿‡æ¥. æœ€åè¿™ä¸ªclientæ”¶åˆ°114, å³receiveä¸­'r'çš„ascii):
     *is accessable
      is readable
      received: a
@@ -36,14 +36,14 @@ public class Serversocketchannel {
         try {
             server = InetAddress.getByName("172.20.1.2");
             ssc = ServerSocketChannel.open();
-            //Òª°óµ½SocketAddrssÉÏ, µ«SocketAddrss²»ºÃ¹¹Ôì,²»¹ıËüÓĞ¸ö×ÓÀàInetSocketAddress.
+            //è¦ç»‘åˆ°SocketAddrssä¸Š, ä½†SocketAddrssä¸å¥½æ„é€ ,ä¸è¿‡å®ƒæœ‰ä¸ªå­ç±»InetSocketAddress.
             ssc.bind(new InetSocketAddress(server,50000));
-            ssc.configureBlocking(false); //¸úselectorÅäºÏÊ±, channel ±ØĞëÉèÎª·Ç×èÈûÄ£Ê½.
+            ssc.configureBlocking(false); //è·Ÿselectoré…åˆæ—¶, channel å¿…é¡»è®¾ä¸ºéé˜»å¡æ¨¡å¼.
             
-            //×¢²áchannel, Ö¸¶¨¸ĞĞËÈ¤µÄÊÂ
+            //æ³¨å†Œchannel, æŒ‡å®šæ„Ÿå…´è¶£çš„äº‹
             Selector selector = Selector.open();
-            //Ò»¸öselector,¶à¸öchannel,Ò»¸ö°à¼¶£¬¶à¸öÑ§Éú£¬channle×¢²áµ½selectorÉÏ£¬Ñ§Éú×¢²áµ½°à¼¶Àï¡£channel.regisiter(channel)
-            //Ö»Òª×¢²á¾ÍĞĞ,Ã»±ØÒª·µ»Økey. ÒòÎªÔÚºóÃæwhile(true)ÀïÓĞ¸÷ÖÖ·µ»ØµÄkey.
+            //ä¸€ä¸ªselector,å¤šä¸ªchannel,ä¸€ä¸ªç­çº§ï¼Œå¤šä¸ªå­¦ç”Ÿï¼Œchannleæ³¨å†Œåˆ°selectorä¸Šï¼Œå­¦ç”Ÿæ³¨å†Œåˆ°ç­çº§é‡Œã€‚channel.regisiter(channel)
+            //åªè¦æ³¨å†Œå°±è¡Œ,æ²¡å¿…è¦è¿”å›key. å› ä¸ºåœ¨åé¢while(true)é‡Œæœ‰å„ç§è¿”å›çš„key.
             /*SelectionKey key = */
             ssc.register(selector, SelectionKey.OP_ACCEPT);
             
@@ -51,7 +51,7 @@ public class Serversocketchannel {
             ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
                         
             while(true){
-                //ºÜ¹Ø¼ü,ËäÈ»cntReadyÕâ¸ö±äÁ¿Ã»ÓÃ,µ«selector.select()ÕâÒ»²Ù×÷ÊÇ±ØÒªµÄ, ·ñÔòÖ»Ñ¡Ò»´Î, ÏÂÃæ°Ñ¸ĞĞËÈ¤µÄÊÂ¸Ä³Éread, writeºó,SelectedKeyÒ²²»ÔÙ¸üĞÂÁË.
+                //å¾ˆå…³é”®,è™½ç„¶cntReadyè¿™ä¸ªå˜é‡æ²¡ç”¨,ä½†selector.select()è¿™ä¸€æ“ä½œæ˜¯å¿…è¦çš„, å¦åˆ™åªé€‰ä¸€æ¬¡, ä¸‹é¢æŠŠæ„Ÿå…´è¶£çš„äº‹æ”¹æˆread, writeå,SelectedKeyä¹Ÿä¸å†æ›´æ–°äº†.
                 /*int cntReady = */selector.select(); 
                 Set <SelectionKey> keys = selector.selectedKeys();
                 Iterator<SelectionKey> it = keys.iterator();
@@ -62,31 +62,31 @@ public class Serversocketchannel {
                     
                     if(key.isAcceptable()){
                         System.out.println("is accessable");
-                        //´´½¨ĞÂÁ¬½Ó,²¢×¢²áµ½selectorÉÏ. Õâ¸öchannelÖ»¶Ô¶Á²Ù×÷¸ĞĞËÈ¤.
+                        //åˆ›å»ºæ–°è¿æ¥,å¹¶æ³¨å†Œåˆ°selectorä¸Š. è¿™ä¸ªchannelåªå¯¹è¯»æ“ä½œæ„Ÿå…´è¶£.
                         socketChannel = ssc.accept();
                         socketChannel.configureBlocking(false);
                         socketChannel.register(selector ,SelectionKey.OP_READ);
                     }else if(key.isReadable()){
                         System.out.println("is readable");
-                        //Õâ¸ökeyµÄchannelÓĞ¶«Î÷ÄÜ¶Á, SelectionKey is a token representing the registration of a SelectableChannel with a Selector.
+                        //è¿™ä¸ªkeyçš„channelæœ‰ä¸œè¥¿èƒ½è¯», SelectionKey is a token representing the registration of a SelectableChannel with a Selector.
                         socketChannel = (SocketChannel) key.channel();
-                        readBuffer.clear(); //ÏÈÇåµô.×¢Òâ, ByteBufferÖ»ÊÇÖØÖÃpositionÖ¸ÕëºÍlimitÖ¸Õë£¬·ÏÆúmark±ê¼Ç.Êı¾İ²»»á±»Çå¿Õ,Ö»»á±»¸²¸Ç.ËùÒÔÈôÉÏ¶Áµ½µÄÊı¾İÃ»ÓĞ
-                        //ÌîÂúbuffer,Ôò²»ÄÜÓÃarray()·½·¨È¡bufferÖĞµÄÊı¾İ. ÓÃbuffer.position().https://stackoverflow.com/questions/37787987/java-bytebuffer-clear-data
-                        socketChannel.read(readBuffer);//Êı¾İ´Óchannelµ½bufferÈÏÎªÊÇ¶Á¹ıÀ´. Ö÷½Ç/Ö÷ÓïÊÇselector,Ò»¸öselectorÓĞÒ»¸öbuffer´æ·ÅËùÓĞchannelµÄÊı¾İ. 
-                                                        //µ«µ÷ÓÃÕß¶¼ÊÇchannel.
-                        //serversocketchannelÀàÃ»ÓĞread(), write()·½·¨£¬ÒòÎªserverÖ»¼àÌı£¬accept()Ö®ºó»á·µ»ØÒ»¸ösocketchannel¸ú¶Ô¶Ë(client)Í¨¡£Í¬Socket/ServerSocket
-                        readBuffer.flip();//´Ó¶Áµ½Ğ´×ª»».×¢ÒâÊÇ´Ó´Óchannel¶ÁÈëµ½Ğ´µ½channelµÄ×ª»»,ËùÒÔ°ÑpositionÖÃ0,¼´ÄÜ°ÑbufferÀïµÄËùÓĞÊı¾İ¶¼ÄÜ¶Áµ½,²ÅÄÜÕıÈ·Ğ´Èëµ½channel.
+                        readBuffer.clear(); //å…ˆæ¸…æ‰.æ³¨æ„, ByteBufferåªæ˜¯é‡ç½®positionæŒ‡é’ˆå’ŒlimitæŒ‡é’ˆï¼ŒåºŸå¼ƒmarkæ ‡è®°.æ•°æ®ä¸ä¼šè¢«æ¸…ç©º,åªä¼šè¢«è¦†ç›–.æ‰€ä»¥è‹¥ä¸Šè¯»åˆ°çš„æ•°æ®æ²¡æœ‰
+                        //å¡«æ»¡buffer,åˆ™ä¸èƒ½ç”¨array()æ–¹æ³•å–bufferä¸­çš„æ•°æ®. ç”¨buffer.position().https://stackoverflow.com/questions/37787987/java-bytebuffer-clear-data
+                        socketChannel.read(readBuffer);//æ•°æ®ä»channelåˆ°bufferè®¤ä¸ºæ˜¯è¯»è¿‡æ¥. ä¸»è§’/ä¸»è¯­æ˜¯selector,ä¸€ä¸ªselectoræœ‰ä¸€ä¸ªbufferå­˜æ”¾æ‰€æœ‰channelçš„æ•°æ®. 
+                                                        //ä½†è°ƒç”¨è€…éƒ½æ˜¯channel.
+                        //serversocketchannelç±»æ²¡æœ‰read(), write()æ–¹æ³•ï¼Œå› ä¸ºserveråªç›‘å¬ï¼Œaccept()ä¹‹åä¼šè¿”å›ä¸€ä¸ªsocketchannelè·Ÿå¯¹ç«¯(client)é€šã€‚åŒSocket/ServerSocket
+                        readBuffer.flip();//ä»è¯»åˆ°å†™è½¬æ¢.æ³¨æ„æ˜¯ä»ä»channelè¯»å…¥åˆ°å†™åˆ°channelçš„è½¬æ¢,æ‰€ä»¥æŠŠpositionç½®0,å³èƒ½æŠŠbufferé‡Œçš„æ‰€æœ‰æ•°æ®éƒ½èƒ½è¯»åˆ°,æ‰èƒ½æ­£ç¡®å†™å…¥åˆ°channel.
                         System.out.println("received: "+ new String(readBuffer.array())); //readBuffer.toString();
                         key.interestOps(SelectionKey.OP_WRITE);
                     }else if(key.isWritable()){
                         System.out.println("is writable");
                         socketChannel = (SocketChannel) key.channel();
-                        /*ÍùByteBufferÀïĞ´Êı¾İ,È»ºóÔÙĞ´µ½channelÀï. ByteBuffer.put()ÊÇÍùchannelÀïĞ´, ByteBuffer.wrap()ÊÇ°ÑÄ³´¦µÃÀ´µÄÒ»¸ö×Ö½ÚÊı×é°ü×°ÆğÀ´·Åµ½channelÀï, 
-                         * ¿ÉÒÔÓÃÀ´´´½¨ByteBuffer.Èç: ByteBuffer send = ByteBufer.warp("hello".getBytes()). ¼´ÊµÏÖÁË¶¨Òå¼Ó³õÊ¼»¯, BufferµÄÈİÁ¿ÊÇÊı×é³¤¶È. 
-                         * ¶øÇÒbufferÀïµÄÊı¾İºÍÊı×éÀïµÄÁª¶¯,Ò»¸Ä¶¼¸Ä*/
+                        /*å¾€ByteBufferé‡Œå†™æ•°æ®,ç„¶åå†å†™åˆ°channelé‡Œ. ByteBuffer.put()æ˜¯å¾€channelé‡Œå†™, ByteBuffer.wrap()æ˜¯æŠŠæŸå¤„å¾—æ¥çš„ä¸€ä¸ªå­—èŠ‚æ•°ç»„åŒ…è£…èµ·æ¥æ”¾åˆ°channelé‡Œ, 
+                         * å¯ä»¥ç”¨æ¥åˆ›å»ºByteBuffer.å¦‚: ByteBuffer send = ByteBufer.warp("hello".getBytes()). å³å®ç°äº†å®šä¹‰åŠ åˆå§‹åŒ–, Bufferçš„å®¹é‡æ˜¯æ•°ç»„é•¿åº¦. 
+                         * è€Œä¸”bufferé‡Œçš„æ•°æ®å’Œæ•°ç»„é‡Œçš„è”åŠ¨,ä¸€æ”¹éƒ½æ”¹*/
                         writeBuffer.put("received from client".getBytes());
                         writeBuffer.flip();
-                        socketChannel.write(writeBuffer);//buffer -->channel. °ÑÊı¾İĞ´µ½Í¨µÀÀïÈ¥.Ö÷½Ç/Ö÷ÓïÊÇselector,Ò»¸öselectorÓĞÒ»¸öbuffer¸øËùÓĞchannel¹²Ïí.
+                        socketChannel.write(writeBuffer);//buffer -->channel. æŠŠæ•°æ®å†™åˆ°é€šé“é‡Œå».ä¸»è§’/ä¸»è¯­æ˜¯selector,ä¸€ä¸ªselectoræœ‰ä¸€ä¸ªbufferç»™æ‰€æœ‰channelå…±äº«.
                         key.interestOps(SelectionKey.OP_READ);
                     }
                 }
