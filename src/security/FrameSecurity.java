@@ -174,7 +174,7 @@ public class FrameSecurity {
      */
     private void initialize() {
         SecurityTest = new JFrame();
-        SecurityTest.setTitle("Security Test  -V01.01 by SXF");
+        SecurityTest.setTitle("WebServer Assistant  -V01.02 by SXF");
         SecurityTest.setBounds(100, 100, 399, 450);
         SecurityTest.setLocationRelativeTo(null);
         SecurityTest.setResizable(false);
@@ -651,8 +651,10 @@ public class FrameSecurity {
         btnMemo.setVisible(false);
         btnMemo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                updateTextArea("History: \n" + "V1.01: Update according to EN100 function modification.\n"
-                        + "V1.01: Initial version.\n" + "'DigPW': Initialize DIGSI connection password with "
+                updateTextArea("History: \n"
+                        + "V1.02: \"-norestart\" argument to avoid auto-restarting after FW uploading.\n"
+                        + "V1.01: Update according to EN100 function modification.\n" + "V1.00: Initial version.\n"
+                        + "'DigPW': Initialize DIGSI connection password with "
                         + "the specified string, then change the password "
                         + "cyclically with period value in 'Prid(0.1s)'. "
                         + "If the password is set already, input current "
@@ -1453,7 +1455,7 @@ public class FrameSecurity {
                 if (!server.isReachable(1000)) {
                     // 下一个IP段内所有装置的FW时，要对每个装置(server)分别ping,分别取lost的状态，所以不能用总的serverLost。之前碰到的问题是，
                     // Server lost和server is online的log乱打，因为是用serverLost判断的，每个线程都能改这个值，且影响到其它线程。
-                    if (fwSegment) {
+                    if (fwSegment || sprfSegment) {
                         if (false == lost) {
                             reverse = true; // 只有在原来能ping通，现在ping不能时才算状态反转。
                         }
@@ -1475,7 +1477,7 @@ public class FrameSecurity {
                      * if(HttpPost.t_running) { HttpPost.t.cancel(); }
                      */
                 } else {
-                    if (fwSegment) {
+                    if (fwSegment|| sprfSegment) {
                         if (lost) {
                             reverse = true;
                         }
