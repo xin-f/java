@@ -20,7 +20,7 @@ public class Cmp {
 
     static List<Unit> Left = new ArrayList<>(200);
     static List<Unit> Right = new ArrayList<>(200);
-    public int rD, rS, rL, rR;
+    public int rD, rS, rL, rR; //different,same,left,right
     /**
      * 用于比较两个文件夹里面的内容，把结果写到excel。包含：同名且内容相同的文件，同名但内容不同的文件，以及各自独有的文件。 文件名包含最后一层文件夹，
      * 即...\folder1\src.c 和...folder2\src.c 认为不是同一个文件。
@@ -45,8 +45,8 @@ public class Cmp {
             s = s.substring(s.indexOf('\\') + 1);
         }
         if (leftSrc.exists() && rightSrc.exists()) {
-            show(leftSrc, Left, currentDepthL);
-            show(rightSrc, Right, currentDepthR);
+            lookup(leftSrc, Left, currentDepthL);
+            lookup(rightSrc, Right, currentDepthR);
         }
         // Iterator<Unit> iterL = Left.iterator();
         // Iterator<Unit> iterR = Right.iterator();
@@ -70,7 +70,7 @@ public class Cmp {
             BufferedReader brL = null, brR = null;
             Row row = null;
             Cell cell = null;
-            for (Unit uL : Left) {
+            for (Unit uL : Left) {  //以左侧的某个文件为目标，遍历右侧找同名的。所以右侧一旦找到了，要及时从列表中remove（）掉。件
                 boolean uLprinted = false;
                 boolean found = false; // 在另一侧找到同名的
                 for (Unit uR : Right) {
@@ -82,34 +82,38 @@ public class Cmp {
                         while ((str = brL.readLine()) != null) {
                             if (!str.equals(brR.readLine())) {
                                 row = stD.createRow(rD++);  //注意这里的行以及单元格都不是物理上的（即在excel里直接可见的），而是必须要先create出来，然后才能用。
+                                //同名，内容不一样。匹配成功，两个文件分别打印出来。置为true，表示已经被输出。
                                 cell = row.createCell(0);
                                 cell.setCellValue(uL.path.toString());
-                                uLprinted = true;
+                                uLprinted = true;       
                                 cell = row.createCell(1);
                                 cell.setCellValue(uR.path.toString());
-                                Right.remove(uR);
+                                Right.remove(uR);   //匹配到的移走。
                                 break;
                             }
                         }
                         if (!uLprinted) {
+                            //同名，且未被打印，表示内容一样。
                             row = stS.createRow(rS++);
                             cell = row.createCell(0);
                             cell.setCellValue(uL.path.toString());
                             cell = row.createCell(1);
                             cell.setCellValue(uR.path.toString());
 
-                            Right.remove(uR);
+                            Right.remove(uR);   //匹配到的移走。
                         }
                         break;
                     }
                 }
                 if (!found) {
+                    //没找到，即只在左侧的列表存在的文件。
                     row = stL.createRow(rL++);
                     cell = row.createCell(0);
                     cell.setCellValue(uL.path.toString());
                 }
             }
             for (Unit uR : Right) {
+                //左边的列表已经找完了，右边的列表里被匹配的也已经remove了。右边的列表里剩下的就是只在右边存在的，打出来即可。
                 row = stR.createRow(rR++);
                 cell = row.createCell(0);
                 cell.setCellValue(uR.path.toString());
@@ -121,13 +125,19 @@ public class Cmp {
         }
     }
 
-    static void show(File f, List<Unit> list, int currentDepth) {
+    /**
+     * 查找所有文件，放到一个文件列表里。有多层目录时递归调用。
+     * @param f:        最初指定的包含所有待比较文件的总路径。即当作根目录。
+     * @param list:     用来容纳所有文件的列表
+     * @param currentDepth:   第一个参数f指定的路径的深度。实际查找到的文件的路径深度跟它一样，则查到的文件是根目录的，否则一层层累加，记下路径层数，最终为了记下全路径。
+     */
+    static void lookup(File f, List<Unit> list, int currentDepth) {
         File[] tmp = f.listFiles();
         for (File file : tmp) {
             Unit unit = new Unit();
             if (file.isDirectory()) {
                 unit.depth++;
-                show(file, list, currentDepth);
+                lookup(file, list, currentDepth);
             } else {
                 int currentD = 0;
                 String s = file.toString();
@@ -152,8 +162,8 @@ public class Cmp {
     }
 }
 
+//每个具体的文件为一个Unit
 class Unit {
-
     String route;
     Path path;
     String name; // 文件名包含最后一层文件目录
