@@ -30,26 +30,34 @@ public class HttpPost {
     public static volatile int suc;
     public static Timer t = null; //Make the timer be public so that the uploading process can be terminated by 'Reset' in Frame.java by t.cancel()
     public static  boolean t_running;
-//    private boolean pwExist;
-    private static String[] host_seg;
+    private static boolean isCms;
+    private static boolean noRestart;
+//    private static String[] host_seg;
     
     public  static void upldFW() {  
         HttpPost httpPost = new HttpPost();
-        String str = FrameSecurity.fw;
+        noRestart = false;
+        String str = FrameSecurity.fw.trim(); //如果最后有空格
+        if(str.endsWith("-norestart")) {
+            str = str.substring(0,str.indexOf("-norestart")).trim(); //如果文件名和-norestart之间有空格
+            noRestart = true;
+        }
         file = new File(str);
         int i;
         //取.pck的文件名，只保留最后一个反斜杠后的内容。
         while((i = str.indexOf("\\")) > -1){
             str= str.substring(i+1, str.length());
         }
-        fileName = str;
+        fileName = str.toLowerCase();
+        isCms = false;
+        if (fileName.endsWith(".cms")) isCms = true; //4.30支持pck
         password = FrameSecurity.mntpw;
 //        String[] host_seg = FrameSecurity.host.split("[/]");
         Common.host_seg = FrameSecurity.host.substring(0, FrameSecurity.host.length() - 7).split("[.]"); //https://172.20.1.100 或http://172.20.1.100
         if (!FrameSecurity.fwSegment) {
             t = new Timer();
             UpldFWTask task_upldFw = httpPost.new UpldFWTask(Integer.parseInt(Common.host_seg[3]));
-            t.schedule(task_upldFw, 0, 5000);
+            t.schedule(task_upldFw, 0, FrameSecurity.period*100);
         } else {
             FrameSecurity.updateTextArea("Upload FW to a cluster of servers.\n");
             if (Integer.parseInt(Common.host_seg[3]) > FrameSecurity.fwEnd)
@@ -100,7 +108,6 @@ public class HttpPost {
                 } else {
                     connection = url_upload.openConnection();
                 }
-                System.out.println(Thread.currentThread().getName() + pwExist);
 
                 String newLine = "\r\n";
                 // 头部的\r\n都是系统自己加的.
@@ -213,6 +220,20 @@ public class HttpPost {
                 // System.out.println(connection.getHeaderField(0)); //HTTP/1.0 200 OK
                 in.close();
 
+                if (isCms) {
+                    try {
+                        Thread.sleep(1000 * 100); // 硬等100秒,检查签名，等EN100忙完了再去问，不然能问死。只用于V4.33及以上，即V4.30(pck)不用等。
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                try {
+                    Thread.sleep(1000 * 100); // 再等100秒,写flash.，即下pck等100s，下cms共200s。
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                if (!noRestart) {
+
                 // 设置阻塞，每5秒查询一次页面内容，直到出现"Now restart EN100 and wait 60 seconds".
                 // 再访问ip/En100Restart2自动完成重启
                 boolean write_finish = false;
@@ -234,6 +255,8 @@ public class HttpPost {
                         }
                         BufferedReader in_after_upload = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                         String str1 = "";
+                        //readLine()并不是读取到没有数据时就返回null(其它read方法当读到没有数据时返回-1)
+                        //readLine()是一个阻塞函数，当没有数据读取时，就一直会阻塞,在数据流发生异常或者另一端被close()掉时，才会返回null值。
                         while ((str1 = in_after_upload.readLine()) != null) {
                             if (str1.indexOf("Now restart EN100 and wait 60 seconds") > -1) {
                                 FrameSecurity.updateTextArea("Write flash finished, restart..."+seg4+"\n");
@@ -270,7 +293,7 @@ public class HttpPost {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
+                }}
 
                 // 设置阻塞，ping不能装置就等5秒，直到重启完成后再让timer继续。
                 while (FrameSecurity.serverLost) {
