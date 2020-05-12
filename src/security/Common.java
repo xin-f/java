@@ -19,7 +19,7 @@ import javax.net.ssl.X509TrustManager;
 
 public class Common {
     
-    public static String boundary = "----thisisfromEn100securityteam-sunxinfeng";
+    public static String boundary = "----sunxinfeng";
     public static SSLContext sc = null;
     public String pwExistAlready = "Confirm new password:"; //静态查询是否存在密码，只用一次。动态反馈密码是否设成功用 pwSet
     public boolean pwExist;      //密码已设置
@@ -29,48 +29,6 @@ public class Common {
     public static String[] host_seg;
     public static String isOn = "value=\"1\""; //TCP, DTLS的状态
     public static String isOff = "value=\"0\"";
-
-    /*public static void checkCurrent(String link) {
-        Common.host_seg = FrameSecurity.host.split("[/]");
-        try {
-            Common.url = new URL(Common.host_seg[0]+"/"+Common.host_seg[1]+"/"+Common.host_seg[2]+link+"/setupsecureengineeringaccess");
-            Common.setConnection(Common.url);
-            String str;
-            BufferedReader in = new BufferedReader(new InputStreamReader(Common.connection.getInputStream()));
-            while ((str = in.readLine()) != null) {
-                if (str.indexOf(isOn) > -1) {
-                    if(link.equals("/setupsecureengineeringaccess")) {
-                        System.out.println("ison_dtls");
-                        FrameSecurity.rdbtnDTLSOn.setSelected(true);
-//                        FrameSecurity.rdbtnDTLSOff.setSelected(false);
-                        FrameSecurity.rdbtnDTLSOn.paintImmediately(FrameSecurity.rdbtnDTLSOn.getBounds());
-                    }
-                    if(link.equals("/setupwebmonitoraccess")) {
-                        System.out.println("ison_webmon");
-                        FrameSecurity.rdbtnTCPOn.setSelected(true);
-//                        FrameSecurity.rdbtnTcpOff.setSelected(false);
-                        FrameSecurity.rdbtnTCPOn.paintImmediately(FrameSecurity.rdbtnTCPOn.getBounds());
-                    }
-                }
-                if (str.indexOf(isOff) > -1) {
-                    if(link.equals("/setupsecureengineeringaccess")) {
-                        System.out.println("isoff_dtls");
-                        FrameSecurity.rdbtnDTLSOn.setSelected(false);
-                        FrameSecurity.rdbtnDTLSOn.paintImmediately(FrameSecurity.rdbtnDTLSOn.getBounds());
-                    }
-                    if(link.equals("/setupwebmonitoraccess")) {
-                        System.out.println("isoff_webmon");
-                        FrameSecurity.rdbtnTCPOn.setSelected(false);
-                        FrameSecurity.rdbtnTCPOn.paintImmediately(FrameSecurity.rdbtnTCPOn.getBounds());
-                    }
-                }
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
     
     public static URLConnection setConnection(URL url) {
         URLConnection connection = null;
@@ -92,62 +50,6 @@ public class Common {
         }
         return connection;
     }
-    
-/*
-    public static boolean checkPasswordExistOrNot(URL url) {
-        boolean exist = false;
-        String[] seg;
-        URLConnection conn = null;
-        try {
-            String str = null;
-            SSLContext sc;
-            if (FrameSecurity.tls) {
-                conn = Common.setHttpsConnect((HttpsURLConnection) url.openConnection());
-                sc = SSLContext.getInstance("TLS");
-                sc.init(null, new TrustManager[] { new MyTrust() }, new java.security.SecureRandom());
-                ((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
-            } else {
-                conn = Common.setHttpConnect((HttpURLConnection) url.openConnection());
-            }
-            System.out.println("Checking whether password exists in: " + url.toString() + " "+Thread.currentThread().getName());
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            
-            //必须要自定义一个inputstream的reader，不然在多线程时，所有连接的输入流都混到一个连接。
-            System.out.println("The connection in use: "+conn.toString()+" "+Thread.currentThread().getName());
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((str = in.readLine()) != null) {
-                if (str.indexOf(pwExistAlready) > -1) { // 一检测到相关字符串,就认为密码已经存在.
-                    seg = url.toString().split("[/]");
-                    if (seg[3].indexOf("connection") > -1) {
-                        FrameSecurity.updateTextArea("DIGSI conn pw exists in EN100." + seg[2] + "\n");
-                    }
-                    if (seg[3].indexOf("maintenance") > -1) {
-                        FrameSecurity.updateTextArea("Maintenance pw exists in EN100." + seg[2] + "\n");
-                    }
-                    exist = true;
-                    break;
-                }
-            }
-            if (FrameSecurity.tls) {
-                ((HttpsURLConnection) conn).disconnect(); // HttpURLConnection只能先写后读,且断开后不能复用.
-                                                          // 此处取到标志位,断开conn, 后面另起一个connection.
-            } else {
-                ((HttpURLConnection) conn).disconnect();
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            FrameSecurity.updateTextArea("IOException captured.\n ");
-            e.printStackTrace();
-            System.out.println("The conn in use: "+conn);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-        return exist;
-    }*/
 
     // 头部的\r\n都是系统自己加的.
     // Content-Type 里指明了数据是以 multipart/form-data 来编码，本次请求的 boundary
@@ -179,8 +81,7 @@ public class Common {
         c.setConnectTimeout(3000); // timeout
         c.setReadTimeout(3000);
         return c;
-    }
-  
+    }  
 }
 
 		class MyTrust implements X509TrustManager{

@@ -3,21 +3,26 @@ package security;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -30,6 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 import javax.swing.JFileChooser;
+import java.net.Socket;
 
 public class FrameSecurity {
 
@@ -106,7 +112,13 @@ public class FrameSecurity {
     public static String prfDirectory = "";
     public static String prfFile = "";
     public static String prfFileFromSelect = "";
+    public static boolean getCurrentVersion;
 
+	public static File current_version_file = null;//new File("current_version.txt");
+	public static FileWriter fileWrite_current_version_file = null; 
+	public static File password_file = null;
+	public static ConcurrentHashMap<Long, String> map_ip_pw = null;
+	
     public enum Optype {
         digsi, fw
     }
@@ -138,7 +150,8 @@ public class FrameSecurity {
                 try {
                     window = new FrameSecurity();
                     readCfg();
-                    UserAuth = UserAuthPermanant;
+                    //UserAuth = UserAuthPermanant;
+                    UserAuth = true;//烟台万华
                     if (!UserAuth) {
                         v = new Validate();
                         user = System.getProperty("user.name");
@@ -455,7 +468,7 @@ public class FrameSecurity {
                         if (period < 10) {
                             updateTextArea("To avoid timeout, set the period no less than 1s.\n");
                         } else {
-                            updateTextArea("Start to transmit firmware file to device...\n");
+                            updateTextArea("Start to transmit firmware file to device...\n");                            
                             HttpPost.upldFW();
                         }
                     } else if (fwpwRunning) {
@@ -1222,9 +1235,59 @@ public class FrameSecurity {
         if (str.endsWith("*")) {
             fw = str.substring(0, len - 1);
             debug = true;
-        } else
+            getCurrentVersion = false;
+        } else if(str.endsWith("get")) {
+        	getCurrentVersion = true;
+        	try {
+        		current_version_file = new File("current_version.txt");
+				fileWrite_current_version_file = new FileWriter(current_version_file, false);
+			} catch (IOException e) {
+				e.printStackTrace();
+			};
+        	int pos = str.indexOf(" ");
+        	fw = str.substring(0, pos);
+        } else {
             fw = str;
+            getCurrentVersion = false;
+        }
         mntpw = textField_MntPw.getText();
+        
+       	password_file = new File("password.txt");
+    	BufferedReader br;
+    	if(password_file.exists()) {
+		try {
+			br = new BufferedReader(new FileReader(password_file));
+	    	map_ip_pw = new ConcurrentHashMap<Long, String>();
+	    	String str_pw;
+	    	while((str_pw= br.readLine())!=null) {
+	    		str_pw = str_pw.trim();
+	        	int pos_tab = str_pw.indexOf("	");
+	        	int pos_space = str_pw.indexOf(" ");
+	        	int pos = 0;
+	        	if(pos_tab>-1 && pos_space>-1) {
+	        	    pos = pos_tab>pos_space?pos_space:pos_tab;
+	        	}    else if (pos_tab>-1) {
+	        		pos = pos_tab;        	
+	        	}else if (pos_space>-1){
+	        		pos=pos_space;
+	        	} else {
+	        		updateTextArea("Password file format error. should be 'IP password'(there can be only tab or space between ip and password)\n");
+	        	}
+	        	String[] ip_str = str_pw.substring(0, pos).split("[.]");
+	        	String pw = str_pw.substring(pos).trim();
+	        	long ip = Long.parseLong(ip_str[0])<<24 | Long.parseLong(ip_str[1])<<16 | Long.parseLong(ip_str[2])<<8 | Long.parseLong(ip_str[3]);
+	        	if(map_ip_pw.containsKey(ip)) {
+	        		updateTextArea("Duplicated IP in password file: "+ip+"\n");
+	        	}else {
+	        		map_ip_pw.put(ip, pw);
+	        	}
+	    	}
+	    	br.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}}
     }
 
     /**
@@ -1449,9 +1512,12 @@ public class FrameSecurity {
             String[] str = textField_ip.getText().split("[.]");
             this.ip = str[0] + "." + str[1] + "." + str[2] + "." + (Integer.parseInt(str[3]) + i);
         }
+
         public void run() {
             try {
                 InetAddress server = InetAddress.getByName(ip);
+                int port;
+                //if ((port = isHostConnectable())==0) {
                 if (!server.isReachable(1000)) {
                     // 下一个IP段内所有装置的FW时，要对每个装置(server)分别ping,分别取lost的状态，所以不能用总的serverLost。之前碰到的问题是，
                     // Server lost和server is online的log乱打，因为是用serverLost判断的，每个线程都能改这个值，且影响到其它线程。
@@ -1477,6 +1543,7 @@ public class FrameSecurity {
                      * if(HttpPost.t_running) { HttpPost.t.cancel(); }
                      */
                 } else {
+                	//map.put(ip,port);
                     if (fwSegment|| sprfSegment) {
                         if (lost) {
                             reverse = true;
@@ -1485,11 +1552,13 @@ public class FrameSecurity {
                         if (reverse) {
                             reverse = false;
                             updateTextArea("Server is online! " + ip + "\n");
+                            //map.put(ip,isHostConnectable());
                         }
                     } else {
                         if (serverLost) { // 只有在从ping不通到ping通的变化时，才会打印server is online.
                             serverLost = false;
                             updateTextArea("Server is online!! " + ip + "\n");
+                            //map.put(ip,isHostConnectable());
                         }
                     }
 
